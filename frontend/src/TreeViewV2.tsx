@@ -329,24 +329,20 @@ export default function TreeViewV2({
 
   const connectors = useMemo(() => {
     const paths: { key: string; d: string; isAtomic: boolean }[] = [];
+
+    // Group atomic children by parent to draw a single vertical line per group
+    const atomicsByParent = new Map<number, LayoutNode[]>();
+
     for (const node of nodes) {
       if (node.parentId == null) continue;
-      const parent = nodeById.get(node.parentId);
-      if (!parent) continue;
-
       if (node.isAtomicChild) {
-        // L-shaped connector: vertical line from parent center, then horizontal to child
-        const x1 = parent.x; // parent center x
-        const y1 = parent.y + parent.height; // parent bottom
-        const x2 = node.x - node.width / 2; // child left edge
-        const y2 = node.y + node.height / 2; // child vertical center
-        paths.push({
-          key: `${parent.id}-${node.id}`,
-          d: `M${x1},${y1} L${x1},${y2} L${x2},${y2}`,
-          isAtomic: true,
-        });
+        const group = atomicsByParent.get(node.parentId) || [];
+        group.push(node);
+        atomicsByParent.set(node.parentId, group);
       } else {
         // Curved connector for branch children
+        const parent = nodeById.get(node.parentId);
+        if (!parent) continue;
         const x1 = parent.x;
         const y1 = parent.y + parent.height;
         const x2 = node.x;
@@ -359,6 +355,48 @@ export default function TreeViewV2({
         });
       }
     }
+
+    // Draw ConnectedList-style connectors for atomic groups
+    const TICK_GAP = 12; // gap between vertical rail and child left edge
+    for (const [parentId, children] of atomicsByParent) {
+      if (children.length === 0) continue;
+
+      // Vertical rail runs to the left of all children
+      const leftEdge = Math.min(...children.map(c => c.x - c.width / 2));
+      const railX = leftEdge - TICK_GAP;
+
+      // Vertical line: from first child's top to last child's vertical center
+      const firstY = children[0].y;
+      const lastChild = children[children.length - 1];
+      const lastY = lastChild.y + lastChild.height / 2;
+
+      paths.push({
+        key: `atomic-rail-${parentId}`,
+        d: `M${railX},${firstY} L${railX},${lastY}`,
+        isAtomic: true,
+      });
+
+      // Horizontal tick for each child
+      for (const child of children) {
+        const cy = child.y + child.height / 2;
+        paths.push({
+          key: `${parentId}-${child.id}`,
+          d: `M${railX},${cy} L${leftEdge},${cy}`,
+          isAtomic: true,
+        });
+      }
+
+      // Connect parent bottom to rail top
+      const parent = nodeById.get(parentId);
+      if (parent) {
+        paths.push({
+          key: `atomic-stem-${parentId}`,
+          d: `M${parent.x},${parent.y + parent.height} L${railX},${firstY}`,
+          isAtomic: true,
+        });
+      }
+    }
+
     return paths;
   }, [nodes, nodeById]);
 
