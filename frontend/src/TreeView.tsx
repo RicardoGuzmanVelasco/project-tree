@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Task } from "./types";
 
-function ConnectedList({ items, renderItem }: { items: { key: number }[]; renderItem: (item: { key: number }, index: number) => ReactNode }) {
+function ConnectedList<T extends { key: number }>({ items, renderItem }: { items: T[]; renderItem: (item: T, index: number) => ReactNode }) {
   return (
     <div>
       {items.map((item, i) => {
@@ -89,40 +89,43 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
       </div>
 
       {task.children.length > 0 && areAllChildrenLeaves(task) && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 8, paddingLeft: 12 }}>
-          {task.children.map((child) => {
-            const isChildSelected = child.id === selectedTaskId;
-            const isChildInvalid = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, child.id);
-            const isChildValid = isRelocating && !isChildInvalid;
-            return (
-              <div
-                key={child.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "3px 8px",
-                  borderRadius: 4,
-                  background: isChildValid ? "#dcfce7" : isChildSelected ? "#dbeafe" : "transparent",
-                  cursor: isChildInvalid ? "not-allowed" : isChildValid ? "copy" : "pointer",
-                  fontSize: 13,
-                  opacity: child.completed ? 0.5 : isChildInvalid ? 0.3 : 1,
-                }}
-                onClick={() => { if (!isChildInvalid) onSelectTask(child.id); }}
-              >
-                <input
-                  type="checkbox"
-                  checked={child.completed}
-                  onChange={() => onToggleCompleted(child.id, !child.completed)}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ cursor: "pointer" }}
-                />
-                <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
-                  {child.title}
-                </span>
-              </div>
-            );
-          })}
+        <div style={{ marginTop: 6 }}>
+          <ConnectedList
+            items={task.children.map(c => ({ key: c.id, task: c }))}
+            renderItem={(item) => {
+              const child = item.task;
+              const isChildSelected = child.id === selectedTaskId;
+              const isChildInvalid = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, child.id);
+              const isChildValid = isRelocating && !isChildInvalid;
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "3px 8px",
+                    borderRadius: 4,
+                    background: isChildValid ? "#dcfce7" : isChildSelected ? "#dbeafe" : "transparent",
+                    cursor: isChildInvalid ? "not-allowed" : isChildValid ? "copy" : "pointer",
+                    fontSize: 13,
+                    opacity: child.completed ? 0.5 : isChildInvalid ? 0.3 : 1,
+                  }}
+                  onClick={() => { if (!isChildInvalid) onSelectTask(child.id); }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={child.completed}
+                    onChange={() => onToggleCompleted(child.id, !child.completed)}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
+                    {child.title}
+                  </span>
+                </div>
+              );
+            }}
+          />
         </div>
       )}
 

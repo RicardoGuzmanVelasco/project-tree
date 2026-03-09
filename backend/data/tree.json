@@ -341,18 +341,18 @@
         },
         {
           "id": 66,
-          "title": "Visual connectors in steps",
+          "title": "Conectores visuales en steps",
           "completed": false,
           "children": [
             {
               "id": 67,
-              "title": "Extract ConnectedList component",
+              "title": "Extraer componente ConnectedList",
               "completed": false,
               "children": []
             },
             {
               "id": 68,
-              "title": "Refactor steps to use ConnectedList",
+              "title": "Refactorizar steps para usar ConnectedList",
               "completed": false,
               "children": []
             }
@@ -360,18 +360,18 @@
         },
         {
           "id": 69,
-          "title": "Atomic task grouping",
+          "title": "Agrupación de atómicas",
           "completed": false,
           "children": [
             {
               "id": 70,
-              "title": "Split children into branches and atomics",
+              "title": "Separar hijos en branches y atómicas",
               "completed": false,
               "children": []
             },
             {
               "id": 71,
-              "title": "Render atomics with ConnectedList and border",
+              "title": "Renderizar atómicas con ConnectedList y recuadro",
               "completed": false,
               "children": []
             }
@@ -395,14 +395,7 @@
     {
       "id": 7,
       "title": "Plans",
-      "children": [
-        {
-          "id": 40,
-          "title": "Test task",
-          "children": [],
-          "completed": false
-        }
-      ],
+      "children": [],
       "completed": false
     },
     {
@@ -439,6 +432,12 @@
           "title": "Toggle ID visibility (user decides when to see IDs)",
           "completed": false,
           "children": []
+        },
+        {
+          "id": 40,
+          "title": "Test task",
+          "children": [],
+          "completed": false
         }
       ]
     }
