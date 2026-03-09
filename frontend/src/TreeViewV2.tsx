@@ -202,6 +202,15 @@ function findTask(node: Task, id: number): Task | null {
   return null;
 }
 
+function findParentTask(root: Task, targetId: number): Task | null {
+  for (const child of root.children) {
+    if (child.id === targetId) return root;
+    const found = findParentTask(child, targetId);
+    if (found) return found;
+  }
+  return null;
+}
+
 function getPathToTask(root: Task, targetId: number): Task[] {
   if (root.id === targetId) return [root];
   for (const child of root.children) {
@@ -376,7 +385,7 @@ export default function TreeViewV2({
     return () => container.removeEventListener("wheel", handleWheel);
   }, []);
 
-  // Keyboard shortcuts: F = fit-to-view, Escape = exit focus
+  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
@@ -384,13 +393,76 @@ export default function TreeViewV2({
 
       if (e.key === "f" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         fitToView();
-      } else if (e.key === "Escape" && focusedTaskId !== null) {
-        setFocusedTaskId(null);
+        return;
+      }
+
+      if (e.key === "Escape") {
+        if (focusedTaskId !== null) {
+          setFocusedTaskId(null);
+        } else if (selectedTaskId !== null) {
+          onSelectTask(selectedTaskId); // deselect handled by parent
+        }
+        return;
+      }
+
+      // Zoom with +/-
+      if (e.key === "=" || e.key === "+") {
+        setTransform(t => {
+          const newScale = Math.min(MAX_ZOOM, t.scale * 1.2);
+          return { ...t, scale: newScale };
+        });
+        return;
+      }
+      if (e.key === "-") {
+        setTransform(t => {
+          const newScale = Math.max(MIN_ZOOM, t.scale * 0.8);
+          return { ...t, scale: newScale };
+        });
+        return;
+      }
+
+      // Space = toggle completion
+      if (e.key === " " && selectedTaskId !== null) {
+        e.preventDefault();
+        const selectedNode = findTask(task, selectedTaskId);
+        if (selectedNode) onToggleCompleted(selectedTaskId, !selectedNode.completed);
+        return;
+      }
+
+      // Arrow navigation
+      if (!selectedTaskId) return;
+
+      if (e.key === "ArrowLeft") {
+        // Go to parent
+        const parent = findParentTask(task, selectedTaskId);
+        if (parent) onSelectTask(parent.id);
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        // Go to first child
+        const current = findTask(task, selectedTaskId);
+        if (current && current.children.length > 0) onSelectTask(current.children[0].id);
+        return;
+      }
+
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        // Navigate siblings
+        const parent = findParentTask(task, selectedTaskId);
+        if (!parent) return;
+        const siblings = parent.children;
+        const idx = siblings.findIndex(c => c.id === selectedTaskId);
+        if (idx === -1) return;
+        const nextIdx = e.key === "ArrowUp" ? idx - 1 : idx + 1;
+        if (nextIdx >= 0 && nextIdx < siblings.length) {
+          onSelectTask(siblings[nextIdx].id);
+        }
+        return;
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [fitToView, focusedTaskId]);
+  }, [fitToView, focusedTaskId, selectedTaskId, task, onSelectTask, onToggleCompleted]);
 
   // Suppress click on nodes after drag
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
