@@ -1,0 +1,35 @@
+@startuml use-cases
+
+left to right direction
+skinparam actorStyle awesome
+
+actor "User" as user
+
+rectangle "project-tree" {
+  package "MVP" {
+    usecase "View project" as UC1
+    usecase "Create task" as UC2
+  }
+
+  package "Post-MVP" {
+    usecase "Edit task" as UC3
+    usecase "Delete task" as UC4
+  }
+}
+
+user --> UC1
+user --> UC2
+user --> UC3
+user --> UC4
+
+note right of UC1
+  See the full task tree at a glance.
+  The tree is the project.
+end note
+
+note right of UC2
+  Create a task anywhere in the tree,
+  including as a child of any existing task.
+end note
+
+@enduml
