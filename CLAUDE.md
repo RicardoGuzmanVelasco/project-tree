@@ -28,6 +28,12 @@ The MVP is the first "plan" of the project itself. Scope:
 - **Create task** — Select any task, create a child under it
 - **Complete task** — Toggle a task's completion state (independent per task, no cascading)
 - **Delete task** — Remove a task and its entire subtree, with progressive confirmation (N clicks = N descendants)
+- **Relocate task** — Move a task (with subtree) under a different parent, with visual feedback for valid/invalid targets
+- **Navigate across a pleasant tree** — SVG-based V2 view with pan/zoom, fit-to-view, expand/collapse, focus mode with breadcrumbs, keyboard navigation, minimap, and animated transitions
+
+Two view modes available (toggle with V key):
+- **Classic** — HTML-based tree with inline connectors (original)
+- **V2** — SVG-based tree with pan/zoom, collapse, focus mode, minimap
 
 No edit, no plans yet. See `docs/` for detailed use cases.
 
@@ -36,6 +42,7 @@ No edit, no plans yet. See `docs/` for detailed use cases.
 - **Monorepo**: Yarn 1.22 (classic) workspaces — `backend/` and `frontend/`
 - **Backend**: Express + TypeScript (port 3001)
 - **Frontend**: React + TypeScript + Vite (port 5173)
+- **Typography**: Inter (Google Fonts), fallback to system UI fonts
 - **No linter/formatter** — intentional, can be added later as a task in the tree
 
 ## Commands

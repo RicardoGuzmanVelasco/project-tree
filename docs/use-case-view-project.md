@@ -10,4 +10,4 @@
 | | 3. The user sees the full project structure at a glance |
 | **Postcondition** | The user has a visual representation of the entire project tree on screen |
 | **Alternative flows** | **Empty project** — If the tree has no tasks yet, the system shows only the project root with no children |
-| **Open questions** | Can the user interact with the tree from this view (e.g., click a node to create a child)? Or is creation a separate flow entirely? |
+| **Notes** | Two view modes available: Classic (HTML-based) and V2 (SVG with pan/zoom). Toggle with V key or toolbar button. Both views support selection, creation, completion, deletion, and relocation. |

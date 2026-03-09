@@ -10,19 +10,23 @@ rectangle "project-tree" {
     usecase "View project" as view
     usecase "Create task" as create
     usecase "Complete task" as complete
+    usecase "Delete task" as delete
+    usecase "Relocate task" as relocate
+    usecase "Navigate tree" as navigate
   }
 
   package "Post-MVP" {
     usecase "Edit task" as edit
-    usecase "Delete task" as delete
   }
 }
 
 user --> view
 user --> create
 user --> complete
-user --> edit
 user --> delete
+user --> relocate
+user --> navigate
+user --> edit
 
 note right of view
   See the full task tree at a glance.
@@ -32,6 +36,11 @@ end note
 note right of create
   Create a task anywhere in the tree,
   including as a child of any existing task.
+end note
+
+note right of navigate
+  Pan, zoom, collapse/expand, focus on
+  subtrees, keyboard navigation, minimap.
 end note
 
 @enduml
