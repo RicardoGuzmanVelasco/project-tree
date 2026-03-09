@@ -626,7 +626,7 @@ export default function TreeViewV2({
       <svg
         width="100%"
         height="100%"
-        style={{ display: "block" }}
+        style={{ display: "block", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
         onClickCapture={handleSvgClick}
       >
         <g
