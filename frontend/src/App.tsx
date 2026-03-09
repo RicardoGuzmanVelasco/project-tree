@@ -6,6 +6,7 @@ import TreeView from "./TreeView";
 export default function App() {
   const [tree, setTree] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTree()
@@ -16,5 +17,11 @@ export default function App() {
   if (error) return <p>{error}</p>;
   if (!tree) return <p>Loading...</p>;
 
-  return <TreeView task={tree} />;
+  return (
+    <TreeView
+      task={tree}
+      selectedTaskId={selectedTaskId}
+      onSelectTask={setSelectedTaskId}
+    />
+  );
 }

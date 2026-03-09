@@ -1,16 +1,26 @@
 import { Task } from "./types";
 
-function TaskNode({ task }: { task: Task }) {
+interface TaskNodeProps {
+  task: Task;
+  selectedTaskId: number | null;
+  onSelectTask: (id: number) => void;
+}
+
+function TaskNode({ task, selectedTaskId, onSelectTask }: TaskNodeProps) {
+  const isSelected = task.id === selectedTaskId;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div
+        onClick={() => onSelectTask(task.id)}
         style={{
           padding: "6px 14px",
-          border: "2px solid #555",
+          border: `2px solid ${isSelected ? "#2563eb" : "#555"}`,
           borderRadius: 6,
-          background: "#fff",
+          background: isSelected ? "#dbeafe" : "#fff",
           fontSize: 14,
           whiteSpace: "nowrap",
+          cursor: "pointer",
         }}
       >
         {task.title}
@@ -42,7 +52,11 @@ function TaskNode({ task }: { task: Task }) {
                 }}
               >
                 <div style={{ width: 2, height: 20, background: "#555" }} />
-                <TaskNode task={child} />
+                <TaskNode
+                  task={child}
+                  selectedTaskId={selectedTaskId}
+                  onSelectTask={onSelectTask}
+                />
               </div>
             ))}
           </div>
@@ -52,10 +66,16 @@ function TaskNode({ task }: { task: Task }) {
   );
 }
 
-export default function TreeView({ task }: { task: Task }) {
+interface TreeViewProps {
+  task: Task;
+  selectedTaskId: number | null;
+  onSelectTask: (id: number) => void;
+}
+
+export default function TreeView({ task, selectedTaskId, onSelectTask }: TreeViewProps) {
   return (
     <div style={{ padding: 40, overflowX: "auto" }}>
-      <TaskNode task={task} />
+      <TaskNode task={task} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />
     </div>
   );
 }
