@@ -305,7 +305,7 @@
         {
           "id": 57,
           "title": "Relocate task",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 58,
@@ -335,6 +335,44 @@
               "id": 62,
               "title": "Tree re-renders after relocation",
               "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 66,
+          "title": "Visual connectors in steps",
+          "completed": false,
+          "children": [
+            {
+              "id": 67,
+              "title": "Extract ConnectedList component",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 68,
+              "title": "Refactor steps to use ConnectedList",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "title": "Atomic task grouping",
+          "completed": false,
+          "children": [
+            {
+              "id": 70,
+              "title": "Split children into branches and atomics",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 71,
+              "title": "Render atomics with ConnectedList and border",
+              "completed": false,
               "children": []
             }
           ]

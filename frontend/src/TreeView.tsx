@@ -1,4 +1,30 @@
+import { ReactNode } from "react";
 import { Task } from "./types";
+
+function ConnectedList({ items, renderItem }: { items: { key: number }[]; renderItem: (item: { key: number }, index: number) => ReactNode }) {
+  return (
+    <div>
+      {items.map((item, i) => {
+        const isLast = i === items.length - 1;
+        return (
+          <div key={item.key} style={{ display: "flex", position: "relative", paddingLeft: 14 }}>
+            <div style={{
+              position: "absolute", left: 0, top: 0,
+              bottom: isLast ? "50%" : 0,
+              width: 2, background: "#555",
+            }} />
+            <div style={{
+              position: "absolute", left: 0, top: "50%",
+              width: 14, height: 2, background: "#555",
+              marginTop: -1,
+            }} />
+            {renderItem(item, i)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function areAllChildrenLeaves(task: Task): boolean {
   return task.children.length > 0 && task.children.every(c => c.children.length === 0);
