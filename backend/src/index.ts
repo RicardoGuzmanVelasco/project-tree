@@ -11,7 +11,15 @@ const TREE_PATH = path.join(__dirname, "..", "data", "tree.json");
 app.use(cors());
 app.use(express.json());
 
-let tree: Task = JSON.parse(fs.readFileSync(TREE_PATH, "utf-8"));
+function ensureCompleted(node: Task): Task {
+  return {
+    ...node,
+    completed: node.completed ?? false,
+    children: node.children.map(ensureCompleted),
+  };
+}
+
+let tree: Task = ensureCompleted(JSON.parse(fs.readFileSync(TREE_PATH, "utf-8")));
 
 function findTask(node: Task, id: number): Task | null {
   if (node.id === id) return node;
@@ -51,6 +59,7 @@ app.post("/tasks", (req, res) => {
   const newTask: Task = {
     id: maxId(tree) + 1,
     title: title.trim(),
+    completed: false,
     children: [],
   };
 
@@ -58,6 +67,27 @@ app.post("/tasks", (req, res) => {
   saveTree();
 
   res.status(201).json(newTask);
+});
+
+app.patch("/tasks/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const { completed } = req.body;
+
+  if (typeof completed !== "boolean") {
+    res.status(400).json({ error: "completed (boolean) is required" });
+    return;
+  }
+
+  const task = findTask(tree, id);
+  if (!task) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  task.completed = completed;
+  saveTree();
+
+  res.json(task);
 });
 
 app.listen(PORT, () => {
