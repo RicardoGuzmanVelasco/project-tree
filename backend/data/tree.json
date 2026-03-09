@@ -26,7 +26,8 @@
                 { "id": 17, "title": "Create in-memory tree with hardcoded sample data", "children": [] },
                 { "id": 18, "title": "Expose GET /tasks returning the tree as JSON", "children": [] },
                 { "id": 19, "title": "Load tree from JSON file on start", "children": [] },
-                { "id": 20, "title": "Seed JSON file with sample data", "children": [] }
+                { "id": 20, "title": "Seed JSON file with sample data", "children": [] },
+                { "id": 37, "title": "Replace recursive JSON response with flat model + DB", "children": [] }
               ]
             },
             {
