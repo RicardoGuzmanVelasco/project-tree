@@ -129,45 +129,93 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         </div>
       )}
 
-      {task.children.length > 0 && !areAllChildrenLeaves(task) && (
-        <>
-          <div style={{ width: 2, height: 20, background: "#555" }} />
-          <div style={{ display: "flex", gap: 24, position: "relative" }}>
-            {task.children.length > 1 && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: "calc(50% - 50%)",
-                  width: "100%",
-                  height: 2,
-                  background: "#555",
-                }}
-              />
-            )}
-            {task.children.map((child) => (
-              <div
-                key={child.id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ width: 2, height: 20, background: "#555" }} />
-                <TaskNode
-                  task={child}
-                  selectedTaskId={selectedTaskId}
-                  onSelectTask={onSelectTask}
-                  onToggleCompleted={onToggleCompleted}
-                  relocatingTaskId={relocatingTaskId}
-                  relocatingSubtree={relocatingSubtree}
+      {task.children.length > 0 && !areAllChildrenLeaves(task) && (() => {
+        const branches = task.children.filter(c => c.children.length > 0);
+        const atomics = task.children.filter(c => c.children.length === 0);
+        const allColumns = branches.length + (atomics.length > 0 ? 1 : 0);
+        return (
+          <>
+            <div style={{ width: 2, height: 20, background: "#555" }} />
+            <div style={{ display: "flex", gap: 24, position: "relative" }}>
+              {allColumns > 1 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: "calc(50% - 50%)",
+                    width: "100%",
+                    height: 2,
+                    background: "#555",
+                  }}
                 />
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+              )}
+              {branches.map((child) => (
+                <div
+                  key={child.id}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ width: 2, height: 20, background: "#555" }} />
+                  <TaskNode
+                    task={child}
+                    selectedTaskId={selectedTaskId}
+                    onSelectTask={onSelectTask}
+                    onToggleCompleted={onToggleCompleted}
+                    relocatingTaskId={relocatingTaskId}
+                    relocatingSubtree={relocatingSubtree}
+                  />
+                </div>
+              ))}
+              {atomics.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <div style={{ width: 2, height: 20, background: "#555" }} />
+                  <ConnectedList
+                    items={atomics.map(c => ({ key: c.id, task: c }))}
+                    renderItem={(item) => {
+                      const child = item.task;
+                      const isChildSelected = child.id === selectedTaskId;
+                      const isChildInvalid = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, child.id);
+                      const isChildValid = isRelocating && !isChildInvalid;
+                      return (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "6px 14px",
+                            border: `2px solid ${isChildValid ? "#16a34a" : isChildSelected ? "#2563eb" : "#555"}`,
+                            borderRadius: 6,
+                            background: isChildValid ? "#dcfce7" : isChildSelected ? "#dbeafe" : "#fff",
+                            cursor: isChildInvalid ? "not-allowed" : isChildValid ? "copy" : "pointer",
+                            fontSize: 14,
+                            whiteSpace: "nowrap",
+                            opacity: child.completed ? 0.5 : isChildInvalid ? 0.3 : 1,
+                          }}
+                          onClick={() => { if (!isChildInvalid) onSelectTask(child.id); }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={child.completed}
+                            onChange={() => onToggleCompleted(child.id, !child.completed)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ cursor: "pointer" }}
+                          />
+                          <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
+                            {child.title}
+                          </span>
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
