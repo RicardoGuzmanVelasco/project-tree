@@ -10,6 +10,8 @@ interface TreeViewV2Props {
   relocatingTaskId: number | null;
 }
 
+const DEPTH_FONT_SIZES = [15, 14, 13];
+
 function SvgNode({
   node,
   isSelected,
@@ -21,12 +23,27 @@ function SvgNode({
   onSelect: () => void;
   onToggleCompleted: () => void;
 }) {
-  const { x, y, width, height, task } = node;
+  const { x, y, width, height, depth, task } = node;
   const rx = x - width / 2;
   const ry = y;
+  const fontSize = DEPTH_FONT_SIZES[Math.min(depth, DEPTH_FONT_SIZES.length - 1)];
 
   return (
-    <g onClick={onSelect} style={{ cursor: "pointer" }}>
+    <g
+      onClick={onSelect}
+      style={{ cursor: "pointer" }}
+    >
+      {/* Shadow */}
+      <rect
+        x={rx + 1}
+        y={ry + 2}
+        width={width}
+        height={height}
+        rx={6}
+        ry={6}
+        fill="rgba(0,0,0,0.06)"
+      />
+      {/* Node background */}
       <rect
         x={rx}
         y={ry}
@@ -35,10 +52,11 @@ function SvgNode({
         rx={6}
         ry={6}
         fill={isSelected ? "#dbeafe" : "#fff"}
-        stroke={isSelected ? "#3b82f6" : "#cbd5e1"}
+        stroke={isSelected ? "#3b82f6" : "#e2e8f0"}
         strokeWidth={isSelected ? 2 : 1}
         opacity={task.completed ? 0.5 : 1}
       />
+      {/* Completion circle */}
       <circle
         cx={rx + 16}
         cy={ry + height / 2}
@@ -59,11 +77,12 @@ function SvgNode({
           style={{ cursor: "pointer" }}
         />
       )}
+      {/* Title */}
       <text
         x={rx + 28}
         y={ry + height / 2}
         dominantBaseline="central"
-        fontSize={14}
+        fontSize={fontSize}
         fill="#1e293b"
         textDecoration={task.completed ? "line-through" : "none"}
         opacity={task.completed ? 0.5 : 1}
