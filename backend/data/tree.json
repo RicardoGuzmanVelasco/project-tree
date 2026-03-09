@@ -341,18 +341,18 @@
         },
         {
           "id": 66,
-          "title": "Conectores visuales en steps",
+          "title": "Visual connectors in steps",
           "completed": true,
           "children": [
             {
               "id": 67,
-              "title": "Extraer componente ConnectedList",
+              "title": "Extract ConnectedList component",
               "completed": true,
               "children": []
             },
             {
               "id": 68,
-              "title": "Refactorizar steps para usar ConnectedList",
+              "title": "Refactor steps to use ConnectedList",
               "completed": true,
               "children": []
             }
@@ -360,18 +360,18 @@
         },
         {
           "id": 69,
-          "title": "Agrupación de atómicas",
+          "title": "Atomic task grouping",
           "completed": true,
           "children": [
             {
               "id": 70,
-              "title": "Separar hijos en branches y atómicas",
+              "title": "Separate children into branches and atomics",
               "completed": true,
               "children": []
             },
             {
               "id": 71,
-              "title": "Renderizar atómicas con ConnectedList y recuadro",
+              "title": "Render atomics with ConnectedList and bordered box",
               "completed": true,
               "children": []
             }
@@ -533,62 +533,6 @@
           "title": "Toggle ID visibility (user decides when to see IDs)",
           "completed": false,
           "children": []
-        },
-        {
-          "id": 88,
-          "title": "test",
-          "completed": false,
-          "children": [
-            {
-              "id": 89,
-              "title": "testt",
-              "completed": false,
-              "children": []
-            },
-            {
-              "id": 90,
-              "title": "testtttttt",
-              "completed": false,
-              "children": []
-            },
-            {
-              "id": 91,
-              "title": "testestse",
-              "completed": false,
-              "children": [
-                {
-                  "id": 93,
-                  "title": "testest",
-                  "completed": false,
-                  "children": []
-                },
-                {
-                  "id": 94,
-                  "title": "testeste",
-                  "completed": false,
-                  "children": []
-                },
-                {
-                  "id": 95,
-                  "title": "testet",
-                  "completed": false,
-                  "children": []
-                },
-                {
-                  "id": 96,
-                  "title": "test",
-                  "completed": false,
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": 92,
-              "title": "test",
-              "completed": false,
-              "children": []
-            }
-          ]
         }
       ]
     }
