@@ -119,6 +119,7 @@ export default function TreeViewV2({
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const didDrag = useRef(false);
+  const [animateTransform, setAnimateTransform] = useState(false);
 
   // Fit to view on initial render and tree changes
   const fitToView = useCallback(() => {
@@ -145,11 +146,13 @@ export default function TreeViewV2({
     const treeCenterX = (minX + maxX) / 2;
     const treeCenterY = (minY + maxY) / 2;
 
+    setAnimateTransform(true);
     setTransform({
       x: cw / 2 - treeCenterX * scale,
       y: ch / 2 - treeCenterY * scale,
       scale,
     });
+    setTimeout(() => setAnimateTransform(false), 300);
   }, [nodes]);
 
   useEffect(() => { fitToView(); }, [fitToView]);
@@ -203,6 +206,19 @@ export default function TreeViewV2({
     return () => container.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // F key shortcut for fit-to-view
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "f" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const tag = (e.target as HTMLElement).tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        fitToView();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [fitToView]);
+
   // Suppress click on nodes after drag
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
     if (didDrag.current) {
@@ -231,7 +247,10 @@ export default function TreeViewV2({
         style={{ display: "block" }}
         onClickCapture={handleSvgClick}
       >
-        <g transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}>
+        <g
+          transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}
+          style={{ transition: animateTransform ? "transform 300ms ease-out" : "none" }}
+        >
           {connectors.map((c) => (
             <path
               key={c.key}
