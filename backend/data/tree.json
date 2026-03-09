@@ -68,6 +68,12 @@
                   "title": "Replace recursive JSON response with flat model + DB",
                   "children": [],
                   "completed": false
+                },
+                {
+                  "id": 97,
+                  "title": "Reload tree from disk on each request (avoid stale in-memory state)",
+                  "completed": false,
+                  "children": []
                 }
               ],
               "completed": true
