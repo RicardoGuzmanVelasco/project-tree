@@ -9,6 +9,7 @@ export interface LayoutNode {
   depth: number;
   parentId: number | null;
   task: Task;
+  descendantCount: number;
 }
 
 const NODE_HEIGHT = 36;
@@ -17,6 +18,12 @@ const CHAR_WIDTH = 8;
 const MIN_NODE_WIDTH = 60;
 const H_GAP = 20;
 const V_GAP = 60;
+
+function countDescendants(task: Task): number {
+  let count = task.children.length;
+  for (const child of task.children) count += countDescendants(child);
+  return count;
+}
 
 function nodeWidth(title: string): number {
   return Math.max(MIN_NODE_WIDTH, title.length * CHAR_WIDTH + NODE_PADDING_X * 2);
@@ -32,10 +39,12 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   const isCollapsed = collapsedIds?.has(task.id);
   const visibleChildren = (!isCollapsed && task.children.length > 0) ? task.children : [];
 
+  const dc = countDescendants(task);
+
   if (visibleChildren.length === 0) {
     return {
       width: w,
-      nodes: [{ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task }],
+      nodes: [{ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc }],
     };
   }
 
@@ -68,7 +77,7 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   }
 
   // Root of this subtree at (0, 0)
-  allNodes.unshift({ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task });
+  allNodes.unshift({ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc });
 
   return { width: subtreeWidth, nodes: allNodes };
 }

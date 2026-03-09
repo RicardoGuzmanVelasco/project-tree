@@ -20,12 +20,16 @@ function SvgNode({
   onSelect,
   onToggleCompleted,
   relocateStatus,
+  isCollapsed,
+  onToggleCollapse,
 }: {
   node: LayoutNode;
   isSelected: boolean;
   onSelect: () => void;
   onToggleCompleted: () => void;
   relocateStatus: RelocateStatus;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }) {
   const { x, y, width, height, depth, task } = node;
   const rx = x - width / 2;
@@ -124,6 +128,55 @@ function SvgNode({
       >
         {task.title}
       </text>
+      {/* Collapse/expand chevron for nodes with children */}
+      {task.children.length > 0 && (
+        <g
+          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+          style={{ cursor: "pointer" }}
+        >
+          <circle
+            cx={rx + width - 14}
+            cy={ry + height / 2}
+            r={8}
+            fill="transparent"
+          />
+          <text
+            x={rx + width - 14}
+            y={ry + height / 2}
+            dominantBaseline="central"
+            textAnchor="middle"
+            fontSize={10}
+            fill="#64748b"
+          >
+            {isCollapsed ? "+" : "-"}
+          </text>
+        </g>
+      )}
+      {/* Descendant count badge when collapsed */}
+      {isCollapsed && node.descendantCount > 0 && (
+        <>
+          <rect
+            x={rx + width + 4}
+            y={ry + height / 2 - 9}
+            width={30}
+            height={18}
+            rx={9}
+            fill="#f1f5f9"
+            stroke="#cbd5e1"
+            strokeWidth={0.5}
+          />
+          <text
+            x={rx + width + 19}
+            y={ry + height / 2}
+            dominantBaseline="central"
+            textAnchor="middle"
+            fontSize={10}
+            fill="#64748b"
+          >
+            +{node.descendantCount}
+          </text>
+        </>
+      )}
     </g>
   );
 }
@@ -152,7 +205,18 @@ export default function TreeViewV2({
   onToggleCompleted,
   relocatingTaskId,
 }: TreeViewV2Props) {
-  const nodes = useMemo(() => layoutTree(task), [task]);
+  const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
+
+  const toggleCollapse = useCallback((id: number) => {
+    setCollapsedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const nodes = useMemo(() => layoutTree(task, collapsedIds), [task, collapsedIds]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const nodeById = useMemo(() => {
@@ -349,6 +413,8 @@ export default function TreeViewV2({
                 onSelect={() => onSelectTask(node.id)}
                 onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
                 relocateStatus={relocateStatus}
+                isCollapsed={collapsedIds.has(node.id)}
+                onToggleCollapse={() => toggleCollapse(node.id)}
               />
             );
           })}
