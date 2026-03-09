@@ -14,6 +14,15 @@ export async function toggleTaskCompletion(id: number, completed: boolean) {
   return response.json();
 }
 
+export async function relocateTask(id: number, newParentId: number) {
+  const response = await fetch(`${API_BASE}/tasks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ parentId: newParentId }),
+  });
+  return response.json();
+}
+
 export async function createTask(parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/tasks`, {
     method: "POST",
