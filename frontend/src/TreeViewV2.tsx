@@ -84,6 +84,34 @@ export default function TreeViewV2({
 }: TreeViewV2Props) {
   const nodes = useMemo(() => layoutTree(task), [task]);
 
+  // Build connectors (parent bottom-center → child top-center)
+  const nodeById = useMemo(() => {
+    const map = new Map<number, LayoutNode>();
+    for (const n of nodes) map.set(n.id, n);
+    return map;
+  }, [nodes]);
+
+  const connectors = useMemo(() => {
+    const paths: { key: string; d: string }[] = [];
+    for (const node of nodes) {
+      if (node.parentId == null) continue;
+      const parent = nodeById.get(node.parentId);
+      if (!parent) continue;
+
+      const x1 = parent.x;
+      const y1 = parent.y + parent.height;
+      const x2 = node.x;
+      const y2 = node.y;
+      const midY = (y1 + y2) / 2;
+
+      paths.push({
+        key: `${parent.id}-${node.id}`,
+        d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
+      });
+    }
+    return paths;
+  }, [nodes, nodeById]);
+
   // Compute SVG viewBox from layout bounds
   const padding = 40;
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -110,6 +138,15 @@ export default function TreeViewV2({
         viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
         style={{ display: "block" }}
       >
+        {connectors.map((c) => (
+          <path
+            key={c.key}
+            d={c.d}
+            fill="none"
+            stroke="#cbd5e1"
+            strokeWidth={1.5}
+          />
+        ))}
         {nodes.map((node) => (
           <SvgNode
             key={node.id}
