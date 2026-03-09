@@ -1,5 +1,9 @@
 import { Task } from "./types";
 
+function areAllChildrenLeaves(task: Task): boolean {
+  return task.children.length > 0 && task.children.every(c => c.children.length === 0);
+}
+
 interface TaskNodeProps {
   task: Task;
   selectedTaskId: number | null;
@@ -40,7 +44,43 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted }: Tas
         </span>
       </div>
 
-      {task.children.length > 0 && (
+      {task.children.length > 0 && areAllChildrenLeaves(task) && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 8, paddingLeft: 12 }}>
+          {task.children.map((child) => {
+            const isChildSelected = child.id === selectedTaskId;
+            return (
+              <div
+                key={child.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "3px 8px",
+                  borderRadius: 4,
+                  background: isChildSelected ? "#dbeafe" : "transparent",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  opacity: child.completed ? 0.5 : 1,
+                }}
+                onClick={() => onSelectTask(child.id)}
+              >
+                <input
+                  type="checkbox"
+                  checked={child.completed}
+                  onChange={() => onToggleCompleted(child.id, !child.completed)}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ cursor: "pointer" }}
+                />
+                <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
+                  {child.title}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {task.children.length > 0 && !areAllChildrenLeaves(task) && (
         <>
           <div style={{ width: 2, height: 20, background: "#555" }} />
           <div style={{ display: "flex", gap: 24, position: "relative" }}>
