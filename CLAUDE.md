@@ -52,6 +52,7 @@ yarn workspace frontend build       # Type-check + bundle frontend
 - Conventional Commits: `feat:`, `fix:`, `docs:`, `build:`, `test:`, `refactor:`, etc.
 - Avoid "add" as the first verb in commit messages — prefer more descriptive verbs.
 - Keep commits atomic and concise.
+- **Each step/task in a plan gets at least one commit** — a task may have multiple commits if atomically justified, but never batch multiple tasks into one commit.
 - Always compile/build before pushing.
 - Never push without asking first.
 - Speak in product terms (tasks, not nodes). Code is implementation detail.
