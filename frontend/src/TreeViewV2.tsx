@@ -436,7 +436,7 @@ export default function TreeViewV2({
       const cursorX = e.clientX - rect.left;
       const cursorY = e.clientY - rect.top;
 
-      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      const factor = e.deltaY < 0 ? 1.03 : 0.97;
       const newScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, t.scale * factor));
       const ratio = newScale / t.scale;
 
