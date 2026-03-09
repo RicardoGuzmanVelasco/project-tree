@@ -17,14 +17,17 @@
                 {
                   "id": 14,
                   "title": "Create API client function",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 15,
                   "title": "Call on app mount",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 9,
@@ -33,34 +36,41 @@
                 {
                   "id": 16,
                   "title": "Define Task type (id, title, children)",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 17,
                   "title": "Create in-memory tree with hardcoded sample data",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 18,
                   "title": "Expose GET /tasks returning the tree as JSON",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 19,
                   "title": "Load tree from JSON file on start",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 20,
                   "title": "Seed JSON file with sample data",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 37,
                   "title": "Replace recursive JSON response with flat model + DB",
-                  "children": []
+                  "children": [],
+                  "completed": false
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 10,
@@ -69,26 +79,32 @@
                 {
                   "id": 21,
                   "title": "Choose rendering approach (Canvas, SVG, HTML)",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 22,
                   "title": "Render nodes with title",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 23,
                   "title": "Render parent-child edges",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 24,
                   "title": "Render project root as tree origin",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             }
-          ]
+          ],
+          "completed": true
         },
         {
           "id": 4,
@@ -101,14 +117,17 @@
                 {
                   "id": 25,
                   "title": "Make nodes clickable/selectable",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 26,
                   "title": "Highlight selected task",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 12,
@@ -117,14 +136,17 @@
                 {
                   "id": 27,
                   "title": "Show text input tied to selected task",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 38,
                   "title": "Send creation request to backend",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 13,
@@ -133,29 +155,35 @@
                 {
                   "id": 28,
                   "title": "Expose POST /tasks with parentId and title",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 29,
                   "title": "Validate request (parent exists, title not empty)",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 30,
                   "title": "Assign auto-incremental ID",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 31,
                   "title": "Insert as child in the in-memory tree",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 32,
                   "title": "Persist updated tree to JSON file",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 33,
@@ -164,11 +192,14 @@
                 {
                   "id": 39,
                   "title": "Re-fetch tree after creation",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             }
-          ]
+          ],
+          "completed": true
         },
         {
           "id": 42,
@@ -181,14 +212,17 @@
                 {
                   "id": 46,
                   "title": "Show completion control on selected task",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 47,
                   "title": "Allow toggling back (uncomplete)",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 44,
@@ -197,29 +231,35 @@
                 {
                   "id": 48,
                   "title": "Extend Task type with completed field",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 49,
                   "title": "Expose PATCH /tasks/:id with completed flag",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 50,
                   "title": "Validate task exists",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 51,
                   "title": "Update task in the in-memory tree",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 52,
                   "title": "Persist updated tree to JSON file",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             },
             {
               "id": 45,
@@ -228,33 +268,41 @@
                 {
                   "id": 53,
                   "title": "Visually distinguish completed tasks",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 },
                 {
                   "id": 54,
                   "title": "Re-fetch tree after toggling",
-                  "children": []
+                  "children": [],
+                  "completed": true
                 }
-              ]
+              ],
+              "completed": true
             }
-          ]
+          ],
+          "completed": true
         },
         {
           "id": 41,
           "title": "Visibility steps as list",
-          "children": []
+          "children": [],
+          "completed": false
         }
-      ]
+      ],
+      "completed": false
     },
     {
       "id": 5,
       "title": "Edit task",
-      "children": []
+      "children": [],
+      "completed": false
     },
     {
       "id": 6,
       "title": "Delete task",
-      "children": []
+      "children": [],
+      "completed": false
     },
     {
       "id": 7,
@@ -263,24 +311,30 @@
         {
           "id": 40,
           "title": "Test task",
-          "children": []
+          "children": [],
+          "completed": false
         }
-      ]
+      ],
+      "completed": false
     },
     {
       "id": 34,
       "title": "Event sourcing",
-      "children": []
+      "children": [],
+      "completed": false
     },
     {
       "id": 35,
       "title": "Collapse/expand branches",
-      "children": []
+      "children": [],
+      "completed": false
     },
     {
       "id": 36,
       "title": "Serve frontend from backend (remove CORS)",
-      "children": []
+      "children": [],
+      "completed": false
     }
-  ]
+  ],
+  "completed": false
 }
