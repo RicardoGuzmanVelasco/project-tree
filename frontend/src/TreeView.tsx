@@ -24,6 +24,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted }: Tas
           fontSize: 14,
           whiteSpace: "nowrap",
           cursor: "pointer",
+          opacity: task.completed ? 0.5 : 1,
         }}
         onClick={() => onSelectTask(task.id)}
       >
@@ -34,7 +35,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted }: Tas
           onClick={(e) => e.stopPropagation()}
           style={{ cursor: "pointer" }}
         />
-        {task.title}
+        <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
+          {task.title}
+        </span>
       </div>
 
       {task.children.length > 0 && (
