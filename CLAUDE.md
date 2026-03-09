@@ -55,6 +55,31 @@ yarn workspace frontend build       # Type-check + bundle frontend
 - Never push without asking first.
 - Speak in product terms (tasks, not nodes). Code is implementation detail.
 
+## How to Think About the Task Tree
+
+The task tree follows use case flow, not technical categories. This is critical — getting it wrong means falling into the same traps as every other tool.
+
+### Anti-patterns to avoid
+
+- **No horizontal categories as tasks.** "Documentation", "Dev infrastructure", "Persistence" are NOT tasks. Documentation lives inside whatever task needs it. Persistence lives inside the use case step that needs it. If it cuts across the tree, it's not a node.
+- **No technical-first decomposition.** Don't start from "backend needs X, frontend needs Y". Start from the user: what happens first from their perspective? The first step of "View project" is "Frontend requests the tree", not "Server has the tree available" — because the use case starts from the user, and the backend responds to that need.
+- **No IDs on use cases or tasks.** They're verbose and a vestige of non-lean thinking. Refer to things by name.
+- **No over-atomic use cases.** A use case has an observable result of interest to the user. "Open the app" is not a use case. "View project" is.
+
+### How to decompose a use case into tasks
+
+1. Follow the **use case flow** step by step (from the user's perspective)
+2. Each step becomes a **task** (e.g., "Frontend requests the tree", "Server responds with the tree", "Frontend displays the tree")
+3. Under each step, list what's needed to **implement the minimum** (e.g., "Create in-memory tree with hardcoded data")
+4. Under the same step, list **improvements** to that step (e.g., "Load tree from JSON file on start")
+5. The minimum leaves are shippable. The improvements are increments. Both live in the same subtree.
+
+### Zoom is everything
+
+The tree goes from planets to atoms. You zoom in where you need granularity, and leave other branches coarse until you need them. A feature you're not working on might be a single leaf. A feature you're implementing right now might have 4 levels of depth. This is by design — the tree reflects where your attention is.
+
+When focusing on a subtree (e.g., "View project"), treat it as if it were the whole tree. Everything else fades to background.
+
 ## Language
 
 - Code, commits, and documentation: **English**
