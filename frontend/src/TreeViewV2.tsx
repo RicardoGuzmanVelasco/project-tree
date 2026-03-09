@@ -12,26 +12,60 @@ interface TreeViewV2Props {
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
 
+type RelocateStatus = "none" | "source" | "valid-target" | "invalid-target";
+
 function SvgNode({
   node,
   isSelected,
   onSelect,
   onToggleCompleted,
+  relocateStatus,
 }: {
   node: LayoutNode;
   isSelected: boolean;
   onSelect: () => void;
   onToggleCompleted: () => void;
+  relocateStatus: RelocateStatus;
 }) {
   const { x, y, width, height, depth, task } = node;
   const rx = x - width / 2;
   const ry = y;
   const fontSize = DEPTH_FONT_SIZES[Math.min(depth, DEPTH_FONT_SIZES.length - 1)];
 
+  const isInvalid = relocateStatus === "invalid-target";
+  const isValid = relocateStatus === "valid-target";
+  const isSource = relocateStatus === "source";
+
+  let fill = isSelected ? "#dbeafe" : "#fff";
+  let stroke = isSelected ? "#3b82f6" : "#e2e8f0";
+  let strokeWidth = isSelected ? 2 : 1;
+  let strokeDasharray: string | undefined;
+  let nodeOpacity = task.completed ? 0.5 : 1;
+  let cursor = "pointer";
+
+  if (isValid) {
+    fill = "#dcfce7";
+    stroke = "#16a34a";
+    strokeWidth = 2;
+    cursor = "copy";
+  } else if (isInvalid) {
+    nodeOpacity = 0.3;
+    cursor = "not-allowed";
+  } else if (isSource) {
+    strokeDasharray = "4 3";
+    stroke = "#3b82f6";
+    strokeWidth = 2;
+  }
+
+  const handleClick = () => {
+    if (isInvalid) return;
+    onSelect();
+  };
+
   return (
     <g
-      onClick={onSelect}
-      style={{ cursor: "pointer" }}
+      onClick={handleClick}
+      style={{ cursor }}
     >
       {/* Shadow */}
       <rect
@@ -51,10 +85,11 @@ function SvgNode({
         height={height}
         rx={6}
         ry={6}
-        fill={isSelected ? "#dbeafe" : "#fff"}
-        stroke={isSelected ? "#3b82f6" : "#e2e8f0"}
-        strokeWidth={isSelected ? 2 : 1}
-        opacity={task.completed ? 0.5 : 1}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+        opacity={nodeOpacity}
       />
       {/* Completion circle */}
       <circle
@@ -96,13 +131,29 @@ function SvgNode({
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
 
+function isDescendant(node: Task, targetId: number): boolean {
+  if (node.id === targetId) return true;
+  return node.children.some(c => isDescendant(c, targetId));
+}
+
+function findTask(node: Task, id: number): Task | null {
+  if (node.id === id) return node;
+  for (const child of node.children) {
+    const found = findTask(child, id);
+    if (found) return found;
+  }
+  return null;
+}
+
 export default function TreeViewV2({
   task,
   selectedTaskId,
   onSelectTask,
   onToggleCompleted,
+  relocatingTaskId,
 }: TreeViewV2Props) {
   const nodes = useMemo(() => layoutTree(task), [task]);
+  const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const nodeById = useMemo(() => {
     const map = new Map<number, LayoutNode>();
@@ -279,15 +330,28 @@ export default function TreeViewV2({
               strokeWidth={1.5}
             />
           ))}
-          {nodes.map((node) => (
-            <SvgNode
-              key={node.id}
-              node={node}
-              isSelected={node.id === selectedTaskId}
-              onSelect={() => onSelectTask(node.id)}
-              onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
-            />
-          ))}
+          {nodes.map((node) => {
+            let relocateStatus: RelocateStatus = "none";
+            if (relocatingTaskId) {
+              if (node.id === relocatingTaskId) {
+                relocateStatus = "source";
+              } else if (relocatingSubtree && isDescendant(relocatingSubtree, node.id)) {
+                relocateStatus = "invalid-target";
+              } else {
+                relocateStatus = "valid-target";
+              }
+            }
+            return (
+              <SvgNode
+                key={node.id}
+                node={node}
+                isSelected={node.id === selectedTaskId}
+                onSelect={() => onSelectTask(node.id)}
+                onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
+                relocateStatus={relocateStatus}
+              />
+            );
+          })}
         </g>
       </svg>
     </div>
