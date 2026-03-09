@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { fetchTree, createTask, toggleTaskCompletion, relocateTask } from "./api";
+import { fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask } from "./api";
 import { Task } from "./types";
 import TreeView from "./TreeView";
 
@@ -9,6 +9,8 @@ export default function App() {
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [relocatingTaskId, setRelocatingTaskId] = useState<number | null>(null);
+  const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+  const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
 
@@ -38,18 +40,80 @@ export default function App() {
     }
   };
 
+  const countDescendants = (task: Task): number => {
+    let count = task.children.length;
+    for (const child of task.children) {
+      count += countDescendants(child);
+    }
+    return count;
+  };
+
+  const findTaskInTree = (node: Task, id: number): Task | null => {
+    if (node.id === id) return node;
+    for (const child of node.children) {
+      const found = findTaskInTree(child, id);
+      if (found) return found;
+    }
+    return null;
+  };
+
+  const cancelDelete = useCallback(() => {
+    setDeletingTaskId(null);
+    setDeleteClicksRemaining(0);
+  }, []);
+
+  const handleDelete = async () => {
+    if (!selectedTaskId || !tree) return;
+    const task = findTaskInTree(tree, selectedTaskId);
+    if (!task) return;
+
+    if (deletingTaskId === selectedTaskId) {
+      // Already in confirmation mode
+      if (deleteClicksRemaining <= 1) {
+        await deleteTask(selectedTaskId);
+        setSelectedTaskId(null);
+        cancelDelete();
+        loadTree();
+      } else {
+        setDeleteClicksRemaining(deleteClicksRemaining - 1);
+      }
+    } else {
+      // First click
+      const descendants = countDescendants(task);
+      if (descendants === 0) {
+        await deleteTask(selectedTaskId);
+        setSelectedTaskId(null);
+        cancelDelete();
+        loadTree();
+      } else {
+        setDeletingTaskId(selectedTaskId);
+        setDeleteClicksRemaining(descendants);
+      }
+    }
+  };
+
   const cancelRelocate = useCallback(() => {
     setRelocatingTaskId(null);
   }, []);
 
+  // Cancel delete when selecting a different task
   useEffect(() => {
-    if (!relocatingTaskId) return;
+    if (deletingTaskId && selectedTaskId !== deletingTaskId) {
+      cancelDelete();
+    }
+  }, [selectedTaskId, deletingTaskId, cancelDelete]);
+
+  useEffect(() => {
+    if (!relocatingTaskId && !deletingTaskId) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") cancelRelocate();
+      if (e.key === "Escape") {
+        cancelRelocate();
+        cancelDelete();
+      }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [relocatingTaskId, cancelRelocate]);
+  }, [relocatingTaskId, deletingTaskId, cancelRelocate, cancelDelete]);
 
   if (error) return <p>{error}</p>;
   if (!tree) return <p>Loading...</p>;
@@ -79,12 +143,28 @@ export default function App() {
             Create
           </button>
           {!isRoot && (
-            <button
-              onClick={() => setRelocatingTaskId(selectedTaskId)}
-              style={{ padding: "6px 14px", fontSize: 14 }}
-            >
-              Relocate
-            </button>
+            <>
+              <button
+                onClick={() => setRelocatingTaskId(selectedTaskId)}
+                style={{ padding: "6px 14px", fontSize: 14 }}
+              >
+                Relocate
+              </button>
+              <button
+                onClick={handleDelete}
+                style={{
+                  padding: "6px 14px",
+                  fontSize: 14,
+                  ...(deletingTaskId === selectedTaskId
+                    ? { background: "#dc2626", color: "white", borderColor: "#dc2626" }
+                    : {}),
+                }}
+              >
+                {deletingTaskId === selectedTaskId
+                  ? `Click ${deleteClicksRemaining} more time${deleteClicksRemaining !== 1 ? "s" : ""} to confirm (deletes ${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1} task${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1 !== 1 ? "s" : ""})`
+                  : "Delete"}
+              </button>
+            </>
           )}
         </div>
       )}
