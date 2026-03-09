@@ -341,38 +341,38 @@
         },
         {
           "id": 66,
-          "title": "Conectores visuales en steps",
-          "completed": false,
+          "title": "Visual connectors in steps",
+          "completed": true,
           "children": [
             {
               "id": 67,
-              "title": "Extraer componente ConnectedList",
-              "completed": false,
+              "title": "Extract ConnectedList component",
+              "completed": true,
               "children": []
             },
             {
               "id": 68,
-              "title": "Refactorizar steps para usar ConnectedList",
-              "completed": false,
+              "title": "Refactor steps to use ConnectedList",
+              "completed": true,
               "children": []
             }
           ]
         },
         {
           "id": 69,
-          "title": "Agrupación de atómicas",
-          "completed": false,
+          "title": "Atomic task grouping",
+          "completed": true,
           "children": [
             {
               "id": 70,
-              "title": "Separar hijos en branches y atómicas",
-              "completed": false,
+              "title": "Split children into branches and atomics",
+              "completed": true,
               "children": []
             },
             {
               "id": 71,
-              "title": "Renderizar atómicas con ConnectedList y recuadro",
-              "completed": false,
+              "title": "Render atomics with ConnectedList and border",
+              "completed": true,
               "children": []
             }
           ]
