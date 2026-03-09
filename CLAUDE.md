@@ -27,8 +27,9 @@ The MVP is the first "plan" of the project itself. Scope:
 - **View project** — See the full task tree at a glance
 - **Create task** — Select any task, create a child under it
 - **Complete task** — Toggle a task's completion state (independent per task, no cascading)
+- **Delete task** — Remove a task and its entire subtree, with progressive confirmation (N clicks = N descendants)
 
-No edit, no delete, no plans yet. See `docs/` for detailed use cases.
+No edit, no plans yet. See `docs/` for detailed use cases.
 
 ## Tech Stack
 
@@ -53,6 +54,7 @@ yarn workspace frontend build       # Type-check + bundle frontend
 - Avoid "add" as the first verb in commit messages — prefer more descriptive verbs.
 - Keep commits atomic and concise.
 - **Each step/task in a plan gets at least one commit** — a task may have multiple commits if atomically justified, but never batch multiple tasks into one commit.
+- **No greenlight needed for commits** — commit directly without asking for approval on the message.
 - Always compile/build before pushing.
 - Never push without asking first.
 - Speak in product terms (tasks, not nodes). Code is implementation detail.

@@ -384,12 +384,12 @@
             {
               "id": 72,
               "title": "User triggers deletion on selected task",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 76,
                   "title": "Show delete button when task is selected (not root)",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -397,36 +397,36 @@
             {
               "id": 73,
               "title": "System confirms the intent",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 77,
                   "title": "Compute recursive descendant count for selected task",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 78,
                   "title": "Leaves (0 descendants) require only the initial click",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 79,
                   "title": "Tasks with descendants require N additional clicks (N = descendant count)",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 80,
                   "title": "Show countdown on button: remaining clicks and total tasks to be deleted",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 81,
                   "title": "Cancel confirmation on Escape or selecting a different task",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -434,30 +434,30 @@
             {
               "id": 74,
               "title": "System deletes the task",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 82,
                   "title": "Expose DELETE /tasks/:id endpoint",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 83,
                   "title": "Remove task and entire subtree from parent",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 84,
                   "title": "Reject deletion of root task",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 85,
                   "title": "Persist updated tree",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -465,24 +465,24 @@
             {
               "id": 75,
               "title": "Tree re-renders after deletion",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 86,
                   "title": "Re-fetch tree after deletion",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 87,
                   "title": "Clear selection if deleted task was selected",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
             }
           ],
-          "completed": false
+          "completed": true
         }
       ],
       "completed": false
@@ -535,10 +535,60 @@
           "children": []
         },
         {
-          "id": 40,
-          "title": "Test task",
-          "children": [],
-          "completed": false
+          "id": 88,
+          "title": "test",
+          "completed": false,
+          "children": [
+            {
+              "id": 89,
+              "title": "testt",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 90,
+              "title": "testtttttt",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 91,
+              "title": "testestse",
+              "completed": false,
+              "children": [
+                {
+                  "id": 93,
+                  "title": "testest",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 94,
+                  "title": "testeste",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 95,
+                  "title": "testet",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 96,
+                  "title": "test",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 92,
+              "title": "test",
+              "completed": false,
+              "children": []
+            }
+          ]
         }
       ]
     }
