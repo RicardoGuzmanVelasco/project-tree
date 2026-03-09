@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchTree, createTask } from "./api";
+import { fetchTree, createTask, toggleTaskCompletion } from "./api";
 import { Task } from "./types";
 import TreeView from "./TreeView";
 
@@ -17,6 +17,11 @@ export default function App() {
     if (!selectedTaskId || !newTitle.trim()) return;
     await createTask(selectedTaskId, newTitle.trim());
     setNewTitle("");
+    loadTree();
+  };
+
+  const handleToggleCompleted = async (id: number, completed: boolean) => {
+    await toggleTaskCompletion(id, completed);
     loadTree();
   };
 
@@ -43,6 +48,7 @@ export default function App() {
         task={tree}
         selectedTaskId={selectedTaskId}
         onSelectTask={setSelectedTaskId}
+        onToggleCompleted={handleToggleCompleted}
       />
     </div>
   );

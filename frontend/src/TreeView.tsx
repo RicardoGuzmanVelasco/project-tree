@@ -4,16 +4,19 @@ interface TaskNodeProps {
   task: Task;
   selectedTaskId: number | null;
   onSelectTask: (id: number) => void;
+  onToggleCompleted: (id: number, completed: boolean) => void;
 }
 
-function TaskNode({ task, selectedTaskId, onSelectTask }: TaskNodeProps) {
+function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted }: TaskNodeProps) {
   const isSelected = task.id === selectedTaskId;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div
-        onClick={() => onSelectTask(task.id)}
         style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
           padding: "6px 14px",
           border: `2px solid ${isSelected ? "#2563eb" : "#555"}`,
           borderRadius: 6,
@@ -22,7 +25,15 @@ function TaskNode({ task, selectedTaskId, onSelectTask }: TaskNodeProps) {
           whiteSpace: "nowrap",
           cursor: "pointer",
         }}
+        onClick={() => onSelectTask(task.id)}
       >
+        <input
+          type="checkbox"
+          checked={task.completed}
+          onChange={() => onToggleCompleted(task.id, !task.completed)}
+          onClick={(e) => e.stopPropagation()}
+          style={{ cursor: "pointer" }}
+        />
         {task.title}
       </div>
 
@@ -56,6 +67,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask }: TaskNodeProps) {
                   task={child}
                   selectedTaskId={selectedTaskId}
                   onSelectTask={onSelectTask}
+                  onToggleCompleted={onToggleCompleted}
                 />
               </div>
             ))}
@@ -70,12 +82,13 @@ interface TreeViewProps {
   task: Task;
   selectedTaskId: number | null;
   onSelectTask: (id: number) => void;
+  onToggleCompleted: (id: number, completed: boolean) => void;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted }: TreeViewProps) {
   return (
     <div style={{ padding: 40, overflowX: "auto" }}>
-      <TaskNode task={task} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />
+      <TaskNode task={task} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} onToggleCompleted={onToggleCompleted} />
     </div>
   );
 }

@@ -5,6 +5,15 @@ export async function fetchTree() {
   return response.json();
 }
 
+export async function toggleTaskCompletion(id: number, completed: boolean) {
+  const response = await fetch(`${API_BASE}/tasks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ completed }),
+  });
+  return response.json();
+}
+
 export async function createTask(parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/tasks`, {
     method: "POST",
