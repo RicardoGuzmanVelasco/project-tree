@@ -30,6 +30,15 @@ function findTask(node: Task, id: number): Task | null {
   return null;
 }
 
+function findParent(node: Task, taskId: number): Task | null {
+  for (const child of node.children) {
+    if (child.id === taskId) return node;
+    const found = findParent(child, taskId);
+    if (found) return found;
+  }
+  return null;
+}
+
 function maxId(node: Task): number {
   return Math.max(node.id, ...node.children.map(maxId));
 }
@@ -71,16 +80,44 @@ app.post("/tasks", (req, res) => {
 
 app.patch("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
-  const { completed } = req.body;
+  const { completed, parentId } = req.body;
 
-  if (typeof completed !== "boolean") {
-    res.status(400).json({ error: "completed (boolean) is required" });
+  if (typeof completed !== "boolean" && typeof parentId !== "number") {
+    res.status(400).json({ error: "completed (boolean) or parentId (number) is required" });
     return;
   }
 
   const task = findTask(tree, id);
   if (!task) {
     res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  if (typeof parentId === "number") {
+    if (id === tree.id) {
+      res.status(400).json({ error: "Cannot relocate the root task" });
+      return;
+    }
+
+    const newParent = findTask(tree, parentId);
+    if (!newParent) {
+      res.status(400).json({ error: "New parent task not found" });
+      return;
+    }
+
+    if (findTask(task, parentId)) {
+      res.status(400).json({ error: "Cannot relocate to a descendant" });
+      return;
+    }
+
+    const currentParent = findParent(tree, id);
+    if (currentParent && currentParent.id !== parentId) {
+      currentParent.children = currentParent.children.filter(c => c.id !== id);
+      newParent.children.push(task);
+    }
+
+    saveTree();
+    res.json(task);
     return;
   }
 
