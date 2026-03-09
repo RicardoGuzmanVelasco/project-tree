@@ -69,6 +69,56 @@ function SvgNode({
     onSelect();
   };
 
+  // Atomic child: compact inline rendering (no box, no shadow)
+  if (node.isAtomicChild) {
+    const atomicFontSize = Math.max(12, fontSize - 1);
+    let bgFill = "transparent";
+    if (isValid) bgFill = "#dcfce7";
+    else if (isSelected) bgFill = "#dbeafe";
+
+    return (
+      <g
+        onClick={handleClick}
+        onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
+        style={{ cursor, opacity: isFocusDimmed ? 0.15 : undefined }}
+      >
+        <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill} opacity={nodeOpacity} />
+        <circle
+          cx={12}
+          cy={height / 2}
+          r={5}
+          fill={task.completed ? "#10b981" : "none"}
+          stroke={task.completed ? "#10b981" : "#94a3b8"}
+          strokeWidth={1.5}
+          onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
+          style={{ cursor: "pointer" }}
+        />
+        {task.completed && (
+          <path
+            d={`M${9.5} ${height / 2} l1.5 1.5 l3.5 -3.5`}
+            stroke="#fff"
+            strokeWidth={1.5}
+            fill="none"
+            onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
+            style={{ cursor: "pointer" }}
+          />
+        )}
+        <text
+          x={24}
+          y={height / 2}
+          dominantBaseline="central"
+          fontSize={atomicFontSize}
+          fill="#1e293b"
+          textDecoration={task.completed ? "line-through" : "none"}
+          opacity={task.completed ? 0.5 : 1}
+        >
+          {task.title}
+        </text>
+      </g>
+    );
+  }
+
+  // Regular node: full box rendering
   return (
     <g
       onClick={handleClick}
@@ -271,20 +321,36 @@ export default function TreeViewV2({
   }, [nodes]);
 
   const connectors = useMemo(() => {
-    const paths: { key: string; d: string }[] = [];
+    const paths: { key: string; d: string; isAtomic: boolean }[] = [];
     for (const node of nodes) {
       if (node.parentId == null) continue;
       const parent = nodeById.get(node.parentId);
       if (!parent) continue;
-      const x1 = parent.x;
-      const y1 = parent.y + parent.height;
-      const x2 = node.x;
-      const y2 = node.y;
-      const midY = (y1 + y2) / 2;
-      paths.push({
-        key: `${parent.id}-${node.id}`,
-        d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
-      });
+
+      if (node.isAtomicChild) {
+        // L-shaped connector: vertical line from parent center, then horizontal to child
+        const x1 = parent.x; // parent center x
+        const y1 = parent.y + parent.height; // parent bottom
+        const x2 = node.x - node.width / 2; // child left edge
+        const y2 = node.y + node.height / 2; // child vertical center
+        paths.push({
+          key: `${parent.id}-${node.id}`,
+          d: `M${x1},${y1} L${x1},${y2} L${x2},${y2}`,
+          isAtomic: true,
+        });
+      } else {
+        // Curved connector for branch children
+        const x1 = parent.x;
+        const y1 = parent.y + parent.height;
+        const x2 = node.x;
+        const y2 = node.y;
+        const midY = (y1 + y2) / 2;
+        paths.push({
+          key: `${parent.id}-${node.id}`,
+          d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
+          isAtomic: false,
+        });
+      }
     }
     return paths;
   }, [nodes, nodeById]);
