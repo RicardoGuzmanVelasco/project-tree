@@ -7,27 +7,27 @@ actor "User" as user
 
 rectangle "project-tree" {
   package "MVP" {
-    usecase "View project" as UC1
-    usecase "Create task" as UC2
+    usecase "View project" as view
+    usecase "Create task" as create
   }
 
   package "Post-MVP" {
-    usecase "Edit task" as UC3
-    usecase "Delete task" as UC4
+    usecase "Edit task" as edit
+    usecase "Delete task" as delete
   }
 }
 
-user --> UC1
-user --> UC2
-user --> UC3
-user --> UC4
+user --> view
+user --> create
+user --> edit
+user --> delete
 
-note right of UC1
+note right of view
   See the full task tree at a glance.
   The tree is the project.
 end note
 
-note right of UC2
+note right of create
   Create a task anywhere in the tree,
   including as a child of any existing task.
 end note
