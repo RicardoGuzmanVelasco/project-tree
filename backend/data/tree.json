@@ -286,8 +286,58 @@
         {
           "id": 41,
           "title": "Visibility steps as list",
-          "children": [],
-          "completed": false
+          "children": [
+            {
+              "id": 55,
+              "title": "Extract step detection logic",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 56,
+              "title": "Render steps as indented list",
+              "completed": true,
+              "children": []
+            }
+          ],
+          "completed": true
+        },
+        {
+          "id": 57,
+          "title": "Relocate task",
+          "completed": false,
+          "children": [
+            {
+              "id": 58,
+              "title": "Write use case documentation",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 59,
+              "title": "User selects a task to relocate",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 60,
+              "title": "User selects the new parent",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 61,
+              "title": "System relocates the task",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 62,
+              "title": "Tree re-renders after relocation",
+              "completed": true,
+              "children": []
+            }
+          ]
         }
       ],
       "completed": false
@@ -334,6 +384,25 @@
       "title": "Serve frontend from backend (remove CORS)",
       "children": [],
       "completed": false
+    },
+    {
+      "id": 63,
+      "title": "Task ID visibility",
+      "completed": false,
+      "children": [
+        {
+          "id": 64,
+          "title": "Show IDs alongside task titles",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 65,
+          "title": "Toggle ID visibility (user decides when to see IDs)",
+          "completed": false,
+          "children": []
+        }
+      ]
     }
   ],
   "completed": false
