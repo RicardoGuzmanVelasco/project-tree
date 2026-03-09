@@ -127,6 +127,29 @@ app.patch("/tasks/:id", (req, res) => {
   res.json(task);
 });
 
+app.delete("/tasks/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  if (id === tree.id) {
+    res.status(400).json({ error: "Cannot delete the root task" });
+    return;
+  }
+
+  const task = findTask(tree, id);
+  if (!task) {
+    res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  const parent = findParent(tree, id);
+  if (parent) {
+    parent.children = parent.children.filter(c => c.id !== id);
+  }
+
+  saveTree();
+  res.json({ deleted: id });
+});
+
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });

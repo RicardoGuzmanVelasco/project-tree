@@ -341,18 +341,18 @@
         },
         {
           "id": 66,
-          "title": "Visual connectors in steps",
+          "title": "Conectores visuales en steps",
           "completed": true,
           "children": [
             {
               "id": 67,
-              "title": "Extract ConnectedList component",
+              "title": "Extraer componente ConnectedList",
               "completed": true,
               "children": []
             },
             {
               "id": 68,
-              "title": "Refactor steps to use ConnectedList",
+              "title": "Refactorizar steps para usar ConnectedList",
               "completed": true,
               "children": []
             }
@@ -360,22 +360,129 @@
         },
         {
           "id": 69,
-          "title": "Atomic task grouping",
+          "title": "Agrupación de atómicas",
           "completed": true,
           "children": [
             {
               "id": 70,
-              "title": "Split children into branches and atomics",
+              "title": "Separar hijos en branches y atómicas",
               "completed": true,
               "children": []
             },
             {
               "id": 71,
-              "title": "Render atomics with ConnectedList and border",
+              "title": "Renderizar atómicas con ConnectedList y recuadro",
               "completed": true,
               "children": []
             }
           ]
+        },
+        {
+          "id": 6,
+          "title": "Delete task",
+          "children": [
+            {
+              "id": 72,
+              "title": "User triggers deletion on selected task",
+              "completed": false,
+              "children": [
+                {
+                  "id": 76,
+                  "title": "Show delete button when task is selected (not root)",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 73,
+              "title": "System confirms the intent",
+              "completed": false,
+              "children": [
+                {
+                  "id": 77,
+                  "title": "Compute recursive descendant count for selected task",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 78,
+                  "title": "Leaves (0 descendants) require only the initial click",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 79,
+                  "title": "Tasks with descendants require N additional clicks (N = descendant count)",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 80,
+                  "title": "Show countdown on button: remaining clicks and total tasks to be deleted",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 81,
+                  "title": "Cancel confirmation on Escape or selecting a different task",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 74,
+              "title": "System deletes the task",
+              "completed": false,
+              "children": [
+                {
+                  "id": 82,
+                  "title": "Expose DELETE /tasks/:id endpoint",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 83,
+                  "title": "Remove task and entire subtree from parent",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 84,
+                  "title": "Reject deletion of root task",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 85,
+                  "title": "Persist updated tree",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 75,
+              "title": "Tree re-renders after deletion",
+              "completed": false,
+              "children": [
+                {
+                  "id": 86,
+                  "title": "Re-fetch tree after deletion",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 87,
+                  "title": "Clear selection if deleted task was selected",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            }
+          ],
+          "completed": false
         }
       ],
       "completed": false
@@ -383,12 +490,6 @@
     {
       "id": 5,
       "title": "Edit task",
-      "children": [],
-      "completed": false
-    },
-    {
-      "id": 6,
-      "title": "Delete task",
       "children": [],
       "completed": false
     },

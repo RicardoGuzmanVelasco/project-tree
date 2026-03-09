@@ -23,6 +23,13 @@ export async function relocateTask(id: number, newParentId: number) {
   return response.json();
 }
 
+export async function deleteTask(id: number) {
+  const response = await fetch(`${API_BASE}/tasks/${id}`, {
+    method: "DELETE",
+  });
+  return response.json();
+}
+
 export async function createTask(parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/tasks`, {
     method: "POST",
