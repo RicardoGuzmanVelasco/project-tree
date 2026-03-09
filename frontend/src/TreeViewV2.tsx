@@ -83,6 +83,12 @@ function SvgNode({
         style={{ cursor, opacity: isFocusDimmed ? 0.15 : undefined }}
       >
         <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill} opacity={nodeOpacity} />
+        {/* Completion circle with larger hit area */}
+        <circle cx={12} cy={height / 2} r={10} fill="transparent"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
+          style={{ cursor: "pointer" }}
+        />
         <circle
           cx={12}
           cy={height / 2}
@@ -90,8 +96,7 @@ function SvgNode({
           fill={task.completed ? "#10b981" : "none"}
           stroke={task.completed ? "#10b981" : "#94a3b8"}
           strokeWidth={1.5}
-          onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-          style={{ cursor: "pointer" }}
+          pointerEvents="none"
         />
         {task.completed && (
           <path
@@ -99,8 +104,7 @@ function SvgNode({
             stroke="#fff"
             strokeWidth={1.5}
             fill="none"
-            onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-            style={{ cursor: "pointer" }}
+            pointerEvents="none"
           />
         )}
         <text
@@ -149,7 +153,12 @@ function SvgNode({
         strokeDasharray={strokeDasharray}
         opacity={nodeOpacity}
       />
-      {/* Completion circle */}
+      {/* Completion circle with larger hit area */}
+      <circle cx={16} cy={height / 2} r={12} fill="transparent"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
+        style={{ cursor: "pointer" }}
+      />
       <circle
         cx={16}
         cy={height / 2}
@@ -157,8 +166,7 @@ function SvgNode({
         fill={task.completed ? "#10b981" : "none"}
         stroke={task.completed ? "#10b981" : "#94a3b8"}
         strokeWidth={1.5}
-        onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-        style={{ cursor: "pointer" }}
+        pointerEvents="none"
       />
       {task.completed && (
         <path
@@ -166,8 +174,7 @@ function SvgNode({
           stroke="#fff"
           strokeWidth={1.5}
           fill="none"
-          onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-          style={{ cursor: "pointer" }}
+          pointerEvents="none"
         />
       )}
       {/* Title */}
@@ -414,8 +421,13 @@ export default function TreeViewV2({
     if (!isDragging.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    if (Math.abs(dx - transformRef.current.x) > 3 || Math.abs(dy - transformRef.current.y) > 3) {
-      didDrag.current = true;
+    if (!didDrag.current) {
+      // Only start actual dragging after exceeding threshold
+      if (Math.abs(dx - transformRef.current.x) > 3 || Math.abs(dy - transformRef.current.y) > 3) {
+        didDrag.current = true;
+      } else {
+        return; // Don't move anything until threshold is exceeded
+      }
     }
     setTransform(t => ({ ...t, x: dx, y: dy }));
   }, []);
