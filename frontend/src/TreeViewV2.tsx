@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useCallback, useEffect, useState } from "react";
 import { Task } from "./types";
 import { layoutTree, LayoutNode } from "./treeLayout";
 
@@ -39,7 +39,6 @@ function SvgNode({
         strokeWidth={isSelected ? 2 : 1}
         opacity={task.completed ? 0.5 : 1}
       />
-      {/* Completion circle */}
       <circle
         cx={rx + 16}
         cy={ry + height / 2}
@@ -60,7 +59,6 @@ function SvgNode({
           style={{ cursor: "pointer" }}
         />
       )}
-      {/* Title */}
       <text
         x={rx + 28}
         y={ry + height / 2}
@@ -76,6 +74,9 @@ function SvgNode({
   );
 }
 
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 3;
+
 export default function TreeViewV2({
   task,
   selectedTaskId,
@@ -84,7 +85,6 @@ export default function TreeViewV2({
 }: TreeViewV2Props) {
   const nodes = useMemo(() => layoutTree(task), [task]);
 
-  // Build connectors (parent bottom-center → child top-center)
   const nodeById = useMemo(() => {
     const map = new Map<number, LayoutNode>();
     for (const n of nodes) map.set(n.id, n);
@@ -97,13 +97,11 @@ export default function TreeViewV2({
       if (node.parentId == null) continue;
       const parent = nodeById.get(node.parentId);
       if (!parent) continue;
-
       const x1 = parent.x;
       const y1 = parent.y + parent.height;
       const x2 = node.x;
       const y2 = node.y;
       const midY = (y1 + y2) / 2;
-
       paths.push({
         key: `${parent.id}-${node.id}`,
         d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
@@ -112,50 +110,147 @@ export default function TreeViewV2({
     return paths;
   }, [nodes, nodeById]);
 
-  // Compute SVG viewBox from layout bounds
-  const padding = 40;
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const n of nodes) {
-    const left = n.x - n.width / 2;
-    const right = n.x + n.width / 2;
-    const top = n.y;
-    const bottom = n.y + n.height;
-    if (left < minX) minX = left;
-    if (right > maxX) maxX = right;
-    if (top < minY) minY = top;
-    if (bottom > maxY) maxY = bottom;
-  }
-  const vbX = minX - padding;
-  const vbY = minY - padding;
-  const vbW = maxX - minX + padding * 2;
-  const vbH = maxY - minY + padding * 2;
+  // Pan & zoom state in ref to avoid re-renders during drag
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const transformRef = useRef(transform);
+  transformRef.current = transform;
+
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const didDrag = useRef(false);
+
+  // Fit to view on initial render and tree changes
+  const fitToView = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || nodes.length === 0) return;
+
+    const padding = 40;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of nodes) {
+      const left = n.x - n.width / 2;
+      const right = n.x + n.width / 2;
+      if (left < minX) minX = left;
+      if (right > maxX) maxX = right;
+      if (n.y < minY) minY = n.y;
+      if (n.y + n.height > maxY) maxY = n.y + n.height;
+    }
+
+    const treeW = maxX - minX + padding * 2;
+    const treeH = maxY - minY + padding * 2;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+
+    const scale = Math.min(cw / treeW, ch / treeH, 1);
+    const treeCenterX = (minX + maxX) / 2;
+    const treeCenterY = (minY + maxY) / 2;
+
+    setTransform({
+      x: cw / 2 - treeCenterX * scale,
+      y: ch / 2 - treeCenterY * scale,
+      scale,
+    });
+  }, [nodes]);
+
+  useEffect(() => { fitToView(); }, [fitToView]);
+
+  // Mouse handlers for pan
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    isDragging.current = true;
+    didDrag.current = false;
+    dragStart.current = { x: e.clientX - transformRef.current.x, y: e.clientY - transformRef.current.y };
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    if (Math.abs(dx - transformRef.current.x) > 3 || Math.abs(dy - transformRef.current.y) > 3) {
+      didDrag.current = true;
+    }
+    setTransform(t => ({ ...t, x: dx, y: dy }));
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  // Wheel handler for zoom toward cursor
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const t = transformRef.current;
+      const rect = container.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      const newScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, t.scale * factor));
+      const ratio = newScale / t.scale;
+
+      setTransform({
+        x: cursorX - (cursorX - t.x) * ratio,
+        y: cursorY - (cursorY - t.y) * ratio,
+        scale: newScale,
+      });
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, []);
+
+  // Suppress click on nodes after drag
+  const handleSvgClick = useCallback((e: React.MouseEvent) => {
+    if (didDrag.current) {
+      e.stopPropagation();
+      didDrag.current = false;
+    }
+  }, []);
 
   return (
-    <div style={{ width: "100%", height: "calc(100vh - 120px)", overflow: "hidden" }}>
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        height: "calc(100vh - 120px)",
+        overflow: "hidden",
+        cursor: isDragging.current ? "grabbing" : "grab",
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <svg
         width="100%"
         height="100%"
-        viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
         style={{ display: "block" }}
+        onClickCapture={handleSvgClick}
       >
-        {connectors.map((c) => (
-          <path
-            key={c.key}
-            d={c.d}
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth={1.5}
-          />
-        ))}
-        {nodes.map((node) => (
-          <SvgNode
-            key={node.id}
-            node={node}
-            isSelected={node.id === selectedTaskId}
-            onSelect={() => onSelectTask(node.id)}
-            onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
-          />
-        ))}
+        <g transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}>
+          {connectors.map((c) => (
+            <path
+              key={c.key}
+              d={c.d}
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth={1.5}
+            />
+          ))}
+          {nodes.map((node) => (
+            <SvgNode
+              key={node.id}
+              node={node}
+              isSelected={node.id === selectedTaskId}
+              onSelect={() => onSelectTask(node.id)}
+              onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
+            />
+          ))}
+        </g>
       </svg>
     </div>
   );
