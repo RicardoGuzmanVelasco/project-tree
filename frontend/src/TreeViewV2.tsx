@@ -464,6 +464,54 @@ export default function TreeViewV2({
     return () => document.removeEventListener("keydown", handler);
   }, [fitToView, focusedTaskId, selectedTaskId, task, onSelectTask, onToggleCompleted]);
 
+  // Compute tree bounding box for minimap
+  const treeBounds = useMemo(() => {
+    if (nodes.length === 0) return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of nodes) {
+      const left = n.x - n.width / 2;
+      const right = n.x + n.width / 2;
+      if (left < minX) minX = left;
+      if (right > maxX) maxX = right;
+      if (n.y < minY) minY = n.y;
+      if (n.y + n.height > maxY) maxY = n.y + n.height;
+    }
+    return { minX, minY, maxX, maxY };
+  }, [nodes]);
+
+  const handleMinimapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const minimapW = 160;
+    const minimapH = 100;
+    const padding = 10;
+
+    const treeW = treeBounds.maxX - treeBounds.minX;
+    const treeH = treeBounds.maxY - treeBounds.minY;
+    if (treeW === 0 || treeH === 0) return;
+
+    const mmScale = Math.min((minimapW - padding * 2) / treeW, (minimapH - padding * 2) / treeH);
+
+    // Convert minimap click to tree coordinates
+    const treeX = (clickX - padding) / mmScale + treeBounds.minX;
+    const treeY = (clickY - padding) / mmScale + treeBounds.minY;
+
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const t = transformRef.current;
+
+    setAnimateTransform(true);
+    setTransform({
+      x: cw / 2 - treeX * t.scale,
+      y: ch / 2 - treeY * t.scale,
+      scale: t.scale,
+    });
+    setTimeout(() => setAnimateTransform(false), 300);
+  }, [treeBounds]);
+
   // Suppress click on nodes after drag
   const handleSvgClick = useCallback((e: React.MouseEvent) => {
     if (didDrag.current) {
@@ -502,6 +550,7 @@ export default function TreeViewV2({
         height: "calc(100vh - 120px)",
         overflow: "hidden",
         cursor: isDragging.current ? "grabbing" : "grab",
+        position: "relative",
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -567,6 +616,80 @@ export default function TreeViewV2({
           })}
         </g>
       </svg>
+      {/* Minimap */}
+      {(() => {
+        const minimapW = 160;
+        const minimapH = 100;
+        const padding = 10;
+        const treeW = treeBounds.maxX - treeBounds.minX;
+        const treeH = treeBounds.maxY - treeBounds.minY;
+        if (treeW === 0 || treeH === 0) return null;
+
+        const mmScale = Math.min((minimapW - padding * 2) / treeW, (minimapH - padding * 2) / treeH);
+
+        // Viewport indicator
+        const container = containerRef.current;
+        let vpRect = null;
+        if (container) {
+          const cw = container.clientWidth;
+          const ch = container.clientHeight;
+          // Visible area in tree coords
+          const vpLeft = -transform.x / transform.scale;
+          const vpTop = -transform.y / transform.scale;
+          const vpWidth = cw / transform.scale;
+          const vpHeight = ch / transform.scale;
+          vpRect = {
+            x: (vpLeft - treeBounds.minX) * mmScale + padding,
+            y: (vpTop - treeBounds.minY) * mmScale + padding,
+            w: vpWidth * mmScale,
+            h: vpHeight * mmScale,
+          };
+        }
+
+        return (
+          <div
+            onClick={handleMinimapClick}
+            style={{
+              position: "absolute",
+              bottom: 12,
+              right: 12,
+              width: minimapW,
+              height: minimapH,
+              background: "rgba(255,255,255,0.9)",
+              border: "1px solid #e2e8f0",
+              borderRadius: 6,
+              cursor: "pointer",
+              overflow: "hidden",
+            }}
+          >
+            <svg width={minimapW} height={minimapH}>
+              {nodes.map((n) => (
+                <rect
+                  key={n.id}
+                  x={(n.x - n.width / 2 - treeBounds.minX) * mmScale + padding}
+                  y={(n.y - treeBounds.minY) * mmScale + padding}
+                  width={Math.max(2, n.width * mmScale)}
+                  height={Math.max(1, n.height * mmScale)}
+                  fill={n.id === selectedTaskId ? "#3b82f6" : "#94a3b8"}
+                  rx={1}
+                />
+              ))}
+              {vpRect && (
+                <rect
+                  x={vpRect.x}
+                  y={vpRect.y}
+                  width={vpRect.w}
+                  height={vpRect.h}
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth={1.5}
+                  rx={2}
+                />
+              )}
+            </svg>
+          </div>
+        );
+      })()}
     </div>
     </>
   );
