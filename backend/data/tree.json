@@ -169,6 +169,80 @@
               ]
             }
           ]
+        },
+        {
+          "id": 42,
+          "title": "Complete task",
+          "children": [
+            {
+              "id": 43,
+              "title": "User toggles task completion",
+              "children": [
+                {
+                  "id": 46,
+                  "title": "Show completion control on selected task",
+                  "children": []
+                },
+                {
+                  "id": 47,
+                  "title": "Allow toggling back (uncomplete)",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 44,
+              "title": "System updates the task",
+              "children": [
+                {
+                  "id": 48,
+                  "title": "Extend Task type with completed field",
+                  "children": []
+                },
+                {
+                  "id": 49,
+                  "title": "Expose PATCH /tasks/:id with completed flag",
+                  "children": []
+                },
+                {
+                  "id": 50,
+                  "title": "Validate task exists",
+                  "children": []
+                },
+                {
+                  "id": 51,
+                  "title": "Update task in the in-memory tree",
+                  "children": []
+                },
+                {
+                  "id": 52,
+                  "title": "Persist updated tree to JSON file",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 45,
+              "title": "Tree reflects completion state",
+              "children": [
+                {
+                  "id": 53,
+                  "title": "Visually distinguish completed tasks",
+                  "children": []
+                },
+                {
+                  "id": 54,
+                  "title": "Re-fetch tree after toggling",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 41,
+          "title": "Visibility steps as list",
+          "children": []
         }
       ]
     },
@@ -185,7 +259,13 @@
     {
       "id": 7,
       "title": "Plans",
-      "children": []
+      "children": [
+        {
+          "id": 40,
+          "title": "Test task",
+          "children": []
+        }
+      ]
     },
     {
       "id": 34,

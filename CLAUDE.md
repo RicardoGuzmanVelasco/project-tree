@@ -26,8 +26,9 @@ The MVP is the first "plan" of the project itself. Scope:
 
 - **View project** — See the full task tree at a glance
 - **Create task** — Select any task, create a child under it
+- **Complete task** — Toggle a task's completion state (independent per task, no cascading)
 
-That's it. No edit, no delete, no plans yet. See `docs/` for detailed use cases.
+No edit, no delete, no plans yet. See `docs/` for detailed use cases.
 
 ## Tech Stack
 

@@ -30,6 +30,7 @@ A visual, persistent, and interactive task tree. Nothing more.
 
 - Create nodes (tasks)
 - Create children under any node
+- Mark tasks as completed (toggle on/off)
 - See the result as an actual tree (not nested lists)
 - Data persists between sessions
 

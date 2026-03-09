@@ -9,6 +9,7 @@ rectangle "project-tree" {
   package "MVP" {
     usecase "View project" as view
     usecase "Create task" as create
+    usecase "Complete task" as complete
   }
 
   package "Post-MVP" {
@@ -19,6 +20,7 @@ rectangle "project-tree" {
 
 user --> view
 user --> create
+user --> complete
 user --> edit
 user --> delete
 
