@@ -35,9 +35,8 @@ function SvgNode({
   isFocusDimmed: boolean;
   onDoubleClick: () => void;
 }) {
-  const { x, y, width, height, depth, task } = node;
-  const rx = x - width / 2;
-  const ry = y;
+  const { width, height, depth, task } = node;
+  // SvgNode draws at local origin (0,0); parent <g> positions it via transform
   const fontSize = DEPTH_FONT_SIZES[Math.min(depth, DEPTH_FONT_SIZES.length - 1)];
 
   const isInvalid = relocateStatus === "invalid-target";
@@ -78,8 +77,8 @@ function SvgNode({
     >
       {/* Shadow */}
       <rect
-        x={rx + 1}
-        y={ry + 2}
+        x={1}
+        y={2}
         width={width}
         height={height}
         rx={6}
@@ -88,8 +87,8 @@ function SvgNode({
       />
       {/* Node background */}
       <rect
-        x={rx}
-        y={ry}
+        x={0}
+        y={0}
         width={width}
         height={height}
         rx={6}
@@ -102,8 +101,8 @@ function SvgNode({
       />
       {/* Completion circle */}
       <circle
-        cx={rx + 16}
-        cy={ry + height / 2}
+        cx={16}
+        cy={height / 2}
         r={6}
         fill={task.completed ? "#10b981" : "none"}
         stroke={task.completed ? "#10b981" : "#94a3b8"}
@@ -113,7 +112,7 @@ function SvgNode({
       />
       {task.completed && (
         <path
-          d={`M${rx + 13} ${ry + height / 2} l2 2 l4 -4`}
+          d={`M${13} ${height / 2} l2 2 l4 -4`}
           stroke="#fff"
           strokeWidth={1.5}
           fill="none"
@@ -123,8 +122,8 @@ function SvgNode({
       )}
       {/* Title */}
       <text
-        x={rx + 28}
-        y={ry + height / 2}
+        x={28}
+        y={height / 2}
         dominantBaseline="central"
         fontSize={fontSize}
         fill="#1e293b"
@@ -140,14 +139,14 @@ function SvgNode({
           style={{ cursor: "pointer" }}
         >
           <circle
-            cx={rx + width - 14}
-            cy={ry + height / 2}
+            cx={width - 14}
+            cy={height / 2}
             r={8}
             fill="transparent"
           />
           <text
-            x={rx + width - 14}
-            y={ry + height / 2}
+            x={width - 14}
+            y={height / 2}
             dominantBaseline="central"
             textAnchor="middle"
             fontSize={10}
@@ -161,8 +160,8 @@ function SvgNode({
       {isCollapsed && node.descendantCount > 0 && (
         <>
           <rect
-            x={rx + width + 4}
-            y={ry + height / 2 - 9}
+            x={width + 4}
+            y={height / 2 - 9}
             width={30}
             height={18}
             rx={9}
@@ -171,8 +170,8 @@ function SvgNode({
             strokeWidth={0.5}
           />
           <text
-            x={rx + width + 19}
-            y={ry + height / 2}
+            x={width + 19}
+            y={height / 2}
             dominantBaseline="central"
             textAnchor="middle"
             fontSize={10}
@@ -472,19 +471,26 @@ export default function TreeViewV2({
                 relocateStatus = "valid-target";
               }
             }
+            const nx = node.x - node.width / 2;
+            const ny = node.y;
             return (
-              <SvgNode
+              <g
                 key={node.id}
-                node={node}
-                isSelected={node.id === selectedTaskId}
-                onSelect={() => onSelectTask(node.id)}
-                onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
-                relocateStatus={relocateStatus}
-                isCollapsed={collapsedIds.has(node.id)}
-                onToggleCollapse={() => toggleCollapse(node.id)}
-                isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
-                onDoubleClick={() => setFocusedTaskId(node.id)}
-              />
+                transform={`translate(${nx}, ${ny})`}
+                style={{ transition: "transform 300ms ease-out" }}
+              >
+                <SvgNode
+                  node={node}
+                  isSelected={node.id === selectedTaskId}
+                  onSelect={() => onSelectTask(node.id)}
+                  onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
+                  relocateStatus={relocateStatus}
+                  isCollapsed={collapsedIds.has(node.id)}
+                  onToggleCollapse={() => toggleCollapse(node.id)}
+                  isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
+                  onDoubleClick={() => setFocusedTaskId(node.id)}
+                />
+              </g>
             );
           })}
         </g>
