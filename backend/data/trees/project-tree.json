@@ -652,7 +652,7 @@
             {
               "id": 111,
               "title": "Show descendant count badge on collapsed tasks",
-              "completed": true,
+              "completed": false,
               "children": []
             },
             {
