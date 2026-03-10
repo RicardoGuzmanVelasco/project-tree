@@ -6,7 +6,7 @@ import { Task } from "./types";
 
 const app = express();
 const PORT = 3001;
-const TREE_PATH = path.join(__dirname, "..", "data", "tree.json");
+const TREES_DIR = path.join(__dirname, "..", "data", "trees");
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +19,24 @@ function ensureCompleted(node: Task): Task {
   };
 }
 
-let tree: Task = ensureCompleted(JSON.parse(fs.readFileSync(TREE_PATH, "utf-8")));
+const SLUG_RE = /^[a-z0-9-]+$/;
+
+const trees = new Map<string, Task>();
+
+function getTree(slug: string): Task | null {
+  if (trees.has(slug)) return trees.get(slug)!;
+  const filePath = path.join(TREES_DIR, `${slug}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  const tree = ensureCompleted(JSON.parse(fs.readFileSync(filePath, "utf-8")));
+  trees.set(slug, tree);
+  return tree;
+}
+
+function saveTree(slug: string) {
+  const tree = trees.get(slug);
+  if (!tree) return;
+  fs.writeFileSync(path.join(TREES_DIR, `${slug}.json`), JSON.stringify(tree, null, 2) + "\n");
+}
 
 function findTask(node: Task, id: number): Task | null {
   if (node.id === id) return node;
@@ -43,15 +60,30 @@ function maxId(node: Task): number {
   return Math.max(node.id, ...node.children.map(maxId));
 }
 
-function saveTree() {
-  fs.writeFileSync(TREE_PATH, JSON.stringify(tree, null, 2) + "\n");
-}
+app.get("/projects", (_req, res) => {
+  const files = fs.readdirSync(TREES_DIR).filter(f => f.endsWith(".json")).sort();
+  const projects = files.map(f => {
+    const slug = f.replace(".json", "");
+    const tree = getTree(slug);
+    return { slug, title: tree?.title ?? slug };
+  });
+  res.json(projects);
+});
 
-app.get("/tasks", (_req, res) => {
+app.get("/projects/:slug/tasks", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const tree = getTree(slug);
+  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
   res.json(tree);
 });
 
-app.post("/tasks", (req, res) => {
+app.post("/projects/:slug/tasks", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const tree = getTree(slug);
+  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+
   const { parentId, title } = req.body;
 
   if (!title || typeof title !== "string" || !title.trim()) {
@@ -73,12 +105,17 @@ app.post("/tasks", (req, res) => {
   };
 
   parent.children.push(newTask);
-  saveTree();
+  saveTree(slug);
 
   res.status(201).json(newTask);
 });
 
-app.patch("/tasks/:id", (req, res) => {
+app.patch("/projects/:slug/tasks/:id", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const tree = getTree(slug);
+  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+
   const id = Number(req.params.id);
   const { completed, parentId } = req.body;
 
@@ -116,18 +153,23 @@ app.patch("/tasks/:id", (req, res) => {
       newParent.children.push(task);
     }
 
-    saveTree();
+    saveTree(slug);
     res.json(task);
     return;
   }
 
   task.completed = completed;
-  saveTree();
+  saveTree(slug);
 
   res.json(task);
 });
 
-app.delete("/tasks/:id", (req, res) => {
+app.delete("/projects/:slug/tasks/:id", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const tree = getTree(slug);
+  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+
   const id = Number(req.params.id);
 
   if (id === tree.id) {
@@ -146,7 +188,7 @@ app.delete("/tasks/:id", (req, res) => {
     parent.children = parent.children.filter(c => c.id !== id);
   }
 
-  saveTree();
+  saveTree(slug);
   res.json({ deleted: id });
 });
 
