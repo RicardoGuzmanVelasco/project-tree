@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Task } from "./types";
+import { NavigationState } from "./useNavigationState";
 
 function ConnectedList<T extends { key: number }>({ items, renderItem }: { items: T[]; renderItem: (item: T, index: number) => ReactNode }) {
   return (
@@ -226,9 +227,10 @@ interface TreeViewProps {
   onSelectTask: (id: number) => void;
   onToggleCompleted: (id: number, completed: boolean) => void;
   relocatingTaskId: number | null;
+  navigation: NavigationState;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation: _navigation }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   return (

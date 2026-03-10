@@ -1,5 +1,6 @@
 import { useMemo, useRef, useCallback, useEffect, useState } from "react";
 import { Task } from "./types";
+import { NavigationState } from "./useNavigationState";
 import { layoutTree, LayoutNode } from "./treeLayout";
 
 interface TreeViewV2Props {
@@ -8,6 +9,7 @@ interface TreeViewV2Props {
   onSelectTask: (id: number) => void;
   onToggleCompleted: (id: number, completed: boolean) => void;
   relocatingTaskId: number | null;
+  navigation: NavigationState;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -241,10 +243,12 @@ export default function TreeViewV2({
   onSelectTask,
   onToggleCompleted,
   relocatingTaskId,
+  navigation,
 }: TreeViewV2Props) {
+  const { collapsedIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
 
-  const nodes = useMemo(() => layoutTree(task), [task]);
+  const nodes = useMemo(() => layoutTree(task, collapsedIds), [task, collapsedIds]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const focusedSubtree = focusedTaskId ? findTask(task, focusedTaskId) : null;

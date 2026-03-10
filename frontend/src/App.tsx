@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask } from "./api";
 import { Task } from "./types";
+import { useNavigationState } from "./useNavigationState";
 import TreeView from "./TreeView";
 import TreeViewV2 from "./TreeViewV2";
 
@@ -15,6 +16,7 @@ export default function App() {
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("classic");
+  const navigation = useNavigationState();
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
 
@@ -199,6 +201,7 @@ export default function App() {
           onSelectTask={handleTaskClick}
           onToggleCompleted={handleToggleCompleted}
           relocatingTaskId={relocatingTaskId}
+          navigation={navigation}
         />
       ) : (
         <TreeViewV2
@@ -207,6 +210,7 @@ export default function App() {
           onSelectTask={handleTaskClick}
           onToggleCompleted={handleToggleCompleted}
           relocatingTaskId={relocatingTaskId}
+          navigation={navigation}
         />
       )}
     </div>
