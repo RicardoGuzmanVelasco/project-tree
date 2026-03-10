@@ -22,6 +22,8 @@ function SvgNode({
   onSelect,
   onToggleCompleted,
   relocateStatus,
+  isCollapsed,
+  onToggleCollapse,
   isFocusDimmed,
   onDoubleClick,
 }: {
@@ -30,6 +32,8 @@ function SvgNode({
   onSelect: () => void;
   onToggleCompleted: () => void;
   relocateStatus: RelocateStatus;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   isFocusDimmed: boolean;
   onDoubleClick: () => void;
 }) {
@@ -187,6 +191,50 @@ function SvgNode({
       >
         {task.title}
       </text>
+      {/* Collapse/expand chevron for tasks with children */}
+      {task.children.length > 0 && (
+        <g
+          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+          style={{ cursor: "pointer" }}
+        >
+          <circle cx={width - 14} cy={height / 2} r={8} fill="transparent" />
+          <text
+            x={width - 14}
+            y={height / 2}
+            dominantBaseline="central"
+            textAnchor="middle"
+            fontSize={10}
+            fill="#64748b"
+          >
+            {isCollapsed ? "+" : "\u2212"}
+          </text>
+        </g>
+      )}
+      {/* Descendant count badge when collapsed */}
+      {isCollapsed && node.descendantCount > 0 && (
+        <>
+          <rect
+            x={width + 4}
+            y={height / 2 - 9}
+            width={30}
+            height={18}
+            rx={9}
+            fill="#f1f5f9"
+            stroke="#cbd5e1"
+            strokeWidth={0.5}
+          />
+          <text
+            x={width + 19}
+            y={height / 2}
+            dominantBaseline="central"
+            textAnchor="middle"
+            fontSize={10}
+            fill="#64748b"
+          >
+            +{node.descendantCount}
+          </text>
+        </>
+      )}
     </g>
   );
 }
@@ -663,6 +711,8 @@ export default function TreeViewV2({
                   onSelect={() => onSelectTask(node.id)}
                   onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
                   relocateStatus={relocateStatus}
+                  isCollapsed={collapsedIds.has(node.id)}
+                  onToggleCollapse={() => navigation.toggleCollapse(node.task)}
                   isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
                   onDoubleClick={() => setFocusedTaskId(node.id)}
                 />
