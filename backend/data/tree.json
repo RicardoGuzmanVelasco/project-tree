@@ -624,7 +624,44 @@
           "id": 103,
           "title": "Collapse task subtree",
           "completed": false,
-          "children": []
+          "children": [
+            {
+              "id": 107,
+              "title": "Extract shared navigation state hook",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 108,
+              "title": "Wire navigation state from App to views",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 109,
+              "title": "Render collapse chevron on tasks with children",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 110,
+              "title": "Collapse all descendants recursively on chevron click",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 111,
+              "title": "Show descendant count badge on collapsed tasks",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 112,
+              "title": "Expand reveals direct children still collapsed",
+              "completed": false,
+              "children": []
+            }
+          ]
         },
         {
           "id": 104,
