@@ -741,7 +741,44 @@
           "id": 106,
           "title": "Hide completed tasks",
           "completed": false,
-          "children": []
+          "children": [
+            {
+              "id": 123,
+              "title": "Implement hideCompleted state in navigation hook",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 124,
+              "title": "Filter completed children in layout and rendering",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 125,
+              "title": "Render done badge on parents with hidden completed children",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 126,
+              "title": "Per-parent toggle to reveal hidden completed children",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 127,
+              "title": "Render toggle in navigation toolbar",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 128,
+              "title": "Apply to classic view",
+              "completed": false,
+              "children": []
+            }
+          ]
         }
       ]
     }
