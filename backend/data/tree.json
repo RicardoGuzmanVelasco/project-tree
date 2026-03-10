@@ -623,49 +623,74 @@
         {
           "id": 103,
           "title": "Collapse task subtree",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 107,
               "title": "Extract shared navigation state hook",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 108,
               "title": "Wire navigation state from App to views",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 109,
               "title": "Render collapse chevron on tasks with children",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 110,
               "title": "Collapse all descendants recursively on chevron click",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 111,
               "title": "Show descendant count badge on collapsed tasks",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 112,
               "title": "Expand reveals direct children still collapsed",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 113,
               "title": "Apply collapse behavior to classic view",
-              "completed": false,
-              "children": []
+              "completed": true,
+              "children": [
+                {
+                  "id": 114,
+                  "title": "Pass navigation state to TaskNode",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 115,
+                  "title": "Filter children by collapsed state",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 116,
+                  "title": "Render collapse chevron on task nodes",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 117,
+                  "title": "Show descendant count when collapsed",
+                  "completed": true,
+                  "children": []
+                }
+              ]
             }
           ]
         },
