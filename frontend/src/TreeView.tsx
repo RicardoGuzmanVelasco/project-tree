@@ -126,7 +126,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
             onClick={(e) => { e.stopPropagation(); navigation.toggleRevealCompleted(task.id); }}
             style={{ cursor: "pointer", fontSize: 11, color: "#16a34a", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 9, padding: "1px 6px", marginLeft: 4, userSelect: "none" }}
           >
-            +{hiddenCompletedCount} done
+            +{hiddenCompletedCount} ✓
           </span>
         )}
       </div>

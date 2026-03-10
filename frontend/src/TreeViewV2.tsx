@@ -249,7 +249,7 @@ function SvgNode({
           <rect
             x={width + 4}
             y={height / 2 - 9}
-            width={42}
+            width={34}
             height={18}
             rx={9}
             fill="#f0fdf4"
@@ -264,7 +264,7 @@ function SvgNode({
             fontSize={9}
             fill="#16a34a"
           >
-            +{hiddenCompletedCount} done
+            +{hiddenCompletedCount} ✓
           </text>
         </g>
       )}
