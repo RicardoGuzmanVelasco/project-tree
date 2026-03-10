@@ -1,62 +1,26 @@
 @startuml use-cases
-
+skin rose
 left to right direction
 skinparam actorStyle awesome
 
 actor "User" as user
 
-rectangle "project-tree" {
-  package "MVP" {
-    usecase "View project" as view
+
+  package "Task management" as MVP {
     usecase "Create task" as create
     usecase "Complete task" as complete
     usecase "Delete task" as delete
     usecase "Relocate task" as relocate
-    usecase "Navigate tree" as navigate
   }
 
-  package "Navigation use cases" {
+  package Navigation {
+    usecase "View project" as view
     usecase "Collapse task subtree" as collapse_subtree
     usecase "Collapse to depth level" as collapse_depth
-    usecase "Expand all" as expand_all
     usecase "Hide completed tasks" as hide_completed
   }
 
-  package "Post-MVP" {
-    usecase "Edit task" as edit
-  }
-}
-
-user --> view
-user --> create
-user --> complete
-user --> delete
-user --> relocate
-user --> navigate
-user --> collapse_subtree
-user --> collapse_depth
-user --> expand_all
-user --> hide_completed
-user --> edit
-
-note right of view
-  See the full task tree at a glance.
-  The tree is the project.
-end note
-
-note right of create
-  Create a task anywhere in the tree,
-  including as a child of any existing task.
-end note
-
-note right of navigate
-  Pan, zoom, focus on subtrees,
-  keyboard navigation, minimap.
-end note
-
-note right of collapse_subtree
-  Collapse a task and all its descendants
-  recursively. Expand reveals one level at a time.
-end note
+user --> MVP
+user --> Navigation
 
 @enduml
