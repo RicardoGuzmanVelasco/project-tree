@@ -483,6 +483,91 @@
             }
           ],
           "completed": true
+        },
+        {
+          "id": 88,
+          "title": "Navigate across a pleasant tree",
+          "completed": true,
+          "children": [
+            {
+              "id": 89,
+              "title": "Wire up view toggle in App",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 90,
+              "title": "Implement tree layout algorithm",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 91,
+              "title": "Render nodes as SVG",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 92,
+              "title": "Draw curved connectors",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 93,
+              "title": "Implement pan and zoom",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 94,
+              "title": "Fit-to-view",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 95,
+              "title": "Visual design and hierarchy cues",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 96,
+              "title": "Relocating mode visual feedback",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 97,
+              "title": "Expand/collapse branches",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 98,
+              "title": "Focus mode with breadcrumbs",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 99,
+              "title": "Animated transitions for layout changes",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 100,
+              "title": "Keyboard navigation",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 101,
+              "title": "Minimap",
+              "completed": true,
+              "children": []
+            }
+          ]
         }
       ],
       "completed": false
@@ -506,12 +591,6 @@
       "completed": false
     },
     {
-      "id": 35,
-      "title": "Collapse/expand branches",
-      "children": [],
-      "completed": false
-    },
-    {
       "id": 36,
       "title": "Serve frontend from backend (remove CORS)",
       "children": [],
@@ -531,6 +610,37 @@
         {
           "id": 65,
           "title": "Toggle ID visibility (user decides when to see IDs)",
+          "completed": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "title": "Navigation use cases",
+      "completed": false,
+      "children": [
+        {
+          "id": 103,
+          "title": "Collapse task subtree",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 104,
+          "title": "Collapse to depth level",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 105,
+          "title": "Expand all",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 106,
+          "title": "Hide completed tasks",
           "completed": false,
           "children": []
         }
