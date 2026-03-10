@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask } from "./api";
+import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask } from "./api";
 import { Task } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeView from "./TreeView";
@@ -8,6 +8,8 @@ import TreeViewV2 from "./TreeViewV2";
 type ViewMode = "classic" | "v2";
 
 export default function App() {
+  const [projects, setProjects] = useState<{slug: string; title: string}[]>([]);
+  const [currentSlug, setCurrentSlug] = useState("project-tree");
   const [tree, setTree] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
@@ -18,29 +20,44 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("classic");
   const navigation = useNavigationState();
 
-  const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
+  const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
 
-  useEffect(() => { loadTree(); }, []);
+  useEffect(() => {
+    fetchProjects().then(setProjects).catch(() => setError("Could not load projects"));
+    loadTree(currentSlug);
+  }, []);
+
+  const handleSwitchProject = (slug: string) => {
+    setCurrentSlug(slug);
+    setTree(null);
+    setSelectedTaskId(null);
+    setRelocatingTaskId(null);
+    setDeletingTaskId(null);
+    setDeleteClicksRemaining(0);
+    setNewTitle("");
+    navigation.reset();
+    loadTree(slug);
+  };
 
   const handleCreate = async () => {
     if (!selectedTaskId || !newTitle.trim()) return;
-    await createTask(selectedTaskId, newTitle.trim());
+    await createTask(currentSlug, selectedTaskId, newTitle.trim());
     setNewTitle("");
-    loadTree();
+    loadTree(currentSlug);
   };
 
   const handleToggleCompleted = async (id: number, completed: boolean) => {
-    await toggleTaskCompletion(id, completed);
-    loadTree();
+    await toggleTaskCompletion(currentSlug, id, completed);
+    loadTree(currentSlug);
   };
 
   const handleTaskClick = async (id: number) => {
     if (relocatingTaskId) {
       if (id === relocatingTaskId) return;
-      await relocateTask(relocatingTaskId, id);
+      await relocateTask(currentSlug, relocatingTaskId, id);
       setRelocatingTaskId(null);
       setSelectedTaskId(null);
-      loadTree();
+      loadTree(currentSlug);
     } else {
       setSelectedTaskId(id);
     }
@@ -76,10 +93,10 @@ export default function App() {
     if (deletingTaskId === selectedTaskId) {
       // Already in confirmation mode
       if (deleteClicksRemaining <= 1) {
-        await deleteTask(selectedTaskId);
+        await deleteTask(currentSlug, selectedTaskId);
         setSelectedTaskId(null);
         cancelDelete();
-        loadTree();
+        loadTree(currentSlug);
       } else {
         setDeleteClicksRemaining(deleteClicksRemaining - 1);
       }
@@ -87,10 +104,10 @@ export default function App() {
       // First click
       const descendants = countDescendants(task);
       if (descendants === 0) {
-        await deleteTask(selectedTaskId);
+        await deleteTask(currentSlug, selectedTaskId);
         setSelectedTaskId(null);
         cancelDelete();
-        loadTree();
+        loadTree(currentSlug);
       } else {
         setDeletingTaskId(selectedTaskId);
         setDeleteClicksRemaining(descendants);
@@ -159,6 +176,15 @@ export default function App() {
   return (
     <div>
       <div style={{ padding: "8px 40px", display: "flex", gap: 8, alignItems: "center", borderBottom: "1px solid #e2e8f0" }}>
+        <select
+          value={currentSlug}
+          onChange={(e) => handleSwitchProject(e.target.value)}
+          style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer" }}
+        >
+          {projects.map(p => (
+            <option key={p.slug} value={p.slug}>{p.title}</option>
+          ))}
+        </select>
         <button
           onClick={() => setViewMode(m => m === "classic" ? "v2" : "classic")}
           style={{ padding: "4px 12px", fontSize: 13, background: viewMode === "v2" ? "#dbeafe" : "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
