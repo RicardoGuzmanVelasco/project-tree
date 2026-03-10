@@ -165,36 +165,37 @@ export default function App() {
         >
           {viewMode === "classic" ? "Switch to V2" : "Switch to Classic"} (V)
         </button>
-        {maxDepth > 1 && (
+        {maxDepth > 1 && (() => {
+          const effectiveDepth = navigation.depthLevel ?? maxDepth;
+          return (
           <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", fontSize: 13, color: "#475569" }}>
             <span>Collapse from lvl</span>
             <button
               onClick={() => {
-                const current = navigation.depthLevel ?? maxDepth + 1;
-                const next = Math.max(1, current - 1);
+                const next = Math.max(1, effectiveDepth - 1);
                 navigation.collapseToDepth(tree, next);
               }}
-              disabled={navigation.depthLevel !== null && navigation.depthLevel <= 1}
+              disabled={effectiveDepth <= 1}
               style={{ width: 24, height: 24, fontSize: 14, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
             >
               {"\u2212"}
             </button>
             <span style={{ minWidth: 20, textAlign: "center", fontWeight: 600 }}>
-              {navigation.depthLevel ?? "\u2013"}
+              {effectiveDepth}
             </span>
             <button
               onClick={() => {
-                const current = navigation.depthLevel ?? 0;
-                const next = Math.min(maxDepth, current + 1);
+                const next = Math.min(maxDepth, effectiveDepth + 1);
                 navigation.collapseToDepth(tree, next);
               }}
-              disabled={navigation.depthLevel !== null && navigation.depthLevel >= maxDepth}
+              disabled={effectiveDepth >= maxDepth}
               style={{ width: 24, height: 24, fontSize: 14, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
             >
               +
             </button>
           </div>
-        )}
+          );
+        })()}
       </div>
       {relocatingTaskId && (
         <div style={{ padding: "12px 40px", display: "flex", gap: 8, alignItems: "center", background: "#fef3c7", borderBottom: "1px solid #f59e0b" }}>
