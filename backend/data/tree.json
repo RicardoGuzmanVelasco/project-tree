@@ -660,6 +660,12 @@
               "title": "Expand reveals direct children still collapsed",
               "completed": false,
               "children": []
+            },
+            {
+              "id": 113,
+              "title": "Apply collapse behavior to classic view",
+              "completed": false,
+              "children": []
             }
           ]
         },
