@@ -4,10 +4,14 @@ import { Task } from "./types";
 export interface NavigationState {
   collapsedIds: Set<number>;
   depthLevel: number | null;
+  hideCompleted: boolean;
+  revealedParentIds: Set<number>;
   collapseSubtree: (task: Task) => void;
   toggleCollapse: (task: Task) => void;
   collapseToDepth: (root: Task, depth: number) => void;
   clearDepthLevel: () => void;
+  setHideCompleted: (hide: boolean) => void;
+  toggleRevealCompleted: (parentId: number) => void;
 }
 
 function collectDescendantIdsWithChildren(task: Task): number[] {
@@ -47,6 +51,8 @@ export function computeMaxDepth(task: Task, current: number = 0): number {
 export function useNavigationState(): NavigationState {
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
   const [depthLevel, setDepthLevel] = useState<number | null>(null);
+  const [hideCompleted, setHideCompleted] = useState(false);
+  const [revealedParentIds, setRevealedParentIds] = useState<Set<number>>(new Set());
 
   const collapseSubtree = useCallback((task: Task) => {
     setDepthLevel(null);
@@ -86,5 +92,23 @@ export function useNavigationState(): NavigationState {
     setDepthLevel(null);
   }, []);
 
-  return { collapsedIds, depthLevel, collapseSubtree, toggleCollapse, collapseToDepth, clearDepthLevel };
+  const handleSetHideCompleted = useCallback((hide: boolean) => {
+    setHideCompleted(hide);
+    if (!hide) setRevealedParentIds(new Set());
+  }, []);
+
+  const toggleRevealCompleted = useCallback((parentId: number) => {
+    setRevealedParentIds(prev => {
+      const next = new Set(prev);
+      if (next.has(parentId)) next.delete(parentId);
+      else next.add(parentId);
+      return next;
+    });
+  }, []);
+
+  return {
+    collapsedIds, depthLevel, hideCompleted, revealedParentIds,
+    collapseSubtree, toggleCollapse, collapseToDepth, clearDepthLevel,
+    setHideCompleted: handleSetHideCompleted, toggleRevealCompleted,
+  };
 }
