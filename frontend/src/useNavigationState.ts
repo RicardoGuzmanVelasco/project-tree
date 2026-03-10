@@ -12,6 +12,7 @@ export interface NavigationState {
   clearDepthLevel: () => void;
   setHideCompleted: (hide: boolean) => void;
   toggleRevealCompleted: (parentId: number) => void;
+  reset: () => void;
 }
 
 function collectDescendantIdsWithChildren(task: Task): number[] {
@@ -106,9 +107,16 @@ export function useNavigationState(): NavigationState {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    setCollapsedIds(new Set());
+    setDepthLevel(null);
+    setHideCompleted(false);
+    setRevealedParentIds(new Set());
+  }, []);
+
   return {
     collapsedIds, depthLevel, hideCompleted, revealedParentIds,
     collapseSubtree, toggleCollapse, collapseToDepth, clearDepthLevel,
-    setHideCompleted: handleSetHideCompleted, toggleRevealCompleted,
+    setHideCompleted: handleSetHideCompleted, toggleRevealCompleted, reset,
   };
 }
