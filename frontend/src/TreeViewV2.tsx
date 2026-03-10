@@ -24,6 +24,8 @@ function SvgNode({
   relocateStatus,
   isCollapsed,
   onToggleCollapse,
+  hiddenCompletedCount,
+  onToggleRevealCompleted,
   isFocusDimmed,
   onDoubleClick,
 }: {
@@ -34,6 +36,8 @@ function SvgNode({
   relocateStatus: RelocateStatus;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  hiddenCompletedCount: number;
+  onToggleRevealCompleted: () => void;
   isFocusDimmed: boolean;
   onDoubleClick: () => void;
 }) {
@@ -237,12 +241,57 @@ function SvgNode({
           </text>
         </g>
       )}
+      {hiddenCompletedCount > 0 && (
+        <g
+          onClick={(e) => { e.stopPropagation(); onToggleRevealCompleted(); }}
+          style={{ cursor: "pointer" }}
+        >
+          <rect
+            x={width + 4}
+            y={height / 2 - 9}
+            width={42}
+            height={18}
+            rx={9}
+            fill="#f0fdf4"
+            stroke="#86efac"
+            strokeWidth={0.5}
+          />
+          <text
+            x={width + 25}
+            y={height / 2}
+            dominantBaseline="central"
+            textAnchor="middle"
+            fontSize={9}
+            fill="#16a34a"
+          >
+            +{hiddenCompletedCount} done
+          </text>
+        </g>
+      )}
     </g>
   );
 }
 
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
+
+function filterCompletedChildren(
+  task: Task,
+  revealedParentIds: Set<number>,
+  hiddenCounts: Map<number, number>,
+): Task {
+  const filtered = task.children.filter(c => {
+    if (!c.completed) return true;
+    if (revealedParentIds.has(task.id)) return true;
+    return false;
+  });
+  const hiddenCount = task.children.length - filtered.length;
+  if (hiddenCount > 0) hiddenCounts.set(task.id, hiddenCount);
+  return {
+    ...task,
+    children: filtered.map(c => filterCompletedChildren(c, revealedParentIds, hiddenCounts)),
+  };
+}
 
 function isDescendant(node: Task, targetId: number): boolean {
   if (node.id === targetId) return true;
@@ -295,10 +344,17 @@ export default function TreeViewV2({
   relocatingTaskId,
   navigation,
 }: TreeViewV2Props) {
-  const { collapsedIds } = navigation;
+  const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
 
-  const nodes = useMemo(() => layoutTree(task, collapsedIds), [task, collapsedIds]);
+  const { filteredTree, hiddenCompletedCounts } = useMemo(() => {
+    if (!hideCompleted) return { filteredTree: task, hiddenCompletedCounts: new Map<number, number>() };
+    const counts = new Map<number, number>();
+    const filtered = filterCompletedChildren(task, revealedParentIds, counts);
+    return { filteredTree: filtered, hiddenCompletedCounts: counts };
+  }, [task, hideCompleted, revealedParentIds]);
+
+  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds), [filteredTree, collapsedIds]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const focusedSubtree = focusedTaskId ? findTask(task, focusedTaskId) : null;
@@ -715,6 +771,8 @@ export default function TreeViewV2({
                   relocateStatus={relocateStatus}
                   isCollapsed={collapsedIds.has(node.id)}
                   onToggleCollapse={() => navigation.toggleCollapse(node.task)}
+                  hiddenCompletedCount={hiddenCompletedCounts.get(node.id) ?? 0}
+                  onToggleRevealCompleted={() => navigation.toggleRevealCompleted(node.id)}
                   isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
                   onDoubleClick={() => setFocusedTaskId(node.id)}
                 />

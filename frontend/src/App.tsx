@@ -165,10 +165,20 @@ export default function App() {
         >
           {viewMode === "classic" ? "Switch to V2" : "Switch to Classic"} (V)
         </button>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 16, alignItems: "center" }}>
+          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
+            <input
+              type="checkbox"
+              checked={navigation.hideCompleted}
+              onChange={(e) => navigation.setHideCompleted(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            Hide completed
+          </label>
         {maxDepth > 1 && (() => {
           const effectiveDepth = navigation.depthLevel ?? maxDepth;
           return (
-          <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", fontSize: 13, color: "#475569" }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 13, color: "#475569" }}>
             <span>Collapse from lvl</span>
             <button
               onClick={() => {
@@ -196,6 +206,7 @@ export default function App() {
           </div>
           );
         })()}
+        </div>
       </div>
       {relocatingTaskId && (
         <div style={{ padding: "12px 40px", display: "flex", gap: 8, alignItems: "center", background: "#fef3c7", borderBottom: "1px solid #f59e0b" }}>

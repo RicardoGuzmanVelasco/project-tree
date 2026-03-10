@@ -59,6 +59,15 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
   const isValidTarget = isRelocating && !isInvalidTarget;
   const isCollapsed = navigation.collapsedIds.has(task.id);
   const descendantCount = countDescendants(task);
+  const { hideCompleted, revealedParentIds } = navigation;
+
+  const allChildren = isCollapsed ? [] : task.children;
+  const hiddenCompletedCount = hideCompleted && !revealedParentIds.has(task.id)
+    ? allChildren.filter(c => c.completed).length
+    : 0;
+  const visibleChildren = hiddenCompletedCount > 0
+    ? allChildren.filter(c => !c.completed)
+    : allChildren;
 
   const nodeOpacity = task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
   const nodeCursor = isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
@@ -67,8 +76,6 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
     if (isInvalidTarget) return;
     onSelectTask(task.id);
   };
-
-  const visibleChildren = isCollapsed ? [] : task.children;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -112,6 +119,14 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
             style={{ cursor: "pointer", fontSize: 11, color: "#64748b", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 9, padding: "1px 6px", marginLeft: 4, userSelect: "none" }}
           >
             +{descendantCount}
+          </span>
+        )}
+        {hiddenCompletedCount > 0 && (
+          <span
+            onClick={(e) => { e.stopPropagation(); navigation.toggleRevealCompleted(task.id); }}
+            style={{ cursor: "pointer", fontSize: 11, color: "#16a34a", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 9, padding: "1px 6px", marginLeft: 4, userSelect: "none" }}
+          >
+            +{hiddenCompletedCount} done
           </span>
         )}
       </div>
