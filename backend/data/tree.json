@@ -704,7 +704,32 @@
           "id": 104,
           "title": "Collapse to depth level",
           "completed": false,
-          "children": []
+          "children": [
+            {
+              "id": 119,
+              "title": "Compute max tree depth in navigation state",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 120,
+              "title": "Implement collapseToDepth in navigation hook",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 121,
+              "title": "Render depth stepper in navigation toolbar",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 122,
+              "title": "Number key shortcut for depth levels 1-9",
+              "completed": false,
+              "children": []
+            }
+          ]
         },
         {
           "id": 105,
