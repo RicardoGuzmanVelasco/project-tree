@@ -691,6 +691,12 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "id": 118,
+              "title": "Prevent node size change on collapse/expand toggle",
+              "completed": false,
+              "children": []
             }
           ]
         },
