@@ -15,6 +15,13 @@ rectangle "project-tree" {
     usecase "Navigate tree" as navigate
   }
 
+  package "Navigation use cases" {
+    usecase "Collapse task subtree" as collapse_subtree
+    usecase "Collapse to depth level" as collapse_depth
+    usecase "Expand all" as expand_all
+    usecase "Hide completed tasks" as hide_completed
+  }
+
   package "Post-MVP" {
     usecase "Edit task" as edit
   }
@@ -26,6 +33,10 @@ user --> complete
 user --> delete
 user --> relocate
 user --> navigate
+user --> collapse_subtree
+user --> collapse_depth
+user --> expand_all
+user --> hide_completed
 user --> edit
 
 note right of view
@@ -39,8 +50,13 @@ note right of create
 end note
 
 note right of navigate
-  Pan, zoom, collapse/expand, focus on
-  subtrees, keyboard navigation, minimap.
+  Pan, zoom, focus on subtrees,
+  keyboard navigation, minimap.
+end note
+
+note right of collapse_subtree
+  Collapse a task and all its descendants
+  recursively. Expand reveals one level at a time.
 end note
 
 @enduml
