@@ -36,6 +36,12 @@ function isDescendant(task: Task, targetId: number): boolean {
   return task.children.some(c => isDescendant(c, targetId));
 }
 
+function countDescendants(task: Task): number {
+  let count = task.children.length;
+  for (const child of task.children) count += countDescendants(child);
+  return count;
+}
+
 interface TaskNodeProps {
   task: Task;
   selectedTaskId: number | null;
@@ -43,13 +49,16 @@ interface TaskNodeProps {
   onToggleCompleted: (id: number, completed: boolean) => void;
   relocatingTaskId: number | null;
   relocatingSubtree: Task | null;
+  navigation: NavigationState;
 }
 
-function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree }: TaskNodeProps) {
+function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation }: TaskNodeProps) {
   const isSelected = task.id === selectedTaskId;
   const isRelocating = relocatingTaskId !== null;
   const isInvalidTarget = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, task.id);
   const isValidTarget = isRelocating && !isInvalidTarget;
+  const isCollapsed = navigation.collapsedIds.has(task.id);
+  const descendantCount = countDescendants(task);
 
   const nodeOpacity = task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
   const nodeCursor = isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
@@ -58,6 +67,8 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
     if (isInvalidTarget) return;
     onSelectTask(task.id);
   };
+
+  const visibleChildren = isCollapsed ? [] : task.children;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -87,12 +98,25 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
           {task.title}
         </span>
+        {task.children.length > 0 && (
+          <span
+            onClick={(e) => { e.stopPropagation(); navigation.toggleCollapse(task); }}
+            style={{ cursor: "pointer", color: "#64748b", fontSize: 12, marginLeft: 4, userSelect: "none" }}
+          >
+            {isCollapsed ? "+" : "\u2212"}
+          </span>
+        )}
+        {isCollapsed && descendantCount > 0 && (
+          <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 9, padding: "1px 6px", marginLeft: 2 }}>
+            +{descendantCount}
+          </span>
+        )}
       </div>
 
-      {task.children.length > 0 && areAllChildrenLeaves(task) && (
+      {visibleChildren.length > 0 && areAllChildrenLeaves(task) && (
         <div style={{ marginTop: 6 }}>
           <ConnectedList
-            items={task.children.map(c => ({ key: c.id, task: c }))}
+            items={visibleChildren.map(c => ({ key: c.id, task: c }))}
             renderItem={(item) => {
               const child = item.task;
               const isChildSelected = child.id === selectedTaskId;
@@ -130,9 +154,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         </div>
       )}
 
-      {task.children.length > 0 && !areAllChildrenLeaves(task) && (() => {
-        const branches = task.children.filter(c => c.children.length > 0);
-        const atomics = task.children.filter(c => c.children.length === 0);
+      {visibleChildren.length > 0 && !areAllChildrenLeaves(task) && (() => {
+        const branches = visibleChildren.filter(c => c.children.length > 0);
+        const atomics = visibleChildren.filter(c => c.children.length === 0);
         const allColumns = branches.length + (atomics.length > 0 ? 1 : 0);
         return (
           <>
@@ -167,6 +191,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     onToggleCompleted={onToggleCompleted}
                     relocatingTaskId={relocatingTaskId}
                     relocatingSubtree={relocatingSubtree}
+                    navigation={navigation}
                   />
                 </div>
               ))}
@@ -230,7 +255,7 @@ interface TreeViewProps {
   navigation: NavigationState;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation: _navigation }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   return (
@@ -242,6 +267,7 @@ export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleC
         onToggleCompleted={onToggleCompleted}
         relocatingTaskId={relocatingTaskId}
         relocatingSubtree={relocatingSubtree}
+        navigation={navigation}
       />
     </div>
   );
