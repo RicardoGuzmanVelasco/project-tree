@@ -191,8 +191,8 @@ function SvgNode({
       >
         {task.title}
       </text>
-      {/* Collapse/expand chevron for tasks with children */}
-      {task.children.length > 0 && (
+      {/* Collapse: minus sign when expanded, +N badge when collapsed */}
+      {task.children.length > 0 && !isCollapsed && (
         <g
           onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
           style={{ cursor: "pointer" }}
@@ -206,15 +206,17 @@ function SvgNode({
             fontSize={10}
             fill="#64748b"
           >
-            {isCollapsed ? "+" : "\u2212"}
+            {"\u2212"}
           </text>
         </g>
       )}
-      {/* Descendant count badge when collapsed */}
       {isCollapsed && node.descendantCount > 0 && (
-        <>
+        <g
+          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+          style={{ cursor: "pointer" }}
+        >
           <rect
-            x={width + 4}
+            x={width - 32}
             y={height / 2 - 9}
             width={30}
             height={18}
@@ -224,7 +226,7 @@ function SvgNode({
             strokeWidth={0.5}
           />
           <text
-            x={width + 19}
+            x={width - 17}
             y={height / 2}
             dominantBaseline="central"
             textAnchor="middle"
@@ -233,7 +235,7 @@ function SvgNode({
           >
             +{node.descendantCount}
           </text>
-        </>
+        </g>
       )}
     </g>
   );

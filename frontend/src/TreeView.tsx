@@ -98,16 +98,19 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
           {task.title}
         </span>
-        {task.children.length > 0 && (
+        {task.children.length > 0 && !isCollapsed && (
           <span
             onClick={(e) => { e.stopPropagation(); navigation.toggleCollapse(task); }}
             style={{ cursor: "pointer", color: "#64748b", fontSize: 12, marginLeft: 4, userSelect: "none" }}
           >
-            {isCollapsed ? "+" : "\u2212"}
+            {"\u2212"}
           </span>
         )}
         {isCollapsed && descendantCount > 0 && (
-          <span style={{ fontSize: 11, color: "#64748b", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 9, padding: "1px 6px", marginLeft: 2 }}>
+          <span
+            onClick={(e) => { e.stopPropagation(); navigation.toggleCollapse(task); }}
+            style={{ cursor: "pointer", fontSize: 11, color: "#64748b", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 9, padding: "1px 6px", marginLeft: 4, userSelect: "none" }}
+          >
             +{descendantCount}
           </span>
         )}
