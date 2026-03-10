@@ -734,7 +734,7 @@
         {
           "id": 105,
           "title": "Expand all",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
