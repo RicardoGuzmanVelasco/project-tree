@@ -20,7 +20,12 @@ actor "User" as user
     usecase "Hide completed tasks" as hide_completed
   }
 
+  package "Project management" as project_mgmt {
+    usecase "Switch project" as switch_project
+  }
+
 user --> MVP
 user --> Navigation
+user --> project_mgmt
 
 @enduml

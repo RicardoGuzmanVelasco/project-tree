@@ -35,7 +35,7 @@ Two view modes available (toggle with V key):
 - **Classic** — HTML-based tree with inline connectors (original)
 - **V2** — SVG-based tree with pan/zoom, collapse, focus mode, minimap
 
-No edit, no plans yet. See `docs/` for detailed use cases.
+Multi-project support: backend serves multiple independent trees from `backend/data/trees/`, frontend has a project selector dropdown. No edit, no plans yet. See `docs/` for detailed use cases.
 
 ## Tech Stack
 
