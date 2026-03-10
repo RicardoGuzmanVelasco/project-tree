@@ -618,7 +618,7 @@
     {
       "id": 102,
       "title": "Navigation use cases",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 103,
