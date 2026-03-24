@@ -117,16 +117,28 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
   if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
 
   const id = Number(req.params.id);
-  const { completed, parentId } = req.body;
+  const { completed, parentId, title } = req.body;
 
-  if (typeof completed !== "boolean" && typeof parentId !== "number") {
-    res.status(400).json({ error: "completed (boolean) or parentId (number) is required" });
+  if (typeof completed !== "boolean" && typeof parentId !== "number" && typeof title !== "string") {
+    res.status(400).json({ error: "completed (boolean), parentId (number), or title (string) is required" });
     return;
   }
 
   const task = findTask(tree, id);
   if (!task) {
     res.status(404).json({ error: "Task not found" });
+    return;
+  }
+
+  if (typeof title === "string") {
+    const trimmed = title.trim();
+    if (!trimmed) {
+      res.status(400).json({ error: "Title cannot be empty" });
+      return;
+    }
+    task.title = trimmed;
+    saveTree(slug);
+    res.json(task);
     return;
   }
 

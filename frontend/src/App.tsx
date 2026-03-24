@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask } from "./api";
+import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask } from "./api";
 import { Task } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeView from "./TreeView";
@@ -15,6 +15,7 @@ export default function App() {
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [relocatingTaskId, setRelocatingTaskId] = useState<number | null>(null);
+  const [renamingTaskId, setRenamingTaskId] = useState<number | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("classic");
@@ -32,6 +33,7 @@ export default function App() {
     setTree(null);
     setSelectedTaskId(null);
     setRelocatingTaskId(null);
+    setRenamingTaskId(null);
     setDeletingTaskId(null);
     setDeleteClicksRemaining(0);
     setNewTitle("");
@@ -115,6 +117,27 @@ export default function App() {
     }
   };
 
+  const cancelRename = useCallback(() => {
+    setRenamingTaskId(null);
+    setNewTitle("");
+  }, []);
+
+  const startRename = () => {
+    if (!selectedTaskId || !tree) return;
+    const task = findTaskInTree(tree, selectedTaskId);
+    if (!task) return;
+    setRenamingTaskId(selectedTaskId);
+    setNewTitle(task.title);
+  };
+
+  const handleRename = async () => {
+    if (!renamingTaskId || !newTitle.trim()) return;
+    await renameTask(currentSlug, renamingTaskId, newTitle.trim());
+    setRenamingTaskId(null);
+    setNewTitle("");
+    loadTree(currentSlug);
+  };
+
   const cancelRelocate = useCallback(() => {
     setRelocatingTaskId(null);
   }, []);
@@ -126,17 +149,25 @@ export default function App() {
     }
   }, [selectedTaskId, deletingTaskId, cancelDelete]);
 
+  // Cancel rename when selecting a different task
   useEffect(() => {
-    if (!relocatingTaskId && !deletingTaskId) return;
+    if (renamingTaskId && selectedTaskId !== renamingTaskId) {
+      cancelRename();
+    }
+  }, [selectedTaskId, renamingTaskId, cancelRename]);
+
+  useEffect(() => {
+    if (!relocatingTaskId && !deletingTaskId && !renamingTaskId) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         cancelRelocate();
         cancelDelete();
+        cancelRename();
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [relocatingTaskId, deletingTaskId, cancelRelocate, cancelDelete]);
+  }, [relocatingTaskId, deletingTaskId, renamingTaskId, cancelRelocate, cancelDelete, cancelRename]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -247,35 +278,51 @@ export default function App() {
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            placeholder="New child task title"
+            onKeyDown={(e) => e.key === "Enter" && (renamingTaskId ? handleRename() : handleCreate())}
+            placeholder={renamingTaskId ? "New task title" : "New child task title"}
             style={{ padding: "6px 10px", fontSize: 14 }}
           />
-          <button onClick={handleCreate} style={{ padding: "6px 14px", fontSize: 14 }}>
-            Create
-          </button>
-          {!isRoot && (
+          {renamingTaskId ? (
             <>
-              <button
-                onClick={() => setRelocatingTaskId(selectedTaskId)}
-                style={{ padding: "6px 14px", fontSize: 14 }}
-              >
-                Relocate
+              <button onClick={handleRename} style={{ padding: "6px 14px", fontSize: 14 }}>
+                Rename
               </button>
-              <button
-                onClick={handleDelete}
-                style={{
-                  padding: "6px 14px",
-                  fontSize: 14,
-                  ...(deletingTaskId === selectedTaskId
-                    ? { background: "#dc2626", color: "white", borderColor: "#dc2626" }
-                    : {}),
-                }}
-              >
-                {deletingTaskId === selectedTaskId
-                  ? `Click ${deleteClicksRemaining} more time${deleteClicksRemaining !== 1 ? "s" : ""} to confirm (deletes ${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1} task${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1 !== 1 ? "s" : ""})`
-                  : "Delete"}
+              <button onClick={cancelRename} style={{ padding: "6px 14px", fontSize: 14 }}>
+                Cancel
               </button>
+            </>
+          ) : (
+            <>
+              <button onClick={handleCreate} style={{ padding: "6px 14px", fontSize: 14 }}>
+                Create
+              </button>
+              {!isRoot && (
+                <>
+                  <button onClick={startRename} style={{ padding: "6px 14px", fontSize: 14 }}>
+                    Rename
+                  </button>
+                  <button
+                    onClick={() => setRelocatingTaskId(selectedTaskId)}
+                    style={{ padding: "6px 14px", fontSize: 14 }}
+                  >
+                    Relocate
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: 14,
+                      ...(deletingTaskId === selectedTaskId
+                        ? { background: "#dc2626", color: "white", borderColor: "#dc2626" }
+                        : {}),
+                    }}
+                  >
+                    {deletingTaskId === selectedTaskId
+                      ? `Click ${deleteClicksRemaining} more time${deleteClicksRemaining !== 1 ? "s" : ""} to confirm (deletes ${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1} task${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1 !== 1 ? "s" : ""})`
+                      : "Delete"}
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>

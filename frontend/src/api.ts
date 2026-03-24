@@ -28,6 +28,15 @@ export async function relocateTask(slug: string, id: number, newParentId: number
   return response.json();
 }
 
+export async function renameTask(slug: string, id: number, title: string) {
+  const response = await fetch(`${API_BASE}/projects/${slug}/tasks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+  return response.json();
+}
+
 export async function deleteTask(slug: string, id: number) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks/${id}`, {
     method: "DELETE",
