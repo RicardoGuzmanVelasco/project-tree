@@ -42,6 +42,15 @@ function countDescendants(task: Task): number {
   return count;
 }
 
+function countCompletedDescendants(task: Task): number {
+  let count = 0;
+  for (const child of task.children) {
+    if (child.completed) count++;
+    count += countCompletedDescendants(child);
+  }
+  return count;
+}
+
 interface TaskNodeProps {
   task: Task;
   selectedTaskId: number | null;
@@ -60,6 +69,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
   const isValidTarget = isRelocating && !isInvalidTarget;
   const isCollapsed = navigation.collapsedIds.has(task.id);
   const descendantCount = countDescendants(task);
+  const completedDescendantCount = countCompletedDescendants(task);
   const { hideCompleted, revealedParentIds } = navigation;
 
   const allChildren = isCollapsed ? [] : task.children;
@@ -122,7 +132,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
             onClick={(e) => { e.stopPropagation(); navigation.toggleCollapse(task); }}
             style={{ cursor: "pointer", fontSize: 11, color: "#64748b", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 9, padding: "1px 6px", marginLeft: 4, userSelect: "none" }}
           >
-            +{descendantCount}
+            {completedDescendantCount}/{descendantCount}
           </span>
         )}
         {hiddenCompletedCount > 0 && (

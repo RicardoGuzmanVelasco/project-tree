@@ -249,7 +249,7 @@ function SvgNode({
             style={{ cursor: "pointer" }}
           >
             <rect
-              x={width - badgeW + 2}
+              x={width + 4}
               y={height / 2 - 9}
               width={badgeW}
               height={18}
@@ -259,7 +259,7 @@ function SvgNode({
               strokeWidth={0.5}
             />
             <text
-              x={width - badgeW / 2 + 2}
+              x={width + 4 + badgeW / 2}
               y={height / 2}
               dominantBaseline="central"
               textAnchor="middle"
