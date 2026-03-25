@@ -90,6 +90,7 @@ function SvgNode({
     const atomicFontSize = Math.max(12, fontSize - 1);
     let bgFill = "transparent";
     if (isValid) bgFill = "#dcfce7";
+    else if (isInEditPlan) bgFill = "#f0fdf4";
     else if (isSelected) bgFill = "#dbeafe";
 
     return (
@@ -98,7 +99,8 @@ function SvgNode({
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
         style={{ cursor, opacity: isFocusDimmed ? 0.15 : undefined }}
       >
-        <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill} opacity={nodeOpacity} />
+        <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill} opacity={nodeOpacity}
+          stroke={isInEditPlan ? "#16a34a" : "none"} strokeWidth={isInEditPlan ? 1.5 : 0} />
         {/* Completion circle with larger hit area */}
         <circle cx={12} cy={height / 2} r={10} fill="transparent"
           onMouseDown={(e) => e.stopPropagation()}
