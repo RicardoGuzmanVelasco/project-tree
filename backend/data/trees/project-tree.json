@@ -1206,12 +1206,12 @@
             {
               "id": 222,
               "title": "más greyed out a los que no pertenecen al plan",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 223,
                   "title": "letra también gris como en las completadas",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
