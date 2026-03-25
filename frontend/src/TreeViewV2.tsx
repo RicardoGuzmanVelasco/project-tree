@@ -95,12 +95,18 @@ function SvgNode({
     else if (isInEditPlan) bgFill = "#f0fdf4";
     else if (isSelected) bgFill = "#dbeafe";
 
+    const atomicClipId = `clip-a-${node.id}`;
     return (
       <g
         onClick={handleClick}
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
         style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
       >
+        <defs>
+          <clipPath id={atomicClipId}>
+            <rect x={0} y={0} width={width} height={height} rx={4} />
+          </clipPath>
+        </defs>
         <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill}
           stroke={isInEditPlan ? "#16a34a" : "none"} strokeWidth={isInEditPlan ? 1.5 : 0} />
         {/* Completion circle with larger hit area */}
@@ -146,6 +152,7 @@ function SvgNode({
           fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
           textDecoration={task.completed ? "line-through" : "none"}
           opacity={task.completed ? 0.5 : 1}
+          clipPath={`url(#${atomicClipId})`}
         >
           {task.title}
         </text>
@@ -154,12 +161,18 @@ function SvgNode({
   }
 
   // Regular node: full box rendering
+  const clipId = `clip-${node.id}`;
   return (
     <g
       onClick={handleClick}
       onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
       style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
     >
+      <defs>
+        <clipPath id={clipId}>
+          <rect x={0} y={0} width={width} height={height} rx={6} />
+        </clipPath>
+      </defs>
       {/* Shadow */}
       <rect
         x={1}
@@ -219,7 +232,7 @@ function SvgNode({
           #{task.id}
         </text>
       )}
-      {/* Title */}
+      {/* Title (clipped to node bounds) */}
       <text
         x={showIds ? 28 + String(task.id).length * 6.5 + 14 : 28}
         y={height / 2}
@@ -228,6 +241,7 @@ function SvgNode({
         fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
         textDecoration={task.completed ? "line-through" : "none"}
         opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
+        clipPath={`url(#${clipId})`}
       >
         {task.title}
       </text>

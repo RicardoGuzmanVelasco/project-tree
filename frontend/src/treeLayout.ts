@@ -22,6 +22,7 @@ const ATOMIC_V_GAP = 4;
 // Spacing config — switched by compact mode
 let NODE_PADDING_X = 24;
 let MIN_NODE_WIDTH = 120;
+let MAX_NODE_WIDTH = Infinity;
 let H_GAP = 24;
 let V_GAP = 56;
 let PARENT_TO_CHILDREN_GAP = 16;
@@ -29,6 +30,7 @@ let PARENT_TO_CHILDREN_GAP = 16;
 function applySpacing(compact: boolean) {
   NODE_PADDING_X = compact ? 12 : 24;
   MIN_NODE_WIDTH = compact ? 80 : 120;
+  MAX_NODE_WIDTH = compact ? 220 : Infinity;
   H_GAP = compact ? 6 : 24;
   V_GAP = compact ? 20 : 56;
   PARENT_TO_CHILDREN_GAP = compact ? 6 : 16;
@@ -50,7 +52,7 @@ function countCompletedDescendants(task: Task): number {
 }
 
 function nodeWidth(title: string): number {
-  return Math.max(MIN_NODE_WIDTH, title.length * CHAR_WIDTH + NODE_PADDING_X * 2);
+  return Math.min(MAX_NODE_WIDTH, Math.max(MIN_NODE_WIDTH, title.length * CHAR_WIDTH + NODE_PADDING_X * 2));
 }
 
 interface SubtreeInfo {
