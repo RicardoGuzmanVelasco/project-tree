@@ -20,6 +20,7 @@ export default function App() {
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("classic");
   const [showIds, setShowIds] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const navigation = useNavigationState();
 
   const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
@@ -62,6 +63,7 @@ export default function App() {
       setSelectedTaskId(null);
       loadTree(currentSlug);
     } else {
+      if (id !== selectedTaskId) setShowDescription(false);
       setSelectedTaskId(id);
     }
   };
@@ -161,6 +163,7 @@ export default function App() {
     if (!relocatingTaskId && !deletingTaskId && !renamingTaskId) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (showDescription) { setShowDescription(false); return; }
         cancelRelocate();
         cancelDelete();
         cancelRename();
@@ -168,7 +171,7 @@ export default function App() {
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [relocatingTaskId, deletingTaskId, renamingTaskId, cancelRelocate, cancelDelete, cancelRename]);
+  }, [relocatingTaskId, deletingTaskId, renamingTaskId, cancelRelocate, cancelDelete, cancelRename, showDescription]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -181,10 +184,13 @@ export default function App() {
       if (e.key === "i") {
         setShowIds(s => !s);
       }
+      if (e.key === "d" && selectedTaskId) {
+        setShowDescription(d => !d);
+      }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, []);
+  }, [selectedTaskId]);
 
   const maxDepth = useMemo(() => tree ? computeMaxDepth(tree) : 0, [tree]);
 
@@ -210,7 +216,7 @@ export default function App() {
   const isRoot = selectedTaskId === tree.id;
 
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <div style={{ padding: "8px 40px", display: "flex", gap: 8, alignItems: "center", borderBottom: "1px solid #e2e8f0" }}>
         <select
           value={currentSlug}
@@ -310,6 +316,16 @@ export default function App() {
               <button onClick={handleCreate} style={{ padding: "6px 14px", fontSize: 14 }}>
                 Create
               </button>
+              <button
+                onClick={() => setShowDescription(d => !d)}
+                style={{
+                  padding: "6px 14px",
+                  fontSize: 14,
+                  ...(showDescription ? { background: "#2563eb", color: "white", borderColor: "#2563eb" } : {}),
+                }}
+              >
+                Description
+              </button>
               {!isRoot && (
                 <>
                   <button onClick={startRename} style={{ padding: "6px 14px", fontSize: 14 }}>
@@ -341,38 +357,72 @@ export default function App() {
           )}
         </div>
       )}
-      {selectedTaskId && (() => {
-        const task = findTaskInTree(tree, selectedTaskId);
-        if (!task) return null;
-        return (
-          <div style={{ padding: "8px 40px", borderBottom: "1px solid #e2e8f0" }}>
-            <textarea
-              key={selectedTaskId}
-              defaultValue={task.description || ""}
-              placeholder="Add a description..."
-              onBlur={async (e) => {
-                const value = e.target.value;
-                if (value !== (task.description || "")) {
-                  await updateDescription(currentSlug, selectedTaskId, value);
-                  const updated = await fetchTree(currentSlug);
-                  setTree(updated);
-                }
-              }}
+      <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
+        {showDescription && selectedTaskId && (() => {
+          const task = findTaskInTree(tree, selectedTaskId);
+          if (!task) return null;
+          return (
+            <div
+              onClick={() => setShowDescription(false)}
               style={{
-                width: "100%",
-                minHeight: 40,
-                fontSize: 13,
-                color: "#475569",
-                border: "none",
-                outline: "none",
-                resize: "vertical",
-                fontFamily: "inherit",
-                background: "transparent",
+                position: "absolute",
+                inset: 0,
+                zIndex: 10,
+                background: "rgba(0, 0, 0, 0.15)",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                paddingTop: 60,
               }}
-            />
-          </div>
-        );
-      })()}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: "#fff",
+                  borderRadius: 12,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                  padding: "24px 28px",
+                  width: "min(520px, 90%)",
+                  maxHeight: "70vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 600, color: "#1e293b" }}>
+                  {task.title}
+                </div>
+                <textarea
+                  key={selectedTaskId}
+                  defaultValue={task.description || ""}
+                  placeholder="Add a description..."
+                  autoFocus
+                  onBlur={async (e) => {
+                    const value = e.target.value;
+                    if (value !== (task.description || "")) {
+                      await updateDescription(currentSlug, selectedTaskId, value);
+                      const updated = await fetchTree(currentSlug);
+                      setTree(updated);
+                    }
+                  }}
+                  style={{
+                    width: "100%",
+                    minHeight: 120,
+                    fontSize: 14,
+                    color: "#475569",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    outline: "none",
+                    resize: "vertical",
+                    fontFamily: "inherit",
+                    lineHeight: 1.5,
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })()}
       {viewMode === "classic" ? (
         <TreeView
           task={tree}
@@ -394,6 +444,7 @@ export default function App() {
           showIds={showIds}
         />
       )}
+      </div>
     </div>
   );
 }
