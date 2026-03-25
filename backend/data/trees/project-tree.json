@@ -1250,6 +1250,12 @@
                       "title": "si se crea tarea hija en vista de plan, se añade al plan auto",
                       "completed": false,
                       "children": []
+                    },
+                    {
+                      "id": 216,
+                      "title": "que las tareas hojas del plan también se vean verdes",
+                      "completed": true,
+                      "children": []
                     }
                   ]
                 }
