@@ -84,7 +84,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
     ? allChildren.filter(c => !c.completed)
     : allChildren;
 
-  const nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
+  const nodeOpacity = isAncestorContext ? 0.5 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
   const nodeCursor = isAncestorContext ? "default" : isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
 
   const handleClick = () => {
@@ -121,7 +121,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         {showIds && (
           <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>#{task.id}</span>
         )}
-        <span style={{ textDecoration: task.completed ? "line-through" : "none", color: isAncestorContext ? "#94a3b8" : "inherit" }}>
+        <span style={{ textDecoration: task.completed ? "line-through" : "none", color: isAncestorContext ? "#a0aec0" : "inherit" }}>
           {task.title}
         </span>
         {task.children.length > 0 && !isCollapsed && (

@@ -60,11 +60,11 @@ function SvgNode({
   const isValid = relocateStatus === "valid-target";
   const isSource = relocateStatus === "source";
 
-  let fill = isAncestorContext ? "#f8fafc" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff";
-  let stroke = isAncestorContext ? "#e2e8f0" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
+  let fill = isAncestorContext ? "#eef0f4" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff";
+  let stroke = isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
   let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
-  let nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : 1;
+  let nodeOpacity = isAncestorContext ? 0.5 : task.completed ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {
@@ -142,7 +142,7 @@ function SvgNode({
           y={height / 2}
           dominantBaseline="central"
           fontSize={atomicFontSize}
-          fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
+          fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
           textDecoration={task.completed ? "line-through" : "none"}
           opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
         >
