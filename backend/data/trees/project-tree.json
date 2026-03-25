@@ -1146,13 +1146,13 @@
             {
               "id": 192,
               "title": "Selector de plan (dropdown)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 193,
               "title": "Filtrar árbol: solo tareas del plan + ancestros",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
