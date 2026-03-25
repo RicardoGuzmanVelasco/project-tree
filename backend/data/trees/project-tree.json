@@ -806,12 +806,12 @@
                 {
                   "id": 138,
                   "title": "Modify description when it's showing",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 139,
                       "title": "Create a description is just modifying the \"empty\" desc",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     }
                   ]
@@ -863,7 +863,8 @@
               "completed": true,
               "children": []
             }
-          ]
+          ],
+          "description": "Cualquier tarea puede tener texto descriptivo además de su título."
         }
       ],
       "completed": false
