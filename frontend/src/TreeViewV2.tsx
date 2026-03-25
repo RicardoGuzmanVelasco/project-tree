@@ -346,6 +346,7 @@ export default function TreeViewV2({
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
+  const [showMinimap, setShowMinimap] = useState(true);
 
   const { filteredTree, hiddenCompletedCounts } = useMemo(() => {
     if (!hideCompleted) return { filteredTree: task, hiddenCompletedCounts: new Map<number, number>() };
@@ -556,6 +557,11 @@ export default function TreeViewV2({
 
       if (e.key === "f" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         fitToView();
+        return;
+      }
+
+      if (e.key === "m" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        setShowMinimap(prev => !prev);
         return;
       }
 
@@ -781,8 +787,33 @@ export default function TreeViewV2({
           })}
         </g>
       </svg>
+      {/* Minimap toggle */}
+      {!showMinimap && (
+        <button
+          onClick={() => setShowMinimap(true)}
+          title="Show minimap (M)"
+          style={{
+            position: "absolute",
+            bottom: 12,
+            right: 12,
+            width: 28,
+            height: 28,
+            background: "rgba(255,255,255,0.9)",
+            border: "1px solid #e2e8f0",
+            borderRadius: 6,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 14,
+            color: "#64748b",
+          }}
+        >
+          M
+        </button>
+      )}
       {/* Minimap */}
-      {(() => {
+      {showMinimap && (() => {
         const minimapW = 160;
         const minimapH = 100;
         const padding = 10;
@@ -827,6 +858,29 @@ export default function TreeViewV2({
               overflow: "hidden",
             }}
           >
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowMinimap(false); }}
+              title="Hide minimap (M)"
+              style={{
+                position: "absolute",
+                top: 2,
+                right: 2,
+                width: 18,
+                height: 18,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                color: "#94a3b8",
+                padding: 0,
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
             <svg width={minimapW} height={minimapH}>
               {nodes.map((n) => (
                 <rect
