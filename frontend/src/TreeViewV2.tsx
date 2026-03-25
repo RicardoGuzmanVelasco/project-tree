@@ -483,9 +483,15 @@ export default function TreeViewV2({
 
   // Pan & zoom state in ref to avoid re-renders during drag
   const containerRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [transform, setTransform] = useState(() => loadGlobal("transform", { x: 0, y: 0, scale: 1 }));
   const transformRef = useRef(transform);
   transformRef.current = transform;
+
+  // Debounced persist of transform
+  useEffect(() => {
+    const timer = setTimeout(() => saveGlobal("transform", transform), 300);
+    return () => clearTimeout(timer);
+  }, [transform]);
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
@@ -530,8 +536,16 @@ export default function TreeViewV2({
     setTimeout(() => setAnimateTransform(false), 300);
   }, []);
 
-  // Fit to view only on initial mount
-  useEffect(() => { fitToView(); }, [fitToView]);
+  // Fit to view only on initial mount if no saved transform
+  const hasRestoredTransform = useRef(false);
+  useEffect(() => {
+    if (!hasRestoredTransform.current) {
+      hasRestoredTransform.current = true;
+      const saved = loadGlobal<{x:number;y:number;scale:number}|null>("transform", null);
+      if (saved) return; // already restored from localStorage
+      fitToView();
+    }
+  }, [fitToView]);
 
   // Mouse handlers for pan
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
