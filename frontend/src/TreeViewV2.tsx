@@ -14,6 +14,7 @@ interface TreeViewV2Props {
   showIds: boolean;
   planTaskIds?: Set<number> | null;
   editingPlanTaskIds?: Set<number> | null;
+  planProgress?: { completed: number; total: number } | null;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -385,6 +386,7 @@ export default function TreeViewV2({
   showIds,
   planTaskIds,
   editingPlanTaskIds,
+  planProgress,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
@@ -861,6 +863,32 @@ export default function TreeViewV2({
               </g>
             );
           })}
+          {/* Plan progress bar floating above root */}
+          {planProgress && !editingPlanTaskIds && (() => {
+            const rootNode = nodes.find(n => n.id === -1);
+            if (!rootNode) return null;
+            const barW = Math.max(rootNode.width, 160);
+            const barH = 6;
+            const barY = rootNode.y - 16;
+            const barX = rootNode.x - barW / 2;
+            const pct = planProgress.total > 0 ? planProgress.completed / planProgress.total : 0;
+            const pctText = `${Math.round(pct * 100)}%`;
+            return (
+              <g>
+                <rect x={barX} y={barY} width={barW} height={barH} rx={3} fill="#e2e8f0" />
+                <rect x={barX} y={barY} width={barW * pct} height={barH} rx={3} fill="#10b981" />
+                <text
+                  x={barX + barW / 2}
+                  y={barY - 4}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill="#64748b"
+                >
+                  {planProgress.completed}/{planProgress.total} ({pctText})
+                </text>
+              </g>
+            );
+          })()}
         </g>
       </svg>
       {/* Minimap toggle */}

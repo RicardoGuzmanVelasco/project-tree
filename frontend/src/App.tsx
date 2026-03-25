@@ -141,11 +141,10 @@ export default function App() {
     if (!planTaskIds || !activePlan) return tree;
     const filtered = filterTreeForPlan(tree, planTaskIds);
     if (!filtered) return tree;
-    // Replace root with a fake plan node showing plan name + progress
-    const progressLabel = planProgress ? ` [${planProgress.completed}/${planProgress.total}]` : "";
+    // Replace root with a fake plan node
     return {
       id: -1,
-      title: activePlan.name + progressLabel,
+      title: activePlan.name,
       completed: false,
       children: filtered.children,
     };
@@ -569,6 +568,7 @@ export default function App() {
           showIds={showIds}
           planTaskIds={editingPlan ? null : planTaskIds}
           editingPlanTaskIds={editingPlan ? planTaskIds : null}
+          planProgress={planProgress}
         />
       ) : (
         <TreeViewV2
@@ -581,6 +581,7 @@ export default function App() {
           showIds={showIds}
           planTaskIds={editingPlan ? null : planTaskIds}
           editingPlanTaskIds={editingPlan ? planTaskIds : null}
+          planProgress={planProgress}
         />
       )}
       {showCommandPalette && (

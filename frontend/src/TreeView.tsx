@@ -306,13 +306,26 @@ interface TreeViewProps {
   showIds: boolean;
   planTaskIds?: Set<number> | null;
   editingPlanTaskIds?: Set<number> | null;
+  planProgress?: { completed: number; total: number } | null;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds, planTaskIds, editingPlanTaskIds }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds, planTaskIds, editingPlanTaskIds, planProgress }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
+
+  const pct = planProgress && planProgress.total > 0 ? planProgress.completed / planProgress.total : 0;
 
   return (
     <div style={{ padding: 40, overflowX: "auto" }}>
+      {planProgress && !editingPlanTaskIds && (
+        <div style={{ maxWidth: 300, margin: "0 auto 16px", textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>
+            {planProgress.completed}/{planProgress.total} ({Math.round(pct * 100)}%)
+          </div>
+          <div style={{ height: 6, borderRadius: 3, background: "#e2e8f0" }}>
+            <div style={{ height: 6, borderRadius: 3, background: "#10b981", width: `${pct * 100}%`, transition: "width 300ms" }} />
+          </div>
+        </div>
+      )}
       <TaskNode
         task={task}
         selectedTaskId={selectedTaskId}
