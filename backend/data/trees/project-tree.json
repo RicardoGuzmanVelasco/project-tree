@@ -1172,6 +1172,12 @@
               "title": "Indicador de progreso X/N",
               "completed": true,
               "children": []
+            },
+            {
+              "id": 214,
+              "title": "visualización más bonita del progreso",
+              "completed": false,
+              "children": []
             }
           ]
         },
@@ -1225,17 +1231,23 @@
                 {
                   "id": 200,
                   "title": "Editar plan",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 201,
                       "title": "Añadir tarea al plan activo",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     },
                     {
                       "id": 202,
                       "title": "Quitar tarea del plan activo",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 215,
+                      "title": "si se crea tarea hija en vista de plan, se añade al plan auto",
                       "completed": false,
                       "children": []
                     }
