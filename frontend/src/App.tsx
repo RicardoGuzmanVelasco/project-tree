@@ -341,6 +341,14 @@ export default function App() {
           )}
         </div>
       )}
+      {selectedTaskId && (() => {
+        const task = findTaskInTree(tree, selectedTaskId);
+        return task?.description ? (
+          <div style={{ padding: "8px 40px", fontSize: 13, color: "#475569", borderBottom: "1px solid #e2e8f0", whiteSpace: "pre-wrap" }}>
+            {task.description}
+          </div>
+        ) : null;
+      })()}
       {viewMode === "classic" ? (
         <TreeView
           task={tree}
