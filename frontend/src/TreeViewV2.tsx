@@ -82,7 +82,7 @@ function SvgNode({
   }
 
   const handleClick = () => {
-    if (isAncestorContext || isInvalid) return;
+    if (isAncestorContext || isInvalid || task.id < 0) return;
     onSelect();
   };
 
@@ -126,7 +126,7 @@ function SvgNode({
             pointerEvents="none"
           />
         )}
-        {showIds && (
+        {showIds && task.id >= 0 && (
           <text
             x={24}
             y={height / 2}
@@ -207,7 +207,7 @@ function SvgNode({
         />
       )}
       {/* ID badge */}
-      {showIds && (
+      {showIds && task.id >= 0 && (
         <text
           x={28}
           y={height / 2}

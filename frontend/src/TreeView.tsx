@@ -88,7 +88,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
   const nodeCursor = isAncestorContext ? "default" : isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
 
   const handleClick = () => {
-    if (isAncestorContext || isInvalidTarget) return;
+    if (isAncestorContext || isInvalidTarget || task.id < 0) return;
     onSelectTask(task.id);
   };
 
@@ -118,7 +118,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
           disabled={isAncestorContext}
           style={{ cursor: isAncestorContext ? "default" : "pointer" }}
         />
-        {showIds && (
+        {showIds && task.id >= 0 && (
           <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>#{task.id}</span>
         )}
         <span style={{ textDecoration: task.completed ? "line-through" : "none", color: isAncestorContext ? "#a0aec0" : "inherit" }}>
