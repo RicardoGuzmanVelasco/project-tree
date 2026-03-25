@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, fetchPlans, updatePlan, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -74,6 +74,15 @@ export default function App() {
   const handleToggleCompleted = async (id: number, completed: boolean) => {
     await toggleTaskCompletion(currentSlug, id, completed);
     loadTree(currentSlug);
+  };
+
+  const handleNewPlan = async () => {
+    const name = prompt("Plan name:");
+    if (!name?.trim()) return;
+    const plan = await createPlan(currentSlug, name.trim());
+    setPlans(prev => [...prev, plan]);
+    setActivePlanId(plan.id);
+    setEditingPlan(true);
   };
 
   const handleTogglePlanTask = async (id: number) => {
@@ -338,6 +347,12 @@ export default function App() {
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
+        <button
+          onClick={handleNewPlan}
+          style={{ padding: "4px 12px", fontSize: 13, background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
+        >
+          + Plan
+        </button>
         {activePlanId && (
           <button
             onClick={() => setEditingPlan(e => !e)}
