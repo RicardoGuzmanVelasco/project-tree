@@ -1,7 +1,7 @@
 import { useMemo, useRef, useCallback, useEffect, useState } from "react";
 import { Task } from "./types";
 import { NavigationState } from "./useNavigationState";
-import { layoutTree, LayoutNode } from "./treeLayout";
+import { layoutTree, LayoutNode, Orientation } from "./treeLayout";
 import { loadGlobal, saveGlobal } from "./viewStore";
 
 interface TreeViewV2Props {
@@ -16,6 +16,7 @@ interface TreeViewV2Props {
   editingPlanTaskIds?: Set<number> | null;
   planProgress?: { completed: number; total: number } | null;
   compact?: boolean;
+  horizontal?: boolean;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -426,6 +427,7 @@ export default function TreeViewV2({
   editingPlanTaskIds,
   planProgress,
   compact,
+  horizontal,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
@@ -439,7 +441,8 @@ export default function TreeViewV2({
     return { filteredTree: filtered, hiddenCompletedCounts: counts };
   }, [task, hideCompleted, revealedParentIds]);
 
-  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact), [filteredTree, collapsedIds, compact]);
+  const orientation: Orientation = horizontal ? "horizontal" : "vertical";
+  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact, orientation), [filteredTree, collapsedIds, compact, orientation]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const focusedSubtree = focusedTaskId ? findTask(task, focusedTaskId) : null;
@@ -461,6 +464,7 @@ export default function TreeViewV2({
 
   const connectors = useMemo(() => {
     const paths: { key: string; d: string; isAtomic: boolean }[] = [];
+    const isHoriz = orientation === "horizontal";
 
     // Group atomic children by parent to draw a single vertical line per group
     const atomicsByParent = new Map<number, LayoutNode[]>();
@@ -475,62 +479,108 @@ export default function TreeViewV2({
         // Curved connector for branch children
         const parent = nodeById.get(node.parentId);
         if (!parent) continue;
-        const x1 = parent.x;
-        const y1 = parent.y + parent.height;
-        const x2 = node.x;
-        const y2 = node.y;
-        const midY = (y1 + y2) / 2;
-        paths.push({
-          key: `${parent.id}-${node.id}`,
-          d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
-          isAtomic: false,
-        });
+        if (isHoriz) {
+          // Horizontal: parent right edge center → child left edge center
+          const x1 = parent.x + parent.width / 2;
+          const y1 = parent.y + parent.height / 2;
+          const x2 = node.x - node.width / 2;
+          const y2 = node.y + node.height / 2;
+          const midX = (x1 + x2) / 2;
+          paths.push({
+            key: `${parent.id}-${node.id}`,
+            d: `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`,
+            isAtomic: false,
+          });
+        } else {
+          // Vertical: parent bottom → child top
+          const x1 = parent.x;
+          const y1 = parent.y + parent.height;
+          const x2 = node.x;
+          const y2 = node.y;
+          const midY = (y1 + y2) / 2;
+          paths.push({
+            key: `${parent.id}-${node.id}`,
+            d: `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`,
+            isAtomic: false,
+          });
+        }
       }
     }
 
     // Draw ConnectedList-style connectors for atomic groups
-    const TICK_GAP = 12; // gap between vertical rail and child left edge
+    const TICK_GAP = 12;
     for (const [parentId, children] of atomicsByParent) {
       if (children.length === 0) continue;
 
-      // Vertical rail runs to the left of all children
-      const leftEdge = Math.min(...children.map(c => c.x - c.width / 2));
-      const railX = leftEdge - TICK_GAP;
+      if (isHoriz) {
+        // Horizontal: rail runs above children (to their left actually), ticks go right
+        const leftEdge = Math.min(...children.map(c => c.x - c.width / 2));
+        const railX = leftEdge - TICK_GAP;
 
-      // Vertical line: from first child's top to last child's vertical center
-      const firstY = children[0].y;
-      const lastChild = children[children.length - 1];
-      const lastY = lastChild.y + lastChild.height / 2;
+        const firstY = children[0].y + children[0].height / 2;
+        const lastChild = children[children.length - 1];
+        const lastY = lastChild.y + lastChild.height / 2;
 
-      paths.push({
-        key: `atomic-rail-${parentId}`,
-        d: `M${railX},${firstY} L${railX},${lastY}`,
-        isAtomic: true,
-      });
-
-      // Horizontal tick for each child
-      for (const child of children) {
-        const cy = child.y + child.height / 2;
         paths.push({
-          key: `${parentId}-${child.id}`,
-          d: `M${railX},${cy} L${leftEdge},${cy}`,
+          key: `atomic-rail-${parentId}`,
+          d: `M${railX},${firstY} L${railX},${lastY}`,
           isAtomic: true,
         });
-      }
 
-      // Connect parent bottom to rail top
-      const parent = nodeById.get(parentId);
-      if (parent) {
+        for (const child of children) {
+          const cy = child.y + child.height / 2;
+          paths.push({
+            key: `${parentId}-${child.id}`,
+            d: `M${railX},${cy} L${leftEdge},${cy}`,
+            isAtomic: true,
+          });
+        }
+
+        const parent = nodeById.get(parentId);
+        if (parent) {
+          paths.push({
+            key: `atomic-stem-${parentId}`,
+            d: `M${parent.x + parent.width / 2},${parent.y + parent.height / 2} L${railX},${firstY}`,
+            isAtomic: true,
+          });
+        }
+      } else {
+        // Vertical: rail runs to the left of all children
+        const leftEdge = Math.min(...children.map(c => c.x - c.width / 2));
+        const railX = leftEdge - TICK_GAP;
+
+        const firstY = children[0].y;
+        const lastChild = children[children.length - 1];
+        const lastY = lastChild.y + lastChild.height / 2;
+
         paths.push({
-          key: `atomic-stem-${parentId}`,
-          d: `M${parent.x},${parent.y + parent.height} L${railX},${firstY}`,
+          key: `atomic-rail-${parentId}`,
+          d: `M${railX},${firstY} L${railX},${lastY}`,
           isAtomic: true,
         });
+
+        for (const child of children) {
+          const cy = child.y + child.height / 2;
+          paths.push({
+            key: `${parentId}-${child.id}`,
+            d: `M${railX},${cy} L${leftEdge},${cy}`,
+            isAtomic: true,
+          });
+        }
+
+        const parent = nodeById.get(parentId);
+        if (parent) {
+          paths.push({
+            key: `atomic-stem-${parentId}`,
+            d: `M${parent.x},${parent.y + parent.height} L${railX},${firstY}`,
+            isAtomic: true,
+          });
+        }
       }
     }
 
     return paths;
-  }, [nodes, nodeById]);
+  }, [nodes, nodeById, orientation]);
 
   // Pan & zoom state in ref to avoid re-renders during drag
   const containerRef = useRef<HTMLDivElement>(null);
@@ -903,16 +953,39 @@ export default function TreeViewV2({
               </g>
             );
           })}
-          {/* Plan progress bar floating above root */}
+          {/* Plan progress bar floating above/left of root */}
           {planProgress && !editingPlanTaskIds && (() => {
             const rootNode = nodes.find(n => n.id === -1);
             if (!rootNode) return null;
+            const pct = planProgress.total > 0 ? planProgress.completed / planProgress.total : 0;
+            const pctText = `${Math.round(pct * 100)}%`;
+            if (orientation === "horizontal") {
+              // Vertical bar to the left of root
+              const barW = 6;
+              const barH = Math.max(rootNode.height, 100);
+              const barX = rootNode.x - rootNode.width / 2 - 16;
+              const barY = rootNode.y - barH / 2;
+              return (
+                <g>
+                  <rect x={barX} y={barY} width={barW} height={barH} rx={3} fill="#e2e8f0" />
+                  <rect x={barX} y={barY} width={barW} height={barH * pct} rx={3} fill="#10b981" />
+                  <text
+                    x={barX - 4}
+                    y={rootNode.y}
+                    textAnchor="end"
+                    dominantBaseline="central"
+                    fontSize={10}
+                    fill="#64748b"
+                  >
+                    {planProgress.completed}/{planProgress.total} ({pctText})
+                  </text>
+                </g>
+              );
+            }
             const barW = Math.max(rootNode.width, 160);
             const barH = 6;
             const barY = rootNode.y - 16;
             const barX = rootNode.x - barW / 2;
-            const pct = planProgress.total > 0 ? planProgress.completed / planProgress.total : 0;
-            const pctText = `${Math.round(pct * 100)}%`;
             return (
               <g>
                 <rect x={barX} y={barY} width={barW} height={barH} rx={3} fill="#e2e8f0" />

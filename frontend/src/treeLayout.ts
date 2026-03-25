@@ -214,8 +214,25 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   return { width: subtreeWidth, height: maxChildBottom, nodes: allNodes };
 }
 
-export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean): LayoutNode[] {
+export type Orientation = "vertical" | "horizontal";
+
+export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean, orientation?: Orientation): LayoutNode[] {
   applySpacing(!!compact);
   const { nodes } = layoutSubtree(root, null, 0, collapsedIds);
+  if (orientation === "horizontal") {
+    // Swap axes: vertical layout becomes left-to-right
+    // Original: x = horiz center, y = top edge, width = horiz, height = vert
+    // After:    x = horiz center (old y center), y = top edge (old x - half old width)
+    for (const n of nodes) {
+      const ox = n.x;
+      const oy = n.y;
+      const ow = n.width;
+      const oh = n.height;
+      n.x = oy + oh / 2; // old vertical center → new horizontal center
+      n.y = ox - ow / 2; // old horizontal center → new top edge (subtract half new height)
+      n.width = oh;
+      n.height = ow;
+    }
+  }
   return nodes;
 }
