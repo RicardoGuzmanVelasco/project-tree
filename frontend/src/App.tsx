@@ -62,7 +62,11 @@ export default function App() {
 
   const handleCreate = async () => {
     if (!selectedTaskId || !newTitle.trim()) return;
-    await createTask(currentSlug, selectedTaskId, newTitle.trim());
+    const newTask = await createTask(currentSlug, selectedTaskId, newTitle.trim());
+    if (activePlan && newTask?.id) {
+      const updated = await updatePlan(currentSlug, activePlan.id, [...activePlan.taskIds, newTask.id]);
+      setPlans(prev => prev.map(p => p.id === updated.id ? updated : p));
+    }
     setNewTitle("");
     loadTree(currentSlug);
   };
