@@ -490,14 +490,18 @@ export default function TreeViewV2({
   const didDrag = useRef(false);
   const [animateTransform, setAnimateTransform] = useState(false);
 
-  // Fit to view on initial render and tree changes
+  // Keep a ref to nodes so fitToView always reads the latest without re-creating
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+
   const fitToView = useCallback(() => {
     const container = containerRef.current;
-    if (!container || nodes.length === 0) return;
+    const currentNodes = nodesRef.current;
+    if (!container || currentNodes.length === 0) return;
 
     const padding = 40;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const n of nodes) {
+    for (const n of currentNodes) {
       const left = n.x - n.width / 2;
       const right = n.x + n.width / 2;
       if (left < minX) minX = left;
@@ -522,8 +526,9 @@ export default function TreeViewV2({
       scale,
     });
     setTimeout(() => setAnimateTransform(false), 300);
-  }, [nodes]);
+  }, []);
 
+  // Fit to view only on initial mount
   useEffect(() => { fitToView(); }, [fitToView]);
 
   // Mouse handlers for pan
