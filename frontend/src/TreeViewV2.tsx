@@ -10,6 +10,7 @@ interface TreeViewV2Props {
   onToggleCompleted: (id: number, completed: boolean) => void;
   relocatingTaskId: number | null;
   navigation: NavigationState;
+  showIds: boolean;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -28,6 +29,7 @@ function SvgNode({
   onToggleRevealCompleted,
   isFocusDimmed,
   onDoubleClick,
+  showIds,
 }: {
   node: LayoutNode;
   isSelected: boolean;
@@ -40,6 +42,7 @@ function SvgNode({
   onToggleRevealCompleted: () => void;
   isFocusDimmed: boolean;
   onDoubleClick: () => void;
+  showIds: boolean;
 }) {
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
@@ -113,8 +116,19 @@ function SvgNode({
             pointerEvents="none"
           />
         )}
+        {showIds && (
+          <text
+            x={24}
+            y={height / 2}
+            dominantBaseline="central"
+            fontSize={10}
+            fill="#94a3b8"
+          >
+            #{task.id}
+          </text>
+        )}
         <text
-          x={24}
+          x={showIds ? 24 + String(task.id).length * 6.5 + 14 : 24}
           y={height / 2}
           dominantBaseline="central"
           fontSize={atomicFontSize}
@@ -183,9 +197,21 @@ function SvgNode({
           pointerEvents="none"
         />
       )}
+      {/* ID badge */}
+      {showIds && (
+        <text
+          x={28}
+          y={height / 2}
+          dominantBaseline="central"
+          fontSize={10}
+          fill="#94a3b8"
+        >
+          #{task.id}
+        </text>
+      )}
       {/* Title */}
       <text
-        x={28}
+        x={showIds ? 28 + String(task.id).length * 6.5 + 14 : 28}
         y={height / 2}
         dominantBaseline="central"
         fontSize={fontSize}
@@ -343,6 +369,7 @@ export default function TreeViewV2({
   onToggleCompleted,
   relocatingTaskId,
   navigation,
+  showIds,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
@@ -781,6 +808,7 @@ export default function TreeViewV2({
                   onToggleRevealCompleted={() => navigation.toggleRevealCompleted(node.id)}
                   isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
                   onDoubleClick={() => setFocusedTaskId(node.id)}
+                  showIds={showIds}
                 />
               </g>
             );

@@ -50,9 +50,10 @@ interface TaskNodeProps {
   relocatingTaskId: number | null;
   relocatingSubtree: Task | null;
   navigation: NavigationState;
+  showIds: boolean;
 }
 
-function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation }: TaskNodeProps) {
+function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation, showIds }: TaskNodeProps) {
   const isSelected = task.id === selectedTaskId;
   const isRelocating = relocatingTaskId !== null;
   const isInvalidTarget = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, task.id);
@@ -102,6 +103,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
           onClick={(e) => e.stopPropagation()}
           style={{ cursor: "pointer" }}
         />
+        {showIds && (
+          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>#{task.id}</span>
+        )}
         <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
           {task.title}
         </span>
@@ -162,6 +166,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     onClick={(e) => e.stopPropagation()}
                     style={{ cursor: "pointer" }}
                   />
+                  {showIds && (
+                    <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>
+                  )}
                   <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
                     {child.title}
                   </span>
@@ -210,6 +217,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     relocatingTaskId={relocatingTaskId}
                     relocatingSubtree={relocatingSubtree}
                     navigation={navigation}
+                    showIds={showIds}
                   />
                 </div>
               ))}
@@ -247,6 +255,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                             onClick={(e) => e.stopPropagation()}
                             style={{ cursor: "pointer" }}
                           />
+                          {showIds && (
+                            <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>
+                          )}
                           <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
                             {child.title}
                           </span>
@@ -271,9 +282,10 @@ interface TreeViewProps {
   onToggleCompleted: (id: number, completed: boolean) => void;
   relocatingTaskId: number | null;
   navigation: NavigationState;
+  showIds: boolean;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   return (
@@ -286,6 +298,7 @@ export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleC
         relocatingTaskId={relocatingTaskId}
         relocatingSubtree={relocatingSubtree}
         navigation={navigation}
+        showIds={showIds}
       />
     </div>
   );

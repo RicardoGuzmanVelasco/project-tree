@@ -19,6 +19,7 @@ export default function App() {
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>("classic");
+  const [showIds, setShowIds] = useState(false);
   const navigation = useNavigationState();
 
   const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
@@ -171,10 +172,14 @@ export default function App() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "v" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const tag = (e.target as HTMLElement).tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "v") {
         setViewMode(m => m === "classic" ? "v2" : "classic");
+      }
+      if (e.key === "i") {
+        setShowIds(s => !s);
       }
     };
     document.addEventListener("keydown", handler);
@@ -231,6 +236,15 @@ export default function App() {
               style={{ cursor: "pointer" }}
             />
             Hide completed
+          </label>
+          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
+            <input
+              type="checkbox"
+              checked={showIds}
+              onChange={(e) => setShowIds(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            Show IDs (I)
           </label>
         {maxDepth > 1 && (() => {
           const effectiveDepth = navigation.depthLevel ?? maxDepth;
@@ -335,6 +349,7 @@ export default function App() {
           onToggleCompleted={handleToggleCompleted}
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
+          showIds={showIds}
         />
       ) : (
         <TreeViewV2
@@ -344,6 +359,7 @@ export default function App() {
           onToggleCompleted={handleToggleCompleted}
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
+          showIds={showIds}
         />
       )}
     </div>
