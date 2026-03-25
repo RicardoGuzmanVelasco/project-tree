@@ -1217,7 +1217,7 @@
                     {
                       "id": 207,
                       "title": "No permitir completar tareas que no pertenecen al plan",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     }
                   ]
@@ -1274,6 +1274,44 @@
         {
           "id": 176,
           "title": "tarea técnica",
+          "completed": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 208,
+      "title": "compactar/airear árbol",
+      "completed": false,
+      "children": [
+        {
+          "id": 209,
+          "title": "compactar espacio entre diferentes subramas",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 210,
+          "title": "airear para volver a la vista natural actual",
+          "completed": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 211,
+      "title": "cambiar a vista horizontal",
+      "completed": false,
+      "children": [
+        {
+          "id": 212,
+          "title": "por defecto vista vertical de árbol",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 213,
+          "title": "poder elegir si vista horizontal (left to right), toggle",
           "completed": false,
           "children": []
         }
