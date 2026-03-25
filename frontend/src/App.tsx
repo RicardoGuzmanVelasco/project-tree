@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeView from "./TreeView";
@@ -9,19 +10,25 @@ type ViewMode = "classic" | "v2";
 
 export default function App() {
   const [projects, setProjects] = useState<{slug: string; title: string}[]>([]);
-  const [currentSlug, setCurrentSlug] = useState("project-tree");
+  const [currentSlug, setCurrentSlug] = useState(() => loadGlobal("currentSlug", "project-tree"));
   const [tree, setTree] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(() => loadGlobal("selectedTaskId", null));
   const [newTitle, setNewTitle] = useState("");
   const [relocatingTaskId, setRelocatingTaskId] = useState<number | null>(null);
   const [renamingTaskId, setRenamingTaskId] = useState<number | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
-  const [viewMode, setViewMode] = useState<ViewMode>("classic");
-  const [showIds, setShowIds] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => loadGlobal("viewMode", "classic") as ViewMode);
+  const [showIds, setShowIds] = useState(() => loadGlobal("showIds", false));
   const [showDescription, setShowDescription] = useState(false);
-  const navigation = useNavigationState();
+  const navigation = useNavigationState(currentSlug);
+
+  // Persist global preferences
+  useEffect(() => { saveGlobal("currentSlug", currentSlug); }, [currentSlug]);
+  useEffect(() => { saveGlobal("selectedTaskId", selectedTaskId); }, [selectedTaskId]);
+  useEffect(() => { saveGlobal("viewMode", viewMode); }, [viewMode]);
+  useEffect(() => { saveGlobal("showIds", showIds); }, [showIds]);
 
   const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
 

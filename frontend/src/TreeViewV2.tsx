@@ -2,6 +2,7 @@ import { useMemo, useRef, useCallback, useEffect, useState } from "react";
 import { Task } from "./types";
 import { NavigationState } from "./useNavigationState";
 import { layoutTree, LayoutNode } from "./treeLayout";
+import { loadGlobal, saveGlobal } from "./viewStore";
 
 interface TreeViewV2Props {
   task: Task;
@@ -377,7 +378,8 @@ export default function TreeViewV2({
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
-  const [showMinimap, setShowMinimap] = useState(true);
+  const [showMinimap, setShowMinimap] = useState(() => loadGlobal("showMinimap", true));
+  useEffect(() => { saveGlobal("showMinimap", showMinimap); }, [showMinimap]);
 
   const { filteredTree, hiddenCompletedCounts } = useMemo(() => {
     if (!hideCompleted) return { filteredTree: task, hiddenCompletedCounts: new Map<number, number>() };

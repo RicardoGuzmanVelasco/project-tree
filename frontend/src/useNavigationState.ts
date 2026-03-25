@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Task } from "./types";
+import { saveField, loadField } from "./viewStore";
 
 export interface NavigationState {
   collapsedIds: Set<number>;
@@ -49,11 +50,24 @@ export function computeMaxDepth(task: Task, current: number = 0): number {
   return max;
 }
 
-export function useNavigationState(): NavigationState {
-  const [collapsedIds, setCollapsedIds] = useState<Set<number>>(new Set());
+export function useNavigationState(slug: string): NavigationState {
+  const [collapsedIds, setCollapsedIds] = useState<Set<number>>(() => {
+    const saved = loadField<number[]>(slug, "collapsedIds", []);
+    return new Set(saved);
+  });
   const [depthLevel, setDepthLevel] = useState<number | null>(null);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(() => loadField(slug, "hideCompleted", false));
   const [revealedParentIds, setRevealedParentIds] = useState<Set<number>>(new Set());
+
+  // Persist collapsedIds
+  useEffect(() => {
+    saveField(slug, "collapsedIds", [...collapsedIds]);
+  }, [slug, collapsedIds]);
+
+  // Persist hideCompleted
+  useEffect(() => {
+    saveField(slug, "hideCompleted", hideCompleted);
+  }, [slug, hideCompleted]);
 
   const collapseSubtree = useCallback((task: Task) => {
     setDepthLevel(null);
