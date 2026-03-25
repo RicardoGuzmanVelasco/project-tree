@@ -242,28 +242,28 @@ function SvgNode({
       )}
       {isCollapsed && node.descendantCount > 0 && (() => {
         const label = `${node.completedDescendantCount}/${node.descendantCount}`;
-        const badgeW = Math.max(30, label.length * 7 + 12);
+        const badgeW = label.length * 6 + 10;
         return (
           <g
             onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
             style={{ cursor: "pointer" }}
           >
             <rect
-              x={width + 4}
-              y={height / 2 - 9}
+              x={width - badgeW - 8}
+              y={height / 2 - 8}
               width={badgeW}
-              height={18}
-              rx={9}
+              height={16}
+              rx={8}
               fill="#f1f5f9"
               stroke="#cbd5e1"
               strokeWidth={0.5}
             />
             <text
-              x={width + 4 + badgeW / 2}
+              x={width - badgeW / 2 - 8}
               y={height / 2}
               dominantBaseline="central"
               textAnchor="middle"
-              fontSize={10}
+              fontSize={9}
               fill="#64748b"
             >
               {label}

@@ -99,11 +99,17 @@ function layoutAtomicStack(
   return { width: maxW, height: totalHeight, nodes };
 }
 
+function collapsedBadgeWidth(cc: number, dc: number): number {
+  const label = `${cc}/${dc}`;
+  return label.length * 6 + 10 + 16; // badge + padding around it
+}
+
 function layoutSubtree(task: Task, parentId: number | null, depth: number, collapsedIds?: Set<number>): SubtreeInfo {
-  const w = nodeWidth(task.title);
   const dc = countDescendants(task);
   const cc = countCompletedDescendants(task);
   const isCollapsed = collapsedIds?.has(task.id);
+  const baseW = nodeWidth(task.title);
+  const w = (isCollapsed && dc > 0) ? Math.max(baseW, baseW + collapsedBadgeWidth(cc, dc) - NODE_PADDING_X) : baseW;
   const visibleChildren = (!isCollapsed && task.children.length > 0) ? task.children : [];
 
   // Leaf node or collapsed
