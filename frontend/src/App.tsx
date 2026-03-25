@@ -182,15 +182,6 @@ export default function App() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // Cmd+K / Ctrl+K: toggle command palette
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setShowCommandPalette(prev => {
-          if (!prev) { setCommandInput(""); setCommandError(false); }
-          return !prev;
-        });
-        return;
-      }
       if (e.key === "Escape") {
         if (showCommandPalette) { setShowCommandPalette(false); return; }
         if (showDescription) { setShowDescription(false); return; }
@@ -217,6 +208,13 @@ export default function App() {
       if (e.key === "d" && selectedTaskId) {
         e.preventDefault();
         setShowDescription(d => !d);
+      }
+      if (e.key === "g") {
+        e.preventDefault();
+        setShowCommandPalette(prev => {
+          if (!prev) { setCommandInput(""); setCommandError(false); }
+          return !prev;
+        });
       }
     };
     document.addEventListener("keydown", handler);
