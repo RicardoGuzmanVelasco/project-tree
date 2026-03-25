@@ -30,7 +30,7 @@ let PARENT_TO_CHILDREN_GAP = 16;
 function applySpacing(compact: boolean) {
   NODE_PADDING_X = compact ? 12 : 24;
   MIN_NODE_WIDTH = compact ? 80 : 120;
-  MAX_NODE_WIDTH = compact ? 220 : Infinity;
+  MAX_NODE_WIDTH = compact ? 260 : Infinity;
   H_GAP = compact ? 6 : 24;
   V_GAP = compact ? 20 : 56;
   PARENT_TO_CHILDREN_GAP = compact ? 6 : 16;
