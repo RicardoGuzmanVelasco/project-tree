@@ -1055,7 +1055,7 @@
         {
           "id": 177,
           "title": "Modelo de datos de Plan",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 178,
@@ -1178,7 +1178,7 @@
         {
           "id": 203,
           "title": "Recordar plan activo en localStorage",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
@@ -1195,7 +1195,7 @@
             {
               "id": 206,
               "title": "Pero sus descendientes sí",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 197,
@@ -1205,13 +1205,13 @@
                     {
                       "id": 198,
                       "title": "Completar tareas funciona igual que en vista proyecto",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     },
                     {
                       "id": 199,
                       "title": "Progreso se actualiza al completar",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     }
                   ]
