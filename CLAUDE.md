@@ -17,25 +17,45 @@ The tool is being used to manage its own development (dogfooding from day one).
 ## Core Concepts
 
 - **Tree**: The complete, ever-growing representation of a project. Each node is a task. Grows organically. Never closed. You stop where you want on each path.
-- **Task**: A node in the tree. Has an auto-incremental ID and a title. Can have children.
-- **Plan** (future): A selection of subtrees — "this is what we're doing now." Does not modify the tree, just highlights focus. Tree and plan are separate abstractions.
+- **Task**: A node in the tree. Has an auto-incremental ID, a title, and an optional description. Can have children. Completion is independent per task (no cascading).
+- **Plan**: A list of task IDs — "this is what we're doing now." Does not modify the tree, just highlights focus. Tree and plan are separate abstractions. A plan has a name and tracks progress (completed/total among its tasks).
 
-## Current State: MVP
+## Current State
 
-The MVP is the first "plan" of the project itself. Scope:
-
+### Tree operations
 - **View project** — See the full task tree at a glance
 - **Create task** — Select any task, create a child under it
-- **Complete task** — Toggle a task's completion state (independent per task, no cascading)
-- **Delete task** — Remove a task and its entire subtree, with progressive confirmation (N clicks = N descendants)
-- **Relocate task** — Move a task (with subtree) under a different parent, with visual feedback for valid/invalid targets
-- **Navigate across a pleasant tree** — SVG-based V2 view with pan/zoom, fit-to-view, expand/collapse, focus mode with breadcrumbs, keyboard navigation, minimap, and animated transitions
+- **Complete task** — Toggle a task's completion state
+- **Delete task** — Remove a task and its entire subtree, with progressive confirmation
+- **Relocate task** — Move a task (with subtree) under a different parent
+- **Rename task** — Rename from the top bar
+- **Task descriptions** — Optional rich text per task, editable via overlay card (D key or button)
 
-Two view modes available (toggle with V key):
-- **Classic** — HTML-based tree with inline connectors (original)
-- **V2** — SVG-based tree with pan/zoom, collapse, focus mode, minimap
+### Navigation & views
+- Two view modes (toggle with **V** key):
+  - **Classic** — HTML-based tree with inline connectors
+  - **V2** — SVG-based tree with pan/zoom, collapse, focus mode, minimap
+- **Trackpad support** — Two-finger scroll pans, pinch zooms
+- **Keyboard shortcuts** — V (view mode), I (show IDs), D (description), G (go to task), F (fit to view), M (minimap), number keys (collapse to depth)
+- **Command palette** — G key opens go-to-task by ID
+- **Collapsed badge** — Shows X/Y completion fraction when a subtree is collapsed
 
-Multi-project support: backend serves multiple independent trees from `backend/data/trees/`, frontend has a project selector dropdown. No edit, no plans yet. See `docs/` for detailed use cases.
+### Plans
+- **Create plan** — "+ Plan" button, name it, then click tasks to add them
+- **View plan** — Dropdown selector filters the tree to plan tasks only. Non-plan ancestors shown as greyed-out structural context (non-interactive, no checkbox)
+- **Edit plan** — "Edit plan" button shows full tree with plan tasks highlighted in green; click to toggle tasks in/out
+- **Progress** — Floating progress bar above plan root node with X/N and percentage
+- **Auto-add** — New child tasks created in plan view are automatically added to the active plan
+- Plans stored as JSON per project in `backend/data/plans/`
+
+### Persistence
+- **Backend** — Trees and plans as JSON files
+- **Frontend** — View state persisted in localStorage: current project, selected task, view mode, show IDs, show minimap, hide completed, collapsed IDs, active plan, zoom/pan transform
+
+### Multi-project
+- Backend serves multiple independent trees from `backend/data/trees/`
+- Frontend has a project selector dropdown
+- See `docs/` for detailed use cases
 
 ## Tech Stack
 
