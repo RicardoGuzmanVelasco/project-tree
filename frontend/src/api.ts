@@ -44,6 +44,15 @@ export async function deleteTask(slug: string, id: number) {
   return response.json();
 }
 
+export async function updateDescription(slug: string, id: number, description: string) {
+  const response = await fetch(`${API_BASE}/projects/${slug}/tasks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ description }),
+  });
+  return response.json();
+}
+
 export async function createTask(slug: string, parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`, {
     method: "POST",

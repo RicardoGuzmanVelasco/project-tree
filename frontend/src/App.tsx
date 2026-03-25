@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask } from "./api";
+import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { Task } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeView from "./TreeView";
@@ -343,11 +343,35 @@ export default function App() {
       )}
       {selectedTaskId && (() => {
         const task = findTaskInTree(tree, selectedTaskId);
-        return task?.description ? (
-          <div style={{ padding: "8px 40px", fontSize: 13, color: "#475569", borderBottom: "1px solid #e2e8f0", whiteSpace: "pre-wrap" }}>
-            {task.description}
+        if (!task) return null;
+        return (
+          <div style={{ padding: "8px 40px", borderBottom: "1px solid #e2e8f0" }}>
+            <textarea
+              key={selectedTaskId}
+              defaultValue={task.description || ""}
+              placeholder="Add a description..."
+              onBlur={async (e) => {
+                const value = e.target.value;
+                if (value !== (task.description || "")) {
+                  await updateDescription(currentSlug, selectedTaskId, value);
+                  const updated = await fetchTree(currentSlug);
+                  setTree(updated);
+                }
+              }}
+              style={{
+                width: "100%",
+                minHeight: 40,
+                fontSize: 13,
+                color: "#475569",
+                border: "none",
+                outline: "none",
+                resize: "vertical",
+                fontFamily: "inherit",
+                background: "transparent",
+              }}
+            />
           </div>
-        ) : null;
+        );
       })()}
       {viewMode === "classic" ? (
         <TreeView
