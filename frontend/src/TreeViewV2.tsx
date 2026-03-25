@@ -557,19 +557,30 @@ export default function TreeViewV2({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const t = transformRef.current;
-      const rect = container.getBoundingClientRect();
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
 
-      const factor = e.deltaY < 0 ? 1.03 : 0.97;
-      const newScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, t.scale * factor));
-      const ratio = newScale / t.scale;
+      if (e.ctrlKey) {
+        // Pinch-to-zoom (trackpad) or Ctrl+wheel (mouse): zoom toward cursor
+        const rect = container.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
 
-      setTransform({
-        x: cursorX - (cursorX - t.x) * ratio,
-        y: cursorY - (cursorY - t.y) * ratio,
-        scale: newScale,
-      });
+        const factor = e.deltaY < 0 ? 1.03 : 0.97;
+        const newScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, t.scale * factor));
+        const ratio = newScale / t.scale;
+
+        setTransform({
+          x: cursorX - (cursorX - t.x) * ratio,
+          y: cursorY - (cursorY - t.y) * ratio,
+          scale: newScale,
+        });
+      } else {
+        // Two-finger scroll (trackpad) or plain wheel (mouse): pan
+        setTransform({
+          x: t.x - e.deltaX,
+          y: t.y - e.deltaY,
+          scale: t.scale,
+        });
+      }
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
