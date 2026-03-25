@@ -566,6 +566,12 @@
               "title": "Minimap",
               "completed": true,
               "children": []
+            },
+            {
+              "id": 217,
+              "title": "zoom out clamped",
+              "completed": false,
+              "children": []
             }
           ]
         },
@@ -1248,7 +1254,7 @@
                     {
                       "id": 215,
                       "title": "si se crea tarea hija en vista de plan, se añade al plan auto",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     },
                     {
