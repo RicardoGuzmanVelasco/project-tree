@@ -185,6 +185,7 @@ export default function App() {
         setShowIds(s => !s);
       }
       if (e.key === "d" && selectedTaskId) {
+        e.preventDefault();
         setShowDescription(d => !d);
       }
     };
