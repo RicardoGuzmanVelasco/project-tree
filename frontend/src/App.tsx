@@ -398,6 +398,13 @@ export default function App() {
                   defaultValue={task.description || ""}
                   placeholder="Add a description..."
                   autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      (e.target as HTMLTextAreaElement).blur();
+                      setShowDescription(false);
+                    }
+                  }}
                   onBlur={async (e) => {
                     const value = e.target.value;
                     if (value !== (task.description || "")) {
