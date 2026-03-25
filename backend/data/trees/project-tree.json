@@ -1188,19 +1188,19 @@
             {
               "id": 219,
               "title": "esconder id -1 de la tarea fake del plan!",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 220,
               "title": "qué pasa si creo una tarea hija de la fake del plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 221,
               "title": "la fake del plan no debería poder siquiera seleccionarse",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
@@ -1238,7 +1238,7 @@
             {
               "id": 206,
               "title": "Pero sus descendientes sí",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 197,
