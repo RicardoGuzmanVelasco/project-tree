@@ -12,6 +12,7 @@ interface TreeViewV2Props {
   relocatingTaskId: number | null;
   navigation: NavigationState;
   showIds: boolean;
+  planTaskIds?: Set<number> | null;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -31,6 +32,7 @@ function SvgNode({
   isFocusDimmed,
   onDoubleClick,
   showIds,
+  isAncestorContext,
 }: {
   node: LayoutNode;
   isSelected: boolean;
@@ -44,6 +46,7 @@ function SvgNode({
   isFocusDimmed: boolean;
   onDoubleClick: () => void;
   showIds: boolean;
+  isAncestorContext?: boolean;
 }) {
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
@@ -53,12 +56,12 @@ function SvgNode({
   const isValid = relocateStatus === "valid-target";
   const isSource = relocateStatus === "source";
 
-  let fill = isSelected ? "#dbeafe" : "#fff";
-  let stroke = isSelected ? "#3b82f6" : "#e2e8f0";
-  let strokeWidth = isSelected ? 2 : 1;
-  let strokeDasharray: string | undefined;
-  let nodeOpacity = task.completed ? 0.5 : 1;
-  let cursor = "pointer";
+  let fill = isAncestorContext ? "#f8fafc" : isSelected ? "#dbeafe" : "#fff";
+  let stroke = isAncestorContext ? "#e2e8f0" : isSelected ? "#3b82f6" : "#e2e8f0";
+  let strokeWidth = isAncestorContext ? 1 : isSelected ? 2 : 1;
+  let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
+  let nodeOpacity = isAncestorContext ? 0.45 : task.completed ? 0.5 : 1;
+  let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {
     fill = "#dcfce7";
@@ -75,7 +78,7 @@ function SvgNode({
   }
 
   const handleClick = () => {
-    if (isInvalid) return;
+    if (isAncestorContext || isInvalid) return;
     onSelect();
   };
 
@@ -375,6 +378,7 @@ export default function TreeViewV2({
   relocatingTaskId,
   navigation,
   showIds,
+  planTaskIds,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
@@ -845,6 +849,7 @@ export default function TreeViewV2({
                   isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
                   onDoubleClick={() => setFocusedTaskId(node.id)}
                   showIds={showIds}
+                  isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
                 />
               </g>
             );

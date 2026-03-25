@@ -505,6 +505,7 @@ export default function App() {
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
           showIds={showIds}
+          planTaskIds={planTaskIds}
         />
       ) : (
         <TreeViewV2
@@ -515,6 +516,7 @@ export default function App() {
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
           showIds={showIds}
+          planTaskIds={planTaskIds}
         />
       )}
       {showCommandPalette && (

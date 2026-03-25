@@ -60,9 +60,11 @@ interface TaskNodeProps {
   relocatingSubtree: Task | null;
   navigation: NavigationState;
   showIds: boolean;
+  planTaskIds?: Set<number> | null;
 }
 
-function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation, showIds }: TaskNodeProps) {
+function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation, showIds, planTaskIds }: TaskNodeProps) {
+  const isAncestorContext = planTaskIds != null && !planTaskIds.has(task.id);
   const isSelected = task.id === selectedTaskId;
   const isRelocating = relocatingTaskId !== null;
   const isInvalidTarget = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, task.id);
@@ -80,11 +82,11 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
     ? allChildren.filter(c => !c.completed)
     : allChildren;
 
-  const nodeOpacity = task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
-  const nodeCursor = isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
+  const nodeOpacity = isAncestorContext ? 0.45 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
+  const nodeCursor = isAncestorContext ? "default" : isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
 
   const handleClick = () => {
-    if (isInvalidTarget) return;
+    if (isAncestorContext || isInvalidTarget) return;
     onSelectTask(task.id);
   };
 
@@ -228,6 +230,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     relocatingSubtree={relocatingSubtree}
                     navigation={navigation}
                     showIds={showIds}
+                    planTaskIds={planTaskIds}
                   />
                 </div>
               ))}
@@ -293,9 +296,10 @@ interface TreeViewProps {
   relocatingTaskId: number | null;
   navigation: NavigationState;
   showIds: boolean;
+  planTaskIds?: Set<number> | null;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds, planTaskIds }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   return (
@@ -309,6 +313,7 @@ export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleC
         relocatingSubtree={relocatingSubtree}
         navigation={navigation}
         showIds={showIds}
+        planTaskIds={planTaskIds}
       />
     </div>
   );
