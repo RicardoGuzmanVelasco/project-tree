@@ -790,99 +790,6 @@
       "completed": true
     },
     {
-      "id": 5,
-      "title": "Edit task",
-      "children": [
-        {
-          "id": 134,
-          "title": "Description of the task",
-          "completed": false,
-          "children": [
-            {
-              "id": 135,
-              "title": "Show description only when requested",
-              "completed": true,
-              "children": [
-                {
-                  "id": 138,
-                  "title": "Modify description when it's showing",
-                  "completed": true,
-                  "children": [
-                    {
-                      "id": 139,
-                      "title": "Create a description is just modifying the \"empty\" desc",
-                      "completed": true,
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": 136,
-              "title": "Toggle showing/hiding descriptions",
-              "completed": true,
-              "children": [
-                {
-                  "id": 140,
-                  "title": "Show the description with gracefully design",
-                  "completed": true,
-                  "children": [
-                    {
-                      "id": 141,
-                      "title": "Show as foreground",
-                      "completed": true,
-                      "children": []
-                    },
-                    {
-                      "id": 142,
-                      "title": "Lesser importance to the background tree when the description is shown",
-                      "completed": true,
-                      "children": [
-                        {
-                          "id": 143,
-                          "title": "Back to normal importance of the tree when description is not shown",
-                          "completed": true,
-                          "children": []
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": 137,
-              "title": "A task has empty description by default",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 144,
-              "title": "Add description to the data structure",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 145,
-              "title": "bug: opening with key d begins writhing \"d\" as the desc",
-              "completed": true,
-              "children": [],
-              "description": "correcto! hecho.\n"
-            },
-            {
-              "id": 148,
-              "title": "press ESC to close open description",
-              "completed": true,
-              "children": []
-            }
-          ],
-          "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
-        }
-      ],
-      "completed": false
-    },
-    {
       "id": 7,
       "title": "Plans",
       "children": [],
@@ -910,6 +817,265 @@
           "title": "bug type",
           "completed": false,
           "children": []
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "title": "Description of the task",
+      "completed": true,
+      "children": [
+        {
+          "id": 135,
+          "title": "Show description only when requested",
+          "completed": true,
+          "children": [
+            {
+              "id": 138,
+              "title": "Modify description when it's showing",
+              "completed": true,
+              "children": [
+                {
+                  "id": 139,
+                  "title": "Create a description is just modifying the \"empty\" desc",
+                  "completed": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 136,
+          "title": "Toggle showing/hiding descriptions",
+          "completed": true,
+          "children": [
+            {
+              "id": 140,
+              "title": "Show the description with gracefully design",
+              "completed": true,
+              "children": [
+                {
+                  "id": 141,
+                  "title": "Show as foreground",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 142,
+                  "title": "Lesser importance to the background tree when the description is shown",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 143,
+                      "title": "Back to normal importance of the tree when description is not shown",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 137,
+          "title": "A task has empty description by default",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 144,
+          "title": "Add description to the data structure",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 145,
+          "title": "bug: opening with key d begins writhing \"d\" as the desc",
+          "completed": true,
+          "children": [],
+          "description": "correcto! hecho.\n"
+        },
+        {
+          "id": 148,
+          "title": "press ESC to close open description",
+          "completed": true,
+          "children": []
+        }
+      ],
+      "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
+    },
+    {
+      "id": 149,
+      "title": "persistencia de la vista del árbol",
+      "completed": false,
+      "children": [
+        {
+          "id": 150,
+          "title": "crear otra estructura de datos para la vista del árbol",
+          "completed": false,
+          "children": [
+            {
+              "id": 151,
+              "title": "incluir qué tareas están plegadas",
+              "completed": false,
+              "children": [
+                {
+                  "id": 152,
+                  "title": "cuando una tarea es plegada/desplegada, persistir ese estado",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 153,
+                  "title": "cargar vista según esa persistencia",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 168,
+                      "title": "cargar collapsed IDs desde localStorage al iniciar",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 167,
+                  "title": "persistir collapsed IDs",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 154,
+              "title": "guardar opciones tambien",
+              "completed": false,
+              "children": [
+                {
+                  "id": 163,
+                  "title": "guardar hide completed",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 164,
+                  "title": "guardar show ids",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 165,
+                  "title": "guardar nivel de colapso",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 169,
+                  "title": "persistir view mode (classic/v2)",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 170,
+                  "title": "persistir show IDs",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 171,
+                  "title": "persistir show minimap",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 172,
+                  "title": "persistir hide completed",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 166,
+              "title": "usar localStorage como mecanismo de persistencia",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 173,
+              "title": "persistir tarea seleccionada",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 174,
+              "title": "persistir proyecto actual",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 175,
+              "title": "persistir transform (zoom/pan) en V2",
+              "completed": false,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "title": "paleta de comandos",
+      "completed": false,
+      "children": [
+        {
+          "id": 156,
+          "title": "atajo abrir paleta de comandos",
+          "completed": false,
+          "children": [
+            {
+              "id": 157,
+              "title": "overlay paleta de comandos",
+              "completed": false,
+              "children": [
+                {
+                  "id": 158,
+                  "title": "cerrar con tecla esc",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 159,
+          "title": "\"Ir a\"",
+          "completed": false,
+          "children": [
+            {
+              "id": 160,
+              "title": "introducir número de tarea",
+              "completed": false,
+              "children": [
+                {
+                  "id": 161,
+                  "title": "seleccionar esa tarea",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 162,
+                      "title": "feedback error si no existe y no hacer nada",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }
