@@ -867,6 +867,13 @@
               "id": 145,
               "title": "bug: opening with key d begins writhing \"d\" as the desc",
               "completed": true,
+              "children": [],
+              "description": "correcto! hecho.\n"
+            },
+            {
+              "id": 148,
+              "title": "press ESC to close open description",
+              "completed": true,
               "children": []
             }
           ],
