@@ -19,10 +19,18 @@ const ATOMIC_NODE_HEIGHT = 28;
 const NODE_PADDING_X = 24;
 const CHAR_WIDTH = 8;
 const MIN_NODE_WIDTH = 120;
-const H_GAP = 24;
-const V_GAP = 56;
-const ATOMIC_V_GAP = 4; // tight vertical gap between stacked atomic items
-const PARENT_TO_CHILDREN_GAP = 16; // gap from parent to start of atomic list
+const ATOMIC_V_GAP = 4;
+
+// Spacing config — switched by compact mode
+let H_GAP = 24;
+let V_GAP = 56;
+let PARENT_TO_CHILDREN_GAP = 16;
+
+function applySpacing(compact: boolean) {
+  H_GAP = compact ? 12 : 24;
+  V_GAP = compact ? 28 : 56;
+  PARENT_TO_CHILDREN_GAP = compact ? 8 : 16;
+}
 
 function countDescendants(task: Task): number {
   let count = task.children.length;
@@ -202,7 +210,8 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   return { width: subtreeWidth, height: maxChildBottom, nodes: allNodes };
 }
 
-export function layoutTree(root: Task, collapsedIds?: Set<number>): LayoutNode[] {
+export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean): LayoutNode[] {
+  applySpacing(!!compact);
   const { nodes } = layoutSubtree(root, null, 0, collapsedIds);
   return nodes;
 }

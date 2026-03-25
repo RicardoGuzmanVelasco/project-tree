@@ -391,6 +391,8 @@ export default function TreeViewV2({
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
   const [showMinimap, setShowMinimap] = useState(() => loadGlobal("showMinimap", true));
   useEffect(() => { saveGlobal("showMinimap", showMinimap); }, [showMinimap]);
+  const [compact, setCompact] = useState(() => loadGlobal("compact", false));
+  useEffect(() => { saveGlobal("compact", compact); }, [compact]);
 
   const { filteredTree, hiddenCompletedCounts } = useMemo(() => {
     if (!hideCompleted) return { filteredTree: task, hiddenCompletedCounts: new Map<number, number>() };
@@ -399,7 +401,7 @@ export default function TreeViewV2({
     return { filteredTree: filtered, hiddenCompletedCounts: counts };
   }, [task, hideCompleted, revealedParentIds]);
 
-  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds), [filteredTree, collapsedIds]);
+  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact), [filteredTree, collapsedIds, compact]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const focusedSubtree = focusedTaskId ? findTask(task, focusedTaskId) : null;
@@ -636,6 +638,10 @@ export default function TreeViewV2({
 
       if (e.key === "m" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         setShowMinimap(prev => !prev);
+        return;
+      }
+      if (e.key === "c" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        setCompact(prev => !prev);
         return;
       }
 
