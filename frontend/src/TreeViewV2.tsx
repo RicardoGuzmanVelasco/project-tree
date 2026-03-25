@@ -64,7 +64,7 @@ function SvgNode({
   let stroke = isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
   let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
-  let nodeOpacity = isAncestorContext ? 0.5 : task.completed ? 0.5 : 1;
+  let nodeOpacity = isAncestorContext ? 0.2 : task.completed ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {

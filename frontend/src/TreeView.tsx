@@ -84,7 +84,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
     ? allChildren.filter(c => !c.completed)
     : allChildren;
 
-  const nodeOpacity = isAncestorContext ? 0.5 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
+  const nodeOpacity = isAncestorContext ? 0.2 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
   const nodeCursor = isAncestorContext ? "default" : isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
 
   const handleClick = () => {
