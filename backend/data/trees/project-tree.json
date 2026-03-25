@@ -1170,7 +1170,7 @@
             {
               "id": 196,
               "title": "Indicador de progreso X/N",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
