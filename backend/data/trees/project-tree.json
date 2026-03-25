@@ -1389,7 +1389,7 @@
     {
       "id": 208,
       "title": "compactar/airear árbol",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 209,
