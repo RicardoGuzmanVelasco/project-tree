@@ -84,7 +84,7 @@ app.post("/projects/:slug/tasks", (req, res) => {
   const tree = getTree(slug);
   if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
 
-  const { parentId, title } = req.body;
+  const { parentId, title, description } = req.body;
 
   if (!title || typeof title !== "string" || !title.trim()) {
     res.status(400).json({ error: "Title is required" });
@@ -100,6 +100,7 @@ app.post("/projects/:slug/tasks", (req, res) => {
   const newTask: Task = {
     id: maxId(tree) + 1,
     title: title.trim(),
+    ...(typeof description === "string" ? { description } : {}),
     completed: false,
     children: [],
   };
@@ -117,10 +118,10 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
   if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
 
   const id = Number(req.params.id);
-  const { completed, parentId, title } = req.body;
+  const { completed, parentId, title, description } = req.body;
 
-  if (typeof completed !== "boolean" && typeof parentId !== "number" && typeof title !== "string") {
-    res.status(400).json({ error: "completed (boolean), parentId (number), or title (string) is required" });
+  if (typeof completed !== "boolean" && typeof parentId !== "number" && typeof title !== "string" && typeof description !== "string") {
+    res.status(400).json({ error: "completed (boolean), parentId (number), title (string), or description (string) is required" });
     return;
   }
 
@@ -137,6 +138,13 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
       return;
     }
     task.title = trimmed;
+    saveTree(slug);
+    res.json(task);
+    return;
+  }
+
+  if (typeof description === "string") {
+    task.description = description || undefined;
     saveTree(slug);
     res.json(task);
     return;
