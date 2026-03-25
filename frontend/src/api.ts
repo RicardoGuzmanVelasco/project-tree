@@ -74,11 +74,13 @@ export async function createPlan(slug: string, name: string): Promise<Plan> {
   return response.json();
 }
 
-export async function updatePlan(slug: string, planId: number, taskIds: number[]): Promise<Plan> {
+export async function updatePlan(slug: string, planId: number, taskIds: number[], archived?: boolean): Promise<Plan> {
+  const body: Record<string, unknown> = { taskIds };
+  if (archived !== undefined) body.archived = archived;
   const response = await fetch(`${API_BASE}/projects/${slug}/plans/${planId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ taskIds }),
+    body: JSON.stringify(body),
   });
   return response.json();
 }

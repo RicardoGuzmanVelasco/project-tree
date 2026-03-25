@@ -151,6 +151,21 @@ export default function App() {
     return { completed, total };
   }, [tree, activePlan]);
 
+  // Auto-archive/unarchive plans based on progress
+  useEffect(() => {
+    if (!activePlan || !planProgress) return;
+    const isComplete = planProgress.total > 0 && planProgress.completed === planProgress.total;
+    if (isComplete && !activePlan.archived) {
+      updatePlan(currentSlug, activePlan.id, activePlan.taskIds, true).then(updated => {
+        setPlans(prev => prev.map(p => p.id === updated.id ? updated : p));
+      });
+    } else if (!isComplete && activePlan.archived) {
+      updatePlan(currentSlug, activePlan.id, activePlan.taskIds, false).then(updated => {
+        setPlans(prev => prev.map(p => p.id === updated.id ? updated : p));
+      });
+    }
+  }, [planProgress, activePlan, currentSlug]);
+
   const visibleTree = useMemo(() => {
     if (!tree) return null;
     if (editingPlan) return tree; // show full tree when editing plan
@@ -353,9 +368,16 @@ export default function App() {
           style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#f8fafc", cursor: "pointer" }}
         >
           <option value="">All tasks</option>
-          {plans.map(p => (
+          {plans.filter(p => !p.archived).map(p => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
+          {plans.some(p => p.archived) && (
+            <optgroup label="Archived">
+              {plans.filter(p => p.archived).map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </optgroup>
+          )}
         </select>
         <button
           onClick={handleNewPlan}

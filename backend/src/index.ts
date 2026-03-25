@@ -282,11 +282,14 @@ app.patch("/projects/:slug/plans/:planId", (req, res) => {
   const plans = getPlans(slug);
   const plan = plans.find(p => p.id === planId);
   if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
-  const { name, taskIds } = req.body;
+  const { name, taskIds, archived } = req.body;
   if (typeof name === "string") {
     const trimmed = name.trim();
     if (!trimmed) { res.status(400).json({ error: "Name cannot be empty" }); return; }
     plan.name = trimmed;
+  }
+  if (typeof archived === "boolean") {
+    plan.archived = archived || undefined;
   }
   if (Array.isArray(taskIds)) {
     if (!taskIds.every(id => typeof id === "number")) {

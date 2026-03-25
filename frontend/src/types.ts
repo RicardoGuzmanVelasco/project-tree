@@ -11,4 +11,5 @@ export interface Plan {
   id: number;
   name: string;
   taskIds: number[];
+  archived?: boolean;
 }
