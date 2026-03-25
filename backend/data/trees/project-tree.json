@@ -801,7 +801,7 @@
             {
               "id": 135,
               "title": "Show description only when requested",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 138,
