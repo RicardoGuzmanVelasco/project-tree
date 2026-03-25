@@ -287,6 +287,19 @@
           ]
         }
       ]
+    },
+    {
+      "id": 51,
+      "title": "laboral",
+      "completed": false,
+      "children": [
+        {
+          "id": 52,
+          "title": "migración flags",
+          "completed": false,
+          "children": []
+        }
+      ]
     }
   ],
   "completed": false

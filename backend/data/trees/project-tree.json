@@ -1182,8 +1182,39 @@
             {
               "id": 214,
               "title": "visualización más bonita del progreso",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 219,
+              "title": "esconder id -1 de la tarea fake del plan!",
               "completed": false,
               "children": []
+            },
+            {
+              "id": 220,
+              "title": "qué pasa si creo una tarea hija de la fake del plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 221,
+              "title": "la fake del plan no debería poder siquiera seleccionarse",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 222,
+              "title": "más greyed out a los que no pertenecen al plan",
+              "completed": false,
+              "children": [
+                {
+                  "id": 223,
+                  "title": "letra también gris como en las completadas",
+                  "completed": false,
+                  "children": []
+                }
+              ]
             }
           ]
         },
@@ -1264,6 +1295,12 @@
                       "children": []
                     }
                   ]
+                },
+                {
+                  "id": 218,
+                  "title": "ejemplo",
+                  "completed": true,
+                  "children": []
                 }
               ]
             }
