@@ -1116,30 +1116,30 @@
         {
           "id": 186,
           "title": "Crear un plan",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 187,
               "title": "Acción New plan (input nombre)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 188,
               "title": "Modo selección: click en tareas las toggle dentro/fuera",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 189,
               "title": "Indicador visual en tareas seleccionadas para el plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 190,
               "title": "Confirmar/guardar la selección",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -1188,7 +1188,7 @@
             {
               "id": 219,
               "title": "esconder id -1 de la tarea fake del plan!",
-              "completed": true,
+              "completed": false,
               "children": []
             },
             {
