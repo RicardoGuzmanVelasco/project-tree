@@ -821,7 +821,7 @@
             {
               "id": 136,
               "title": "Toggle showing/hiding descriptions",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 140,
@@ -862,6 +862,12 @@
               "title": "Add description to the data structure",
               "completed": true,
               "children": []
+            },
+            {
+              "id": 145,
+              "title": "bug: opening with key d begins writhing \"d\" as the desc",
+              "completed": true,
+              "children": []
             }
           ],
           "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
@@ -886,6 +892,19 @@
       "title": "Serve frontend from backend (remove CORS)",
       "children": [],
       "completed": false
+    },
+    {
+      "id": 146,
+      "title": "types of tasks",
+      "completed": false,
+      "children": [
+        {
+          "id": 147,
+          "title": "bug type",
+          "completed": false,
+          "children": []
+        }
+      ]
     }
   ],
   "completed": false
