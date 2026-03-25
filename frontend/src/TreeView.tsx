@@ -111,9 +111,10 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={() => onToggleCompleted(task.id, !task.completed)}
+          onChange={() => { if (!isAncestorContext) onToggleCompleted(task.id, !task.completed); }}
           onClick={(e) => e.stopPropagation()}
-          style={{ cursor: "pointer" }}
+          disabled={isAncestorContext}
+          style={{ cursor: isAncestorContext ? "default" : "pointer" }}
         />
         {showIds && (
           <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>#{task.id}</span>
@@ -153,6 +154,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
             items={visibleChildren.map(c => ({ key: c.id, task: c }))}
             renderItem={(item) => {
               const child = item.task;
+              const isChildAncestorContext = planTaskIds != null && !planTaskIds.has(child.id);
               const isChildSelected = child.id === selectedTaskId;
               const isChildInvalid = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, child.id);
               const isChildValid = isRelocating && !isChildInvalid;
@@ -174,9 +176,10 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                   <input
                     type="checkbox"
                     checked={child.completed}
-                    onChange={() => onToggleCompleted(child.id, !child.completed)}
+                    onChange={() => { if (!isChildAncestorContext) onToggleCompleted(child.id, !child.completed); }}
                     onClick={(e) => e.stopPropagation()}
-                    style={{ cursor: "pointer" }}
+                    disabled={isChildAncestorContext}
+                    style={{ cursor: isChildAncestorContext ? "default" : "pointer" }}
                   />
                   {showIds && (
                     <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>
@@ -241,6 +244,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     items={atomics.map(c => ({ key: c.id, task: c }))}
                     renderItem={(item) => {
                       const child = item.task;
+                      const isChildAncestorCtx = planTaskIds != null && !planTaskIds.has(child.id);
                       const isChildSelected = child.id === selectedTaskId;
                       const isChildInvalid = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, child.id);
                       const isChildValid = isRelocating && !isChildInvalid;
@@ -264,9 +268,10 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                           <input
                             type="checkbox"
                             checked={child.completed}
-                            onChange={() => onToggleCompleted(child.id, !child.completed)}
+                            onChange={() => { if (!isChildAncestorCtx) onToggleCompleted(child.id, !child.completed); }}
                             onClick={(e) => e.stopPropagation()}
-                            style={{ cursor: "pointer" }}
+                            disabled={isChildAncestorCtx}
+                            style={{ cursor: isChildAncestorCtx ? "default" : "pointer" }}
                           />
                           {showIds && (
                             <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>

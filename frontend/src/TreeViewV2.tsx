@@ -99,8 +99,8 @@ function SvgNode({
         {/* Completion circle with larger hit area */}
         <circle cx={12} cy={height / 2} r={10} fill="transparent"
           onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-          style={{ cursor: "pointer" }}
+          onClick={(e) => { e.stopPropagation(); if (!isAncestorContext) onToggleCompleted(); }}
+          style={{ cursor: isAncestorContext ? "default" : "pointer" }}
         />
         <circle
           cx={12}
@@ -180,8 +180,8 @@ function SvgNode({
       {/* Completion circle with larger hit area */}
       <circle cx={16} cy={height / 2} r={12} fill="transparent"
         onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => { e.stopPropagation(); onToggleCompleted(); }}
-        style={{ cursor: "pointer" }}
+        onClick={(e) => { e.stopPropagation(); if (!isAncestorContext) onToggleCompleted(); }}
+        style={{ cursor: isAncestorContext ? "default" : "pointer" }}
       />
       <circle
         cx={16}
