@@ -826,23 +826,23 @@
                 {
                   "id": 140,
                   "title": "Show the description with gracefully design",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 141,
                       "title": "Show as foreground",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     },
                     {
                       "id": 142,
                       "title": "Lesser importance to the background tree when the description is shown",
-                      "completed": false,
+                      "completed": true,
                       "children": [
                         {
                           "id": 143,
                           "title": "Back to normal importance of the tree when description is not shown",
-                          "completed": false,
+                          "completed": true,
                           "children": []
                         }
                       ]
@@ -854,7 +854,7 @@
             {
               "id": 137,
               "title": "A task has empty description by default",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
@@ -864,7 +864,7 @@
               "children": []
             }
           ],
-          "description": "Cualquier tarea puede tener texto descriptivo además de su título."
+          "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
         }
       ],
       "completed": false
