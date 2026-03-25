@@ -56,6 +56,13 @@ function SvgNode({
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
   const fontSize = DEPTH_FONT_SIZES[Math.min(depth, DEPTH_FONT_SIZES.length - 1)];
+  const charW = fontSize * 0.58; // approximate char width for Inter at given size
+  const truncate = (text: string, startX: number, rightPad: number) => {
+    const available = width - startX - rightPad;
+    const maxChars = Math.floor(available / charW);
+    if (maxChars >= text.length) return text;
+    return maxChars > 3 ? text.slice(0, maxChars - 1) + "\u2026" : "\u2026";
+  };
 
   const isInvalid = relocateStatus === "invalid-target";
   const isValid = relocateStatus === "valid-target";
@@ -95,18 +102,12 @@ function SvgNode({
     else if (isInEditPlan) bgFill = "#f0fdf4";
     else if (isSelected) bgFill = "#dbeafe";
 
-    const atomicClipId = `clip-a-${node.id}`;
     return (
       <g
         onClick={handleClick}
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
         style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
       >
-        <defs>
-          <clipPath id={atomicClipId}>
-            <rect x={0} y={0} width={width} height={height} rx={4} />
-          </clipPath>
-        </defs>
         <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill}
           stroke={isInEditPlan ? "#16a34a" : "none"} strokeWidth={isInEditPlan ? 1.5 : 0} />
         {/* Completion circle with larger hit area */}
@@ -144,35 +145,33 @@ function SvgNode({
             #{task.id}
           </text>
         )}
-        <text
-          x={showIds ? 24 + String(task.id).length * 6.5 + 14 : 24}
-          y={height / 2}
-          dominantBaseline="central"
-          fontSize={atomicFontSize}
-          fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
-          textDecoration={task.completed ? "line-through" : "none"}
-          opacity={task.completed ? 0.5 : 1}
-          clipPath={`url(#${atomicClipId})`}
-        >
-          {task.title}
-        </text>
+        {(() => {
+          const textX = showIds ? 24 + String(task.id).length * 6.5 + 14 : 24;
+          return (
+            <text
+              x={textX}
+              y={height / 2}
+              dominantBaseline="central"
+              fontSize={atomicFontSize}
+              fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
+              textDecoration={task.completed ? "line-through" : "none"}
+              opacity={task.completed ? 0.5 : 1}
+            >
+              {truncate(task.title, textX, 8)}
+            </text>
+          );
+        })()}
       </g>
     );
   }
 
   // Regular node: full box rendering
-  const clipId = `clip-${node.id}`;
   return (
     <g
       onClick={handleClick}
       onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
       style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
     >
-      <defs>
-        <clipPath id={clipId}>
-          <rect x={0} y={0} width={width} height={height} rx={6} />
-        </clipPath>
-      </defs>
       {/* Shadow */}
       <rect
         x={1}
@@ -232,19 +231,23 @@ function SvgNode({
           #{task.id}
         </text>
       )}
-      {/* Title (clipped to node bounds) */}
-      <text
-        x={showIds ? 28 + String(task.id).length * 6.5 + 14 : 28}
-        y={height / 2}
-        dominantBaseline="central"
-        fontSize={fontSize}
-        fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
-        textDecoration={task.completed ? "line-through" : "none"}
-        opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
-        clipPath={`url(#${clipId})`}
-      >
-        {task.title}
-      </text>
+      {/* Title */}
+      {(() => {
+        const textX = showIds ? 28 + String(task.id).length * 6.5 + 14 : 28;
+        return (
+          <text
+            x={textX}
+            y={height / 2}
+            dominantBaseline="central"
+            fontSize={fontSize}
+            fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
+            textDecoration={task.completed ? "line-through" : "none"}
+            opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
+          >
+            {truncate(task.title, textX, 16)}
+          </text>
+        );
+      })()}
       {/* Collapse: minus sign when expanded, +N badge when collapsed */}
       {task.children.length > 0 && !isCollapsed && (
         <g
