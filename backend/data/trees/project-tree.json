@@ -1060,49 +1060,49 @@
             {
               "id": 178,
               "title": "Tipo Plan en backend (name + taskIds)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 179,
               "title": "Tipo Plan en frontend",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 180,
               "title": "Persistencia: plans.json por proyecto",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 181,
               "title": "API: listar planes de un proyecto",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 182,
               "title": "API: crear plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 183,
               "title": "API: obtener un plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 184,
               "title": "API: actualizar plan (añadir/quitar tasks)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 185,
               "title": "API: borrar plan",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
