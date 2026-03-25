@@ -64,7 +64,7 @@ function SvgNode({
   let stroke = isAncestorContext ? "#e2e8f0" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
   let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
-  let nodeOpacity = isAncestorContext ? 0.45 : task.completed ? 0.5 : 1;
+  let nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {
@@ -142,9 +142,9 @@ function SvgNode({
           y={height / 2}
           dominantBaseline="central"
           fontSize={atomicFontSize}
-          fill="#1e293b"
+          fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
           textDecoration={task.completed ? "line-through" : "none"}
-          opacity={task.completed ? 0.5 : 1}
+          opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
         >
           {task.title}
         </text>
@@ -225,9 +225,9 @@ function SvgNode({
         y={height / 2}
         dominantBaseline="central"
         fontSize={fontSize}
-        fill="#1e293b"
+        fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
         textDecoration={task.completed ? "line-through" : "none"}
-        opacity={task.completed ? 0.5 : 1}
+        opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
       >
         {task.title}
       </text>
