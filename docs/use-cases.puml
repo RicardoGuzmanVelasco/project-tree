@@ -5,27 +5,37 @@ skinparam actorStyle awesome
 
 actor "User" as user
 
-
-  package "Task management" as MVP {
+  package "Task management" {
     usecase "Create task" as create
     usecase "Complete task" as complete
     usecase "Delete task" as delete
     usecase "Relocate task" as relocate
+    usecase "Rename task" as rename
+    usecase "Edit description" as description
   }
 
-  package Navigation {
+  package "Navigation" {
     usecase "View project" as view
     usecase "Collapse task subtree" as collapse_subtree
     usecase "Collapse to depth level" as collapse_depth
     usecase "Hide completed tasks" as hide_completed
+    usecase "Go to task" as goto
+    usecase "Switch view mode" as switch_view
   }
 
-  package "Project management" as project_mgmt {
+  package "Plans" {
+    usecase "Create plan" as create_plan
+    usecase "View plan" as view_plan
+    usecase "Edit plan" as edit_plan
+  }
+
+  package "Project management" {
     usecase "Switch project" as switch_project
   }
 
-user --> MVP
-user --> Navigation
-user --> project_mgmt
+user --> "Task management"
+user --> "Navigation"
+user --> "Plans"
+user --> "Project management"
 
 @enduml
