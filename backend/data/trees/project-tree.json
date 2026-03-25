@@ -871,6 +871,179 @@
             }
           ],
           "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
+        },
+        {
+          "id": 149,
+          "title": "persistencia de la vista del árbol",
+          "completed": true,
+          "children": [
+            {
+              "id": 150,
+              "title": "crear otra estructura de datos para la vista del árbol",
+              "completed": true,
+              "children": [
+                {
+                  "id": 151,
+                  "title": "incluir qué tareas están plegadas",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 152,
+                      "title": "cuando una tarea es plegada/desplegada, persistir ese estado",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 153,
+                      "title": "cargar vista según esa persistencia",
+                      "completed": true,
+                      "children": [
+                        {
+                          "id": 168,
+                          "title": "cargar collapsed IDs desde localStorage al iniciar",
+                          "completed": true,
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": 167,
+                      "title": "persistir collapsed IDs",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 154,
+                  "title": "guardar opciones tambien",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 163,
+                      "title": "guardar hide completed",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 164,
+                      "title": "guardar show ids",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 165,
+                      "title": "guardar nivel de colapso",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 169,
+                      "title": "persistir view mode (classic/v2)",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 170,
+                      "title": "persistir show IDs",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 171,
+                      "title": "persistir show minimap",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 172,
+                      "title": "persistir hide completed",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 166,
+                  "title": "usar localStorage como mecanismo de persistencia",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 173,
+                  "title": "persistir tarea seleccionada",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 174,
+                  "title": "persistir proyecto actual",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 175,
+                  "title": "persistir transform (zoom/pan) en V2",
+                  "completed": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 155,
+          "title": "paleta de comandos",
+          "completed": true,
+          "children": [
+            {
+              "id": 156,
+              "title": "atajo abrir paleta de comandos",
+              "completed": true,
+              "children": [
+                {
+                  "id": 157,
+                  "title": "overlay paleta de comandos",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 158,
+                      "title": "cerrar con tecla esc",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 159,
+              "title": "\"Ir a\"",
+              "completed": true,
+              "children": [
+                {
+                  "id": 160,
+                  "title": "introducir número de tarea",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 161,
+                      "title": "seleccionar esa tarea",
+                      "completed": true,
+                      "children": [
+                        {
+                          "id": 162,
+                          "title": "feedback error si no existe y no hacer nada",
+                          "completed": true,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
       "completed": true
@@ -878,7 +1051,175 @@
     {
       "id": 7,
       "title": "Plans",
-      "children": [],
+      "children": [
+        {
+          "id": 177,
+          "title": "Modelo de datos de Plan",
+          "completed": false,
+          "children": [
+            {
+              "id": 178,
+              "title": "Tipo Plan en backend (name + taskIds)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 179,
+              "title": "Tipo Plan en frontend",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 180,
+              "title": "Persistencia: plans.json por proyecto",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 181,
+              "title": "API: listar planes de un proyecto",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 182,
+              "title": "API: crear plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 183,
+              "title": "API: obtener un plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 184,
+              "title": "API: actualizar plan (añadir/quitar tasks)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 185,
+              "title": "API: borrar plan",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 186,
+          "title": "Crear un plan",
+          "completed": false,
+          "children": [
+            {
+              "id": 187,
+              "title": "Acción New plan (input nombre)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 188,
+              "title": "Modo selección: click en tareas las toggle dentro/fuera",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 189,
+              "title": "Indicador visual en tareas seleccionadas para el plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 190,
+              "title": "Confirmar/guardar la selección",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 191,
+          "title": "Ver el plan",
+          "completed": false,
+          "children": [
+            {
+              "id": 192,
+              "title": "Selector de plan (dropdown)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 193,
+              "title": "Filtrar árbol: solo tareas del plan + ancestros",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 194,
+              "title": "Ancestros renderizados greyed out",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 195,
+              "title": "Ancestros no-interactuables",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 196,
+              "title": "Indicador de progreso X/N",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 197,
+          "title": "Trabajar en el plan",
+          "completed": false,
+          "children": [
+            {
+              "id": 198,
+              "title": "Completar tareas funciona igual que en vista proyecto",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 199,
+              "title": "Progreso se actualiza al completar",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 200,
+          "title": "Editar plan",
+          "completed": false,
+          "children": [
+            {
+              "id": 201,
+              "title": "Añadir tarea al plan activo",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 202,
+              "title": "Quitar tarea del plan activo",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 203,
+          "title": "Recordar plan activo en localStorage",
+          "completed": false,
+          "children": []
+        }
+      ],
       "completed": false
     },
     {
@@ -903,179 +1244,12 @@
           "title": "bug type",
           "completed": false,
           "children": []
-        }
-      ]
-    },
-    {
-      "id": 149,
-      "title": "persistencia de la vista del árbol",
-      "completed": true,
-      "children": [
-        {
-          "id": 150,
-          "title": "crear otra estructura de datos para la vista del árbol",
-          "completed": true,
-          "children": [
-            {
-              "id": 151,
-              "title": "incluir qué tareas están plegadas",
-              "completed": true,
-              "children": [
-                {
-                  "id": 152,
-                  "title": "cuando una tarea es plegada/desplegada, persistir ese estado",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 153,
-                  "title": "cargar vista según esa persistencia",
-                  "completed": true,
-                  "children": [
-                    {
-                      "id": 168,
-                      "title": "cargar collapsed IDs desde localStorage al iniciar",
-                      "completed": true,
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": 167,
-                  "title": "persistir collapsed IDs",
-                  "completed": true,
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": 154,
-              "title": "guardar opciones tambien",
-              "completed": true,
-              "children": [
-                {
-                  "id": 163,
-                  "title": "guardar hide completed",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 164,
-                  "title": "guardar show ids",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 165,
-                  "title": "guardar nivel de colapso",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 169,
-                  "title": "persistir view mode (classic/v2)",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 170,
-                  "title": "persistir show IDs",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 171,
-                  "title": "persistir show minimap",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 172,
-                  "title": "persistir hide completed",
-                  "completed": true,
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": 166,
-              "title": "usar localStorage como mecanismo de persistencia",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 173,
-              "title": "persistir tarea seleccionada",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 174,
-              "title": "persistir proyecto actual",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 175,
-              "title": "persistir transform (zoom/pan) en V2",
-              "completed": true,
-              "children": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 155,
-      "title": "paleta de comandos",
-      "completed": true,
-      "children": [
-        {
-          "id": 156,
-          "title": "atajo abrir paleta de comandos",
-          "completed": true,
-          "children": [
-            {
-              "id": 157,
-              "title": "overlay paleta de comandos",
-              "completed": true,
-              "children": [
-                {
-                  "id": 158,
-                  "title": "cerrar con tecla esc",
-                  "completed": true,
-                  "children": []
-                }
-              ]
-            }
-          ]
         },
         {
-          "id": 159,
-          "title": "\"Ir a\"",
-          "completed": true,
-          "children": [
-            {
-              "id": 160,
-              "title": "introducir número de tarea",
-              "completed": true,
-              "children": [
-                {
-                  "id": 161,
-                  "title": "seleccionar esa tarea",
-                  "completed": true,
-                  "children": [
-                    {
-                      "id": 162,
-                      "title": "feedback error si no existe y no hacer nada",
-                      "completed": true,
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          "id": 176,
+          "title": "tarea técnica",
+          "completed": false,
+          "children": []
         }
       ]
     }
