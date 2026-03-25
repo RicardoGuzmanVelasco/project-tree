@@ -568,14 +568,304 @@
               "children": []
             }
           ]
+        },
+        {
+          "id": 102,
+          "title": "Navigation use cases",
+          "completed": true,
+          "children": [
+            {
+              "id": 103,
+              "title": "Collapse task subtree",
+              "completed": true,
+              "children": [
+                {
+                  "id": 107,
+                  "title": "Extract shared navigation state hook",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 108,
+                  "title": "Wire navigation state from App to views",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 109,
+                  "title": "Render collapse chevron on tasks with children",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 110,
+                  "title": "Collapse all descendants recursively on chevron click",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 111,
+                  "title": "Show descendant count badge on collapsed tasks",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 112,
+                  "title": "Expand reveals direct children still collapsed",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 113,
+                  "title": "Apply collapse behavior to classic view",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 114,
+                      "title": "Pass navigation state to TaskNode",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 115,
+                      "title": "Filter children by collapsed state",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 116,
+                      "title": "Render collapse chevron on task nodes",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 117,
+                      "title": "Show descendant count when collapsed",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 118,
+                  "title": "Prevent node size change on collapse/expand toggle",
+                  "completed": false,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 104,
+              "title": "Collapse to depth level",
+              "completed": true,
+              "children": [
+                {
+                  "id": 119,
+                  "title": "Compute max tree depth in navigation state",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 120,
+                  "title": "Implement collapseToDepth in navigation hook",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 121,
+                  "title": "Render depth stepper in navigation toolbar",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 122,
+                  "title": "Number key shortcut for depth levels 1-9",
+                  "completed": true,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 105,
+              "title": "Expand all",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 106,
+              "title": "Hide completed tasks",
+              "completed": true,
+              "children": [
+                {
+                  "id": 123,
+                  "title": "Implement hideCompleted state in navigation hook",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 124,
+                  "title": "Filter completed children in layout and rendering",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 125,
+                  "title": "Render done badge on parents with hidden completed children",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 126,
+                  "title": "Per-parent toggle to reveal hidden completed children",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 127,
+                  "title": "Render toggle in navigation toolbar",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 128,
+                  "title": "Apply to classic view",
+                  "completed": true,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 132,
+          "title": "que se vean también cuántas tareas no están completadas al colapsar una",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 63,
+          "title": "Task ID visibility",
+          "completed": true,
+          "children": [
+            {
+              "id": 64,
+              "title": "Show IDs alongside task titles",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 65,
+              "title": "Toggle ID visibility (user decides when to see IDs)",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 129,
+          "title": "change navigation in trackpad [NEXT STEP]",
+          "completed": true,
+          "children": [
+            {
+              "id": 130,
+              "title": "zoom only when pinching",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 131,
+              "title": "navigation with two fingers without needing clicking",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 133,
+          "title": "evitar que el zoom se reinicie todo el rato",
+          "completed": true,
+          "children": []
         }
       ],
-      "completed": false
+      "completed": true
     },
     {
       "id": 5,
       "title": "Edit task",
-      "children": [],
+      "children": [
+        {
+          "id": 134,
+          "title": "Description of the task",
+          "completed": false,
+          "children": [
+            {
+              "id": 135,
+              "title": "Show description only when requested",
+              "completed": false,
+              "children": [
+                {
+                  "id": 138,
+                  "title": "Modify description when it's showing",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 139,
+                      "title": "Create a description is just modifying the \"empty\" desc",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 136,
+              "title": "Toggle showing/hiding descriptions",
+              "completed": false,
+              "children": [
+                {
+                  "id": 140,
+                  "title": "Show the description with gracefully design",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 141,
+                      "title": "Show as foreground",
+                      "completed": false,
+                      "children": []
+                    },
+                    {
+                      "id": 142,
+                      "title": "Lesser importance to the background tree when the description is shown",
+                      "completed": false,
+                      "children": [
+                        {
+                          "id": 143,
+                          "title": "Back to normal importance of the tree when description is not shown",
+                          "completed": false,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 137,
+              "title": "A task has empty description by default",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 144,
+              "title": "Add description to the data structure",
+              "completed": true,
+              "children": []
+            }
+          ]
+        }
+      ],
       "completed": false
     },
     {
@@ -595,192 +885,6 @@
       "title": "Serve frontend from backend (remove CORS)",
       "children": [],
       "completed": false
-    },
-    {
-      "id": 63,
-      "title": "Task ID visibility",
-      "completed": false,
-      "children": [
-        {
-          "id": 64,
-          "title": "Show IDs alongside task titles",
-          "completed": false,
-          "children": []
-        },
-        {
-          "id": 65,
-          "title": "Toggle ID visibility (user decides when to see IDs)",
-          "completed": false,
-          "children": []
-        }
-      ]
-    },
-    {
-      "id": 102,
-      "title": "Navigation use cases",
-      "completed": true,
-      "children": [
-        {
-          "id": 103,
-          "title": "Collapse task subtree",
-          "completed": true,
-          "children": [
-            {
-              "id": 107,
-              "title": "Extract shared navigation state hook",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 108,
-              "title": "Wire navigation state from App to views",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 109,
-              "title": "Render collapse chevron on tasks with children",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 110,
-              "title": "Collapse all descendants recursively on chevron click",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 111,
-              "title": "Show descendant count badge on collapsed tasks",
-              "completed": false,
-              "children": []
-            },
-            {
-              "id": 112,
-              "title": "Expand reveals direct children still collapsed",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 113,
-              "title": "Apply collapse behavior to classic view",
-              "completed": true,
-              "children": [
-                {
-                  "id": 114,
-                  "title": "Pass navigation state to TaskNode",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 115,
-                  "title": "Filter children by collapsed state",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 116,
-                  "title": "Render collapse chevron on task nodes",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 117,
-                  "title": "Show descendant count when collapsed",
-                  "completed": true,
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": 118,
-              "title": "Prevent node size change on collapse/expand toggle",
-              "completed": false,
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": 104,
-          "title": "Collapse to depth level",
-          "completed": true,
-          "children": [
-            {
-              "id": 119,
-              "title": "Compute max tree depth in navigation state",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 120,
-              "title": "Implement collapseToDepth in navigation hook",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 121,
-              "title": "Render depth stepper in navigation toolbar",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 122,
-              "title": "Number key shortcut for depth levels 1-9",
-              "completed": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": 105,
-          "title": "Expand all",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 106,
-          "title": "Hide completed tasks",
-          "completed": true,
-          "children": [
-            {
-              "id": 123,
-              "title": "Implement hideCompleted state in navigation hook",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 124,
-              "title": "Filter completed children in layout and rendering",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 125,
-              "title": "Render done badge on parents with hidden completed children",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 126,
-              "title": "Per-parent toggle to reveal hidden completed children",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 127,
-              "title": "Render toggle in navigation toolbar",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 128,
-              "title": "Apply to classic view",
-              "completed": true,
-              "children": []
-            }
-          ]
-        }
-      ]
     }
   ],
   "completed": false
