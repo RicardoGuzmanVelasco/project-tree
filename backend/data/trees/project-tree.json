@@ -1141,7 +1141,7 @@
         {
           "id": 191,
           "title": "Ver el plan",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 192,
@@ -1195,12 +1195,12 @@
             {
               "id": 206,
               "title": "Pero sus descendientes sí",
-              "completed": true,
+              "completed": false,
               "children": [
                 {
                   "id": 197,
                   "title": "Trabajar en el plan",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 198,
@@ -1212,6 +1212,12 @@
                       "id": 199,
                       "title": "Progreso se actualiza al completar",
                       "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 207,
+                      "title": "No permitir completar tareas que no pertenecen al plan",
+                      "completed": false,
                       "children": []
                     }
                   ]
