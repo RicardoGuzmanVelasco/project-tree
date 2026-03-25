@@ -909,33 +909,33 @@
     {
       "id": 149,
       "title": "persistencia de la vista del árbol",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 150,
           "title": "crear otra estructura de datos para la vista del árbol",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 151,
               "title": "incluir qué tareas están plegadas",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 152,
                   "title": "cuando una tarea es plegada/desplegada, persistir ese estado",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 153,
                   "title": "cargar vista según esa persistencia",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 168,
                       "title": "cargar collapsed IDs desde localStorage al iniciar",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     }
                   ]
@@ -943,7 +943,7 @@
                 {
                   "id": 167,
                   "title": "persistir collapsed IDs",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -951,7 +951,7 @@
             {
               "id": 154,
               "title": "guardar opciones tambien",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 163,
@@ -974,25 +974,25 @@
                 {
                   "id": 169,
                   "title": "persistir view mode (classic/v2)",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 170,
                   "title": "persistir show IDs",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 171,
                   "title": "persistir show minimap",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 172,
                   "title": "persistir hide completed",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -1000,25 +1000,25 @@
             {
               "id": 166,
               "title": "usar localStorage como mecanismo de persistencia",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 173,
               "title": "persistir tarea seleccionada",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 174,
               "title": "persistir proyecto actual",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 175,
               "title": "persistir transform (zoom/pan) en V2",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
