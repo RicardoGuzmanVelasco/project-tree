@@ -1028,22 +1028,22 @@
     {
       "id": 155,
       "title": "paleta de comandos",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 156,
           "title": "atajo abrir paleta de comandos",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 157,
               "title": "overlay paleta de comandos",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 158,
                   "title": "cerrar con tecla esc",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]
@@ -1053,22 +1053,22 @@
         {
           "id": 159,
           "title": "\"Ir a\"",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 160,
               "title": "introducir número de tarea",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 161,
                   "title": "seleccionar esa tarea",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 162,
                       "title": "feedback error si no existe y no hacer nada",
-                      "completed": false,
+                      "completed": true,
                       "children": []
                     }
                   ]
