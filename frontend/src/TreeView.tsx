@@ -45,7 +45,7 @@ function countDescendants(task: Task): number {
 function countCompletedDescendants(task: Task): number {
   let count = 0;
   for (const child of task.children) {
-    if (child.completed) count++;
+    if (child.completed || child.abandoned) count++;
     count += countCompletedDescendants(child);
   }
   return count;
@@ -78,13 +78,13 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
 
   const allChildren = isCollapsed ? [] : task.children;
   const hiddenCompletedCount = hideCompleted && !revealedParentIds.has(task.id)
-    ? allChildren.filter(c => c.completed).length
+    ? allChildren.filter(c => c.completed || c.abandoned).length
     : 0;
   const visibleChildren = hiddenCompletedCount > 0
-    ? allChildren.filter(c => !c.completed)
+    ? allChildren.filter(c => !c.completed && !c.abandoned)
     : allChildren;
 
-  const nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : isInvalidTarget ? 0.3 : 1;
+  const nodeOpacity = isAncestorContext ? 0.35 : (task.completed || task.abandoned) ? 0.5 : isInvalidTarget ? 0.3 : 1;
   const nodeCursor = isAncestorContext ? "default" : isInvalidTarget ? "not-allowed" : isValidTarget ? "copy" : "pointer";
 
   const handleClick = () => {
@@ -121,7 +121,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
         {showIds && task.id >= 0 && (
           <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>#{task.id}</span>
         )}
-        <span style={{ textDecoration: task.completed ? "line-through" : "none", color: isAncestorContext ? "#a0aec0" : "inherit" }}>
+        <span style={{ textDecoration: (task.completed || task.abandoned) ? "line-through" : "none", color: isAncestorContext ? "#a0aec0" : task.abandoned ? "#9333ea" : "inherit" }}>
           {task.title}
         </span>
         {task.children.length > 0 && !isCollapsed && (
@@ -171,7 +171,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     background: isChildValid ? "#dcfce7" : isChildSelected ? "#dbeafe" : "transparent",
                     cursor: isChildInvalid ? "not-allowed" : isChildValid ? "copy" : "pointer",
                     fontSize: 13,
-                    opacity: child.completed ? 0.5 : isChildInvalid ? 0.3 : 1,
+                    opacity: (child.completed || child.abandoned) ? 0.5 : isChildInvalid ? 0.3 : 1,
                   }}
                   onClick={() => { if (!isChildInvalid) onSelectTask(child.id); }}
                 >
@@ -186,7 +186,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                   {showIds && (
                     <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>
                   )}
-                  <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
+                  <span style={{ textDecoration: (child.completed || child.abandoned) ? "line-through" : "none", color: child.abandoned ? "#9333ea" : "inherit" }}>
                     {child.title}
                   </span>
                 </div>
@@ -264,7 +264,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                             cursor: isChildInvalid ? "not-allowed" : isChildValid ? "copy" : "pointer",
                             fontSize: 14,
                             whiteSpace: "nowrap",
-                            opacity: child.completed ? 0.5 : isChildInvalid ? 0.3 : 1,
+                            opacity: (child.completed || child.abandoned) ? 0.5 : isChildInvalid ? 0.3 : 1,
                           }}
                           onClick={() => { if (!isChildInvalid) onSelectTask(child.id); }}
                         >
@@ -279,7 +279,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                           {showIds && (
                             <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 500 }}>#{child.id}</span>
                           )}
-                          <span style={{ textDecoration: child.completed ? "line-through" : "none" }}>
+                          <span style={{ textDecoration: (child.completed || child.abandoned) ? "line-through" : "none", color: child.abandoned ? "#9333ea" : "inherit" }}>
                             {child.title}
                           </span>
                         </div>

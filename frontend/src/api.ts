@@ -83,6 +83,15 @@ export async function updatePlan(slug: string, planId: number, taskIds: number[]
   return response.json();
 }
 
+export async function toggleTaskAbandoned(slug: string, id: number, abandoned: boolean) {
+  const response = await fetch(`${API_BASE}/projects/${slug}/tasks/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ abandoned }),
+  });
+  return response.json();
+}
+
 export async function createTask(slug: string, parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`, {
     method: "POST",

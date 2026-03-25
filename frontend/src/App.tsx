@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -78,6 +78,11 @@ export default function App() {
     loadTree(currentSlug);
   };
 
+  const handleToggleAbandoned = async (id: number, abandoned: boolean) => {
+    await toggleTaskAbandoned(currentSlug, id, abandoned);
+    loadTree(currentSlug);
+  };
+
   const handleNewPlan = async () => {
     const name = prompt("Plan name:");
     if (!name?.trim()) return;
@@ -139,7 +144,7 @@ export default function App() {
     const total = activePlan.taskIds.length;
     let completed = 0;
     const check = (node: Task) => {
-      if (activePlan.taskIds.includes(node.id) && node.completed) completed++;
+      if (activePlan.taskIds.includes(node.id) && (node.completed || node.abandoned)) completed++;
       node.children.forEach(check);
     };
     check(tree);
@@ -492,6 +497,21 @@ export default function App() {
                     style={{ padding: "6px 14px", fontSize: 14 }}
                   >
                     Relocate
+                  </button>
+                  <button
+                    onClick={() => {
+                      const task = findTaskInTree(tree, selectedTaskId!);
+                      if (task) handleToggleAbandoned(selectedTaskId!, !task.abandoned);
+                    }}
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: 14,
+                      ...(findTaskInTree(tree, selectedTaskId!)?.abandoned
+                        ? { background: "#9333ea", color: "white", borderColor: "#9333ea" }
+                        : {}),
+                    }}
+                  >
+                    {findTaskInTree(tree, selectedTaskId!)?.abandoned ? "Restore" : "Abandon"}
                   </button>
                   <button
                     onClick={handleDelete}

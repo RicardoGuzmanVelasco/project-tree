@@ -119,10 +119,10 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
   if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
 
   const id = Number(req.params.id);
-  const { completed, parentId, title, description } = req.body;
+  const { completed, abandoned, parentId, title, description } = req.body;
 
-  if (typeof completed !== "boolean" && typeof parentId !== "number" && typeof title !== "string" && typeof description !== "string") {
-    res.status(400).json({ error: "completed (boolean), parentId (number), title (string), or description (string) is required" });
+  if (typeof completed !== "boolean" && typeof abandoned !== "boolean" && typeof parentId !== "number" && typeof title !== "string" && typeof description !== "string") {
+    res.status(400).json({ error: "completed (boolean), abandoned (boolean), parentId (number), title (string), or description (string) is required" });
     return;
   }
 
@@ -179,7 +179,16 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
     return;
   }
 
+  if (typeof abandoned === "boolean") {
+    task.abandoned = abandoned || undefined;
+    if (abandoned) task.completed = false;
+    saveTree(slug);
+    res.json(task);
+    return;
+  }
+
   task.completed = completed;
+  if (completed) task.abandoned = undefined;
   saveTree(slug);
 
   res.json(task);

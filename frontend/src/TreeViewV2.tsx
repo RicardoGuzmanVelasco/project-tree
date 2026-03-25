@@ -75,7 +75,7 @@ function SvgNode({
   let stroke = isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
   let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
-  let nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : 1;
+  let nodeOpacity = isAncestorContext ? 0.35 : (task.completed || task.abandoned) ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {
@@ -123,14 +123,23 @@ function SvgNode({
           cx={12}
           cy={height / 2}
           r={5}
-          fill={task.completed ? "#10b981" : "none"}
-          stroke={task.completed ? "#10b981" : "#94a3b8"}
+          fill={task.abandoned ? "#9333ea" : task.completed ? "#10b981" : "none"}
+          stroke={task.abandoned ? "#9333ea" : task.completed ? "#10b981" : "#94a3b8"}
           strokeWidth={1.5}
           pointerEvents="none"
         />
         {task.completed && (
           <path
             d={`M${9.5} ${height / 2} l1.5 1.5 l3.5 -3.5`}
+            stroke="#fff"
+            strokeWidth={1.5}
+            fill="none"
+            pointerEvents="none"
+          />
+        )}
+        {task.abandoned && (
+          <path
+            d={`M${9.5} ${height / 2 - 2.5} l5 5 M${14.5} ${height / 2 - 2.5} l-5 5`}
             stroke="#fff"
             strokeWidth={1.5}
             fill="none"
@@ -156,9 +165,9 @@ function SvgNode({
               y={height / 2}
               dominantBaseline="central"
               fontSize={atomicFontSize}
-              fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
-              textDecoration={task.completed ? "line-through" : "none"}
-              opacity={task.completed ? 0.5 : 1}
+              fill={isAncestorContext ? "#a0aec0" : task.abandoned ? "#9333ea" : "#1e293b"}
+              textDecoration={(task.completed || task.abandoned) ? "line-through" : "none"}
+              opacity={(task.completed || task.abandoned) ? 0.5 : 1}
             >
               {truncate(task.title, textX, 8)}
             </text>
@@ -208,14 +217,23 @@ function SvgNode({
         cx={16}
         cy={height / 2}
         r={6}
-        fill={task.completed ? "#10b981" : "none"}
-        stroke={task.completed ? "#10b981" : "#94a3b8"}
+        fill={task.abandoned ? "#9333ea" : task.completed ? "#10b981" : "none"}
+        stroke={task.abandoned ? "#9333ea" : task.completed ? "#10b981" : "#94a3b8"}
         strokeWidth={1.5}
         pointerEvents="none"
       />
       {task.completed && (
         <path
           d={`M${13} ${height / 2} l2 2 l4 -4`}
+          stroke="#fff"
+          strokeWidth={1.5}
+          fill="none"
+          pointerEvents="none"
+        />
+      )}
+      {task.abandoned && (
+        <path
+          d={`M${13} ${height / 2 - 3} l6 6 M${19} ${height / 2 - 3} l-6 6`}
           stroke="#fff"
           strokeWidth={1.5}
           fill="none"
@@ -243,9 +261,9 @@ function SvgNode({
             y={height / 2}
             dominantBaseline="central"
             fontSize={fontSize}
-            fill={isAncestorContext ? "#94a3b8" : "#1e293b"}
-            textDecoration={task.completed ? "line-through" : "none"}
-            opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
+            fill={isAncestorContext ? "#94a3b8" : task.abandoned ? "#9333ea" : "#1e293b"}
+            textDecoration={(task.completed || task.abandoned) ? "line-through" : "none"}
+            opacity={isAncestorContext ? 1 : (task.completed || task.abandoned) ? 0.5 : 1}
           >
             {truncate(task.title, textX, 16)}
           </text>
@@ -341,7 +359,7 @@ function filterCompletedChildren(
   hiddenCounts: Map<number, number>,
 ): Task {
   const filtered = task.children.filter(c => {
-    if (!c.completed) return true;
+    if (!c.completed && !c.abandoned) return true;
     if (revealedParentIds.has(task.id)) return true;
     return false;
   });

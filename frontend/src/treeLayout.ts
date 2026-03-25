@@ -45,7 +45,7 @@ function countDescendants(task: Task): number {
 function countCompletedDescendants(task: Task): number {
   let count = 0;
   for (const child of task.children) {
-    if (child.completed) count++;
+    if (child.completed || child.abandoned) count++;
     count += countCompletedDescendants(child);
   }
   return count;
