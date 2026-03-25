@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
-import { Task } from "./types";
+import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeView from "./TreeView";
 import TreeViewV2 from "./TreeViewV2";
@@ -25,6 +25,8 @@ export default function App() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [commandInput, setCommandInput] = useState("");
   const [commandError, setCommandError] = useState(false);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [activePlanId, setActivePlanId] = useState<number | null>(() => loadGlobal("activePlanId", null));
   const navigation = useNavigationState(currentSlug);
 
   // Persist global preferences
@@ -32,11 +34,13 @@ export default function App() {
   useEffect(() => { saveGlobal("selectedTaskId", selectedTaskId); }, [selectedTaskId]);
   useEffect(() => { saveGlobal("viewMode", viewMode); }, [viewMode]);
   useEffect(() => { saveGlobal("showIds", showIds); }, [showIds]);
+  useEffect(() => { saveGlobal("activePlanId", activePlanId); }, [activePlanId]);
 
   const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
 
   useEffect(() => {
     fetchProjects().then(setProjects).catch(() => setError("Could not load projects"));
+    fetchPlans(currentSlug).then(setPlans).catch(() => {});
     loadTree(currentSlug);
   }, []);
 
@@ -49,8 +53,10 @@ export default function App() {
     setDeletingTaskId(null);
     setDeleteClicksRemaining(0);
     setNewTitle("");
+    setActivePlanId(null);
     navigation.reset();
     loadTree(slug);
+    fetchPlans(slug).then(setPlans).catch(() => {});
   };
 
   const handleCreate = async () => {
@@ -77,6 +83,27 @@ export default function App() {
       setSelectedTaskId(id);
     }
   };
+
+  // Filter tree to only show plan tasks + their ancestors
+  const activePlan = plans.find(p => p.id === activePlanId) || null;
+
+  const filterTreeForPlan = useCallback((node: Task, planTaskIds: Set<number>): Task | null => {
+    // Check if this node or any descendant is in the plan
+    const isInPlan = planTaskIds.has(node.id);
+    const filteredChildren = node.children
+      .map(c => filterTreeForPlan(c, planTaskIds))
+      .filter((c): c is Task => c !== null);
+    if (!isInPlan && filteredChildren.length === 0) return null;
+    return { ...node, children: filteredChildren };
+  }, []);
+
+  const planTaskIds = useMemo(() => activePlan ? new Set(activePlan.taskIds) : null, [activePlan]);
+
+  const visibleTree = useMemo(() => {
+    if (!tree) return null;
+    if (!planTaskIds) return tree;
+    return filterTreeForPlan(tree, planTaskIds) || tree;
+  }, [tree, planTaskIds, filterTreeForPlan]);
 
   const countDescendants = (task: Task): number => {
     let count = task.children.length;
@@ -254,6 +281,16 @@ export default function App() {
         >
           {projects.map(p => (
             <option key={p.slug} value={p.slug}>{p.title}</option>
+          ))}
+        </select>
+        <select
+          value={activePlanId ?? ""}
+          onChange={(e) => setActivePlanId(e.target.value ? Number(e.target.value) : null)}
+          style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#f8fafc", cursor: "pointer" }}
+        >
+          <option value="">All tasks</option>
+          {plans.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
         <button
@@ -461,7 +498,7 @@ export default function App() {
         })()}
       {viewMode === "classic" ? (
         <TreeView
-          task={tree}
+          task={visibleTree!}
           selectedTaskId={selectedTaskId}
           onSelectTask={handleTaskClick}
           onToggleCompleted={handleToggleCompleted}
@@ -471,7 +508,7 @@ export default function App() {
         />
       ) : (
         <TreeViewV2
-          task={tree}
+          task={visibleTree!}
           selectedTaskId={selectedTaskId}
           onSelectTask={handleTaskClick}
           onToggleCompleted={handleToggleCompleted}

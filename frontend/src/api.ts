@@ -53,6 +53,18 @@ export async function updateDescription(slug: string, id: number, description: s
   return response.json();
 }
 
+import { Plan } from "./types";
+
+export async function fetchPlans(slug: string): Promise<Plan[]> {
+  const response = await fetch(`${API_BASE}/projects/${slug}/plans`);
+  return response.json();
+}
+
+export async function fetchPlan(slug: string, planId: number): Promise<Plan> {
+  const response = await fetch(`${API_BASE}/projects/${slug}/plans/${planId}`);
+  return response.json();
+}
+
 export async function createTask(slug: string, parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`, {
     method: "POST",
