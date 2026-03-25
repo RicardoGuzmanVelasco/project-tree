@@ -97,13 +97,39 @@ export default function App() {
     return { ...node, children: filteredChildren };
   }, []);
 
-  const planTaskIds = useMemo(() => activePlan ? new Set(activePlan.taskIds) : null, [activePlan]);
+  const planTaskIds = useMemo(() => {
+    if (!activePlan) return null;
+    const ids = new Set(activePlan.taskIds);
+    ids.add(-1); // fake plan root is always "in plan"
+    return ids;
+  }, [activePlan]);
+
+  const planProgress = useMemo(() => {
+    if (!tree || !activePlan) return null;
+    const total = activePlan.taskIds.length;
+    let completed = 0;
+    const check = (node: Task) => {
+      if (activePlan.taskIds.includes(node.id) && node.completed) completed++;
+      node.children.forEach(check);
+    };
+    check(tree);
+    return { completed, total };
+  }, [tree, activePlan]);
 
   const visibleTree = useMemo(() => {
     if (!tree) return null;
-    if (!planTaskIds) return tree;
-    return filterTreeForPlan(tree, planTaskIds) || tree;
-  }, [tree, planTaskIds, filterTreeForPlan]);
+    if (!planTaskIds || !activePlan) return tree;
+    const filtered = filterTreeForPlan(tree, planTaskIds);
+    if (!filtered) return tree;
+    // Replace root with a fake plan node showing plan name + progress
+    const progressLabel = planProgress ? ` [${planProgress.completed}/${planProgress.total}]` : "";
+    return {
+      id: -1,
+      title: activePlan.name + progressLabel,
+      completed: false,
+      children: filtered.children,
+    };
+  }, [tree, planTaskIds, activePlan, planProgress, filterTreeForPlan]);
 
   const countDescendants = (task: Task): number => {
     let count = task.children.length;
