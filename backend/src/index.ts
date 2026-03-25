@@ -2,11 +2,12 @@ import express from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
-import { Task } from "./types";
+import { Task, Plan } from "./types";
 
 const app = express();
 const PORT = 3001;
 const TREES_DIR = path.join(__dirname, "..", "data", "trees");
+const PLANS_DIR = path.join(__dirname, "..", "data", "plans");
 
 app.use(cors());
 app.use(express.json());
@@ -210,6 +211,94 @@ app.delete("/projects/:slug/tasks/:id", (req, res) => {
 
   saveTree(slug);
   res.json({ deleted: id });
+});
+
+// --- Plans ---
+
+function plansFile(slug: string): string {
+  return path.join(PLANS_DIR, `${slug}.json`);
+}
+
+function getPlans(slug: string): Plan[] {
+  const file = plansFile(slug);
+  if (!fs.existsSync(file)) return [];
+  return JSON.parse(fs.readFileSync(file, "utf-8"));
+}
+
+function savePlans(slug: string, plans: Plan[]) {
+  if (!fs.existsSync(PLANS_DIR)) fs.mkdirSync(PLANS_DIR, { recursive: true });
+  fs.writeFileSync(plansFile(slug), JSON.stringify(plans, null, 2) + "\n");
+}
+
+function nextPlanId(plans: Plan[]): number {
+  return plans.length === 0 ? 1 : Math.max(...plans.map(p => p.id)) + 1;
+}
+
+app.get("/projects/:slug/plans", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  res.json(getPlans(slug));
+});
+
+app.post("/projects/:slug/plans", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const { name, taskIds } = req.body;
+  if (!name || typeof name !== "string" || !name.trim()) {
+    res.status(400).json({ error: "Name is required" }); return;
+  }
+  if (!Array.isArray(taskIds) || !taskIds.every(id => typeof id === "number")) {
+    res.status(400).json({ error: "taskIds must be an array of numbers" }); return;
+  }
+  const plans = getPlans(slug);
+  const plan: Plan = { id: nextPlanId(plans), name: name.trim(), taskIds };
+  plans.push(plan);
+  savePlans(slug, plans);
+  res.status(201).json(plan);
+});
+
+app.get("/projects/:slug/plans/:planId", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const planId = Number(req.params.planId);
+  const plan = getPlans(slug).find(p => p.id === planId);
+  if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
+  res.json(plan);
+});
+
+app.patch("/projects/:slug/plans/:planId", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const planId = Number(req.params.planId);
+  const plans = getPlans(slug);
+  const plan = plans.find(p => p.id === planId);
+  if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
+  const { name, taskIds } = req.body;
+  if (typeof name === "string") {
+    const trimmed = name.trim();
+    if (!trimmed) { res.status(400).json({ error: "Name cannot be empty" }); return; }
+    plan.name = trimmed;
+  }
+  if (Array.isArray(taskIds)) {
+    if (!taskIds.every(id => typeof id === "number")) {
+      res.status(400).json({ error: "taskIds must be numbers" }); return;
+    }
+    plan.taskIds = taskIds;
+  }
+  savePlans(slug, plans);
+  res.json(plan);
+});
+
+app.delete("/projects/:slug/plans/:planId", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const planId = Number(req.params.planId);
+  const plans = getPlans(slug);
+  const idx = plans.findIndex(p => p.id === planId);
+  if (idx === -1) { res.status(404).json({ error: "Plan not found" }); return; }
+  plans.splice(idx, 1);
+  savePlans(slug, plans);
+  res.json({ deleted: planId });
 });
 
 app.listen(PORT, () => {

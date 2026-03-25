@@ -5,3 +5,9 @@ export interface Task {
   completed: boolean;
   children: Task[];
 }
+
+export interface Plan {
+  id: number;
+  name: string;
+  taskIds: number[];
+}
