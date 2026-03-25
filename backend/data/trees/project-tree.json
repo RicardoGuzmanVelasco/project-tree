@@ -1188,7 +1188,7 @@
             {
               "id": 219,
               "title": "esconder id -1 de la tarea fake del plan!",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
@@ -1301,6 +1301,52 @@
                   "title": "ejemplo",
                   "completed": true,
                   "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 224,
+          "title": "menú cohesivo para planes",
+          "completed": false,
+          "children": [
+            {
+              "id": 225,
+              "title": "sacar las partes de plan a otro menu",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 226,
+              "title": "\"archivo\" de planes",
+              "completed": false,
+              "children": [
+                {
+                  "id": 227,
+                  "title": "meter planes completados en el archivo",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 230,
+                      "title": "un plan está completado si está al 100%",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 228,
+                  "title": "sacar del archivo si se añade una tarea al plan",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 229,
+                      "title": "mejor dicho, si deja de estar completado",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
                 }
               ]
             }
