@@ -64,7 +64,7 @@ function SvgNode({
   let stroke = isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
   let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
-  let nodeOpacity = isAncestorContext ? 0.2 : task.completed ? 0.5 : 1;
+  let nodeOpacity = isAncestorContext ? 0.35 : task.completed ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
 
   if (isValid) {
@@ -98,9 +98,9 @@ function SvgNode({
       <g
         onClick={handleClick}
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
-        style={{ cursor, opacity: isFocusDimmed ? 0.15 : undefined }}
+        style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
       >
-        <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill} opacity={nodeOpacity}
+        <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill}
           stroke={isInEditPlan ? "#16a34a" : "none"} strokeWidth={isInEditPlan ? 1.5 : 0} />
         {/* Completion circle with larger hit area */}
         <circle cx={12} cy={height / 2} r={10} fill="transparent"
@@ -144,7 +144,7 @@ function SvgNode({
           fontSize={atomicFontSize}
           fill={isAncestorContext ? "#a0aec0" : "#1e293b"}
           textDecoration={task.completed ? "line-through" : "none"}
-          opacity={isAncestorContext ? 1 : task.completed ? 0.5 : 1}
+          opacity={task.completed ? 0.5 : 1}
         >
           {task.title}
         </text>
@@ -157,7 +157,7 @@ function SvgNode({
     <g
       onClick={handleClick}
       onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
-      style={{ cursor, opacity: isFocusDimmed ? 0.15 : undefined }}
+      style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
     >
       {/* Shadow */}
       <rect
@@ -181,7 +181,6 @@ function SvgNode({
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDasharray}
-        opacity={nodeOpacity}
       />
       {/* Completion circle with larger hit area */}
       <circle cx={16} cy={height / 2} r={12} fill="transparent"
