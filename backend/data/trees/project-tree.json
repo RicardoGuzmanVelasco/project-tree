@@ -785,6 +785,92 @@
           "title": "evitar que el zoom se reinicie todo el rato",
           "completed": true,
           "children": []
+        },
+        {
+          "id": 134,
+          "title": "Description of the task",
+          "completed": true,
+          "children": [
+            {
+              "id": 135,
+              "title": "Show description only when requested",
+              "completed": true,
+              "children": [
+                {
+                  "id": 138,
+                  "title": "Modify description when it's showing",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 139,
+                      "title": "Create a description is just modifying the \"empty\" desc",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 136,
+              "title": "Toggle showing/hiding descriptions",
+              "completed": true,
+              "children": [
+                {
+                  "id": 140,
+                  "title": "Show the description with gracefully design",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 141,
+                      "title": "Show as foreground",
+                      "completed": true,
+                      "children": []
+                    },
+                    {
+                      "id": 142,
+                      "title": "Lesser importance to the background tree when the description is shown",
+                      "completed": true,
+                      "children": [
+                        {
+                          "id": 143,
+                          "title": "Back to normal importance of the tree when description is not shown",
+                          "completed": true,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 137,
+              "title": "A task has empty description by default",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 144,
+              "title": "Add description to the data structure",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 145,
+              "title": "bug: opening with key d begins writhing \"d\" as the desc",
+              "completed": true,
+              "children": [],
+              "description": "correcto! hecho.\n"
+            },
+            {
+              "id": 148,
+              "title": "press ESC to close open description",
+              "completed": true,
+              "children": []
+            }
+          ],
+          "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
         }
       ],
       "completed": true
@@ -819,92 +905,6 @@
           "children": []
         }
       ]
-    },
-    {
-      "id": 134,
-      "title": "Description of the task",
-      "completed": true,
-      "children": [
-        {
-          "id": 135,
-          "title": "Show description only when requested",
-          "completed": true,
-          "children": [
-            {
-              "id": 138,
-              "title": "Modify description when it's showing",
-              "completed": true,
-              "children": [
-                {
-                  "id": 139,
-                  "title": "Create a description is just modifying the \"empty\" desc",
-                  "completed": true,
-                  "children": []
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": 136,
-          "title": "Toggle showing/hiding descriptions",
-          "completed": true,
-          "children": [
-            {
-              "id": 140,
-              "title": "Show the description with gracefully design",
-              "completed": true,
-              "children": [
-                {
-                  "id": 141,
-                  "title": "Show as foreground",
-                  "completed": true,
-                  "children": []
-                },
-                {
-                  "id": 142,
-                  "title": "Lesser importance to the background tree when the description is shown",
-                  "completed": true,
-                  "children": [
-                    {
-                      "id": 143,
-                      "title": "Back to normal importance of the tree when description is not shown",
-                      "completed": true,
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": 137,
-          "title": "A task has empty description by default",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 144,
-          "title": "Add description to the data structure",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 145,
-          "title": "bug: opening with key d begins writhing \"d\" as the desc",
-          "completed": true,
-          "children": [],
-          "description": "correcto! hecho.\n"
-        },
-        {
-          "id": 148,
-          "title": "press ESC to close open description",
-          "completed": true,
-          "children": []
-        }
-      ],
-      "description": "Cualquier tarea puede tener texto descriptivo además de su título. Además se puede guardar y editar a gusto."
     },
     {
       "id": 149,
@@ -956,19 +956,19 @@
                 {
                   "id": 163,
                   "title": "guardar hide completed",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 164,
                   "title": "guardar show ids",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 165,
                   "title": "guardar nivel de colapso",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
