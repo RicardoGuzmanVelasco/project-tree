@@ -37,6 +37,7 @@ function SvgNode({
   showIds,
   isAncestorContext,
   isInEditPlan,
+  isCompact,
 }: {
   node: LayoutNode;
   isSelected: boolean;
@@ -52,12 +53,14 @@ function SvgNode({
   showIds: boolean;
   isAncestorContext?: boolean;
   isInEditPlan?: boolean;
+  isCompact?: boolean;
 }) {
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
   const fontSize = DEPTH_FONT_SIZES[Math.min(depth, DEPTH_FONT_SIZES.length - 1)];
-  const charW = fontSize * 0.58; // approximate char width for Inter at given size
+  const charW = fontSize * 0.58;
   const truncate = (text: string, startX: number, rightPad: number) => {
+    if (!isCompact) return text;
     const available = width - startX - rightPad;
     const maxChars = Math.floor(available / charW);
     if (maxChars >= text.length) return text;
@@ -877,6 +880,7 @@ export default function TreeViewV2({
                   showIds={showIds}
                   isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
                   isInEditPlan={editingPlanTaskIds != null && editingPlanTaskIds.has(node.id)}
+                  isCompact={compact}
                 />
               </g>
             );
