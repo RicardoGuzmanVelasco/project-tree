@@ -332,7 +332,7 @@ function SvgNode({
   );
 }
 
-const MIN_ZOOM = 0.1;
+const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 3;
 
 function filterCompletedChildren(
