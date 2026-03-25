@@ -22,6 +22,9 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => loadGlobal("viewMode", "classic") as ViewMode);
   const [showIds, setShowIds] = useState(() => loadGlobal("showIds", false));
   const [showDescription, setShowDescription] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [commandInput, setCommandInput] = useState("");
+  const [commandError, setCommandError] = useState(false);
   const navigation = useNavigationState(currentSlug);
 
   // Persist global preferences
@@ -90,6 +93,17 @@ export default function App() {
       if (found) return found;
     }
     return null;
+  };
+
+  const handleCommandSubmit = () => {
+    if (!tree) return;
+    const id = parseInt(commandInput.trim());
+    if (isNaN(id)) { setCommandError(true); return; }
+    const task = findTaskInTree(tree, id);
+    if (!task) { setCommandError(true); return; }
+    setSelectedTaskId(id);
+    setShowCommandPalette(false);
+    setShowDescription(false);
   };
 
   const cancelDelete = useCallback(() => {
@@ -167,9 +181,18 @@ export default function App() {
   }, [selectedTaskId, renamingTaskId, cancelRename]);
 
   useEffect(() => {
-    if (!relocatingTaskId && !deletingTaskId && !renamingTaskId) return;
     const handler = (e: KeyboardEvent) => {
+      // Cmd+K / Ctrl+K: toggle command palette
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setShowCommandPalette(prev => {
+          if (!prev) { setCommandInput(""); setCommandError(false); }
+          return !prev;
+        });
+        return;
+      }
       if (e.key === "Escape") {
+        if (showCommandPalette) { setShowCommandPalette(false); return; }
         if (showDescription) { setShowDescription(false); return; }
         cancelRelocate();
         cancelDelete();
@@ -178,7 +201,7 @@ export default function App() {
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [relocatingTaskId, deletingTaskId, renamingTaskId, cancelRelocate, cancelDelete, cancelRename, showDescription]);
+  }, [showCommandPalette, showDescription, cancelRelocate, cancelDelete, cancelRename]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -458,6 +481,57 @@ export default function App() {
           navigation={navigation}
           showIds={showIds}
         />
+      )}
+      {showCommandPalette && (
+        <div
+          onClick={() => setShowCommandPalette(false)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 20,
+            background: "rgba(0, 0, 0, 0.15)",
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: 40,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.16)",
+              padding: "12px 16px",
+              width: "min(400px, 90%)",
+              height: "fit-content",
+            }}
+          >
+            <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>Go to task</div>
+            <input
+              autoFocus
+              value={commandInput}
+              onChange={(e) => { setCommandInput(e.target.value); setCommandError(false); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCommandSubmit();
+                if (e.key === "Escape") setShowCommandPalette(false);
+              }}
+              placeholder="Task ID (e.g. 134)"
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                fontSize: 15,
+                border: `1.5px solid ${commandError ? "#ef4444" : "#e2e8f0"}`,
+                borderRadius: 8,
+                outline: "none",
+                fontFamily: "inherit",
+                transition: "border-color 150ms",
+              }}
+            />
+            {commandError && (
+              <div style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>Task not found</div>
+            )}
+          </div>
+        </div>
       )}
       </div>
     </div>
