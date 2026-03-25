@@ -16,17 +16,19 @@ export interface LayoutNode {
 
 const NODE_HEIGHT = 36;
 const ATOMIC_NODE_HEIGHT = 28;
-const NODE_PADDING_X = 24;
 const CHAR_WIDTH = 8;
-const MIN_NODE_WIDTH = 120;
 const ATOMIC_V_GAP = 4;
 
 // Spacing config — switched by compact mode
+let NODE_PADDING_X = 24;
+let MIN_NODE_WIDTH = 120;
 let H_GAP = 24;
 let V_GAP = 56;
 let PARENT_TO_CHILDREN_GAP = 16;
 
 function applySpacing(compact: boolean) {
+  NODE_PADDING_X = compact ? 12 : 24;
+  MIN_NODE_WIDTH = compact ? 80 : 120;
   H_GAP = compact ? 6 : 24;
   V_GAP = compact ? 20 : 56;
   PARENT_TO_CHILDREN_GAP = compact ? 6 : 16;
