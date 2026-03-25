@@ -61,10 +61,12 @@ interface TaskNodeProps {
   navigation: NavigationState;
   showIds: boolean;
   planTaskIds?: Set<number> | null;
+  editingPlanTaskIds?: Set<number> | null;
 }
 
-function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation, showIds, planTaskIds }: TaskNodeProps) {
+function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, relocatingSubtree, navigation, showIds, planTaskIds, editingPlanTaskIds }: TaskNodeProps) {
   const isAncestorContext = planTaskIds != null && !planTaskIds.has(task.id);
+  const isInEditPlan = editingPlanTaskIds != null && editingPlanTaskIds.has(task.id);
   const isSelected = task.id === selectedTaskId;
   const isRelocating = relocatingTaskId !== null;
   const isInvalidTarget = isRelocating && relocatingSubtree !== null && isDescendant(relocatingSubtree, task.id);
@@ -98,9 +100,9 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
           alignItems: "center",
           gap: 6,
           padding: "6px 14px",
-          border: `2px solid ${isValidTarget ? "#16a34a" : isSelected ? "#2563eb" : "#555"}`,
+          border: `2px solid ${isValidTarget ? "#16a34a" : isInEditPlan ? "#16a34a" : isSelected ? "#2563eb" : "#555"}`,
           borderRadius: 6,
-          background: isValidTarget ? "#dcfce7" : isSelected ? "#dbeafe" : "#fff",
+          background: isValidTarget ? "#dcfce7" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff",
           fontSize: 14,
           whiteSpace: "nowrap",
           cursor: nodeCursor,
@@ -234,6 +236,7 @@ function TaskNode({ task, selectedTaskId, onSelectTask, onToggleCompleted, reloc
                     navigation={navigation}
                     showIds={showIds}
                     planTaskIds={planTaskIds}
+                    editingPlanTaskIds={editingPlanTaskIds}
                   />
                 </div>
               ))}
@@ -302,9 +305,10 @@ interface TreeViewProps {
   navigation: NavigationState;
   showIds: boolean;
   planTaskIds?: Set<number> | null;
+  editingPlanTaskIds?: Set<number> | null;
 }
 
-export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds, planTaskIds }: TreeViewProps) {
+export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleCompleted, relocatingTaskId, navigation, showIds, planTaskIds, editingPlanTaskIds }: TreeViewProps) {
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   return (
@@ -319,6 +323,7 @@ export default function TreeView({ task, selectedTaskId, onSelectTask, onToggleC
         navigation={navigation}
         showIds={showIds}
         planTaskIds={planTaskIds}
+        editingPlanTaskIds={editingPlanTaskIds}
       />
     </div>
   );

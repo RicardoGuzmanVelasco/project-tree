@@ -13,6 +13,7 @@ interface TreeViewV2Props {
   navigation: NavigationState;
   showIds: boolean;
   planTaskIds?: Set<number> | null;
+  editingPlanTaskIds?: Set<number> | null;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -33,6 +34,7 @@ function SvgNode({
   onDoubleClick,
   showIds,
   isAncestorContext,
+  isInEditPlan,
 }: {
   node: LayoutNode;
   isSelected: boolean;
@@ -47,6 +49,7 @@ function SvgNode({
   onDoubleClick: () => void;
   showIds: boolean;
   isAncestorContext?: boolean;
+  isInEditPlan?: boolean;
 }) {
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
@@ -56,9 +59,9 @@ function SvgNode({
   const isValid = relocateStatus === "valid-target";
   const isSource = relocateStatus === "source";
 
-  let fill = isAncestorContext ? "#f8fafc" : isSelected ? "#dbeafe" : "#fff";
-  let stroke = isAncestorContext ? "#e2e8f0" : isSelected ? "#3b82f6" : "#e2e8f0";
-  let strokeWidth = isAncestorContext ? 1 : isSelected ? 2 : 1;
+  let fill = isAncestorContext ? "#f8fafc" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff";
+  let stroke = isAncestorContext ? "#e2e8f0" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
+  let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
   let nodeOpacity = isAncestorContext ? 0.45 : task.completed ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
@@ -379,6 +382,7 @@ export default function TreeViewV2({
   navigation,
   showIds,
   planTaskIds,
+  editingPlanTaskIds,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
@@ -850,6 +854,7 @@ export default function TreeViewV2({
                   onDoubleClick={() => setFocusedTaskId(node.id)}
                   showIds={showIds}
                   isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
+                  isInEditPlan={editingPlanTaskIds != null && editingPlanTaskIds.has(node.id)}
                 />
               </g>
             );

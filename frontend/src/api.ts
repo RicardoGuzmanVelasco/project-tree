@@ -65,6 +65,15 @@ export async function fetchPlan(slug: string, planId: number): Promise<Plan> {
   return response.json();
 }
 
+export async function updatePlan(slug: string, planId: number, taskIds: number[]): Promise<Plan> {
+  const response = await fetch(`${API_BASE}/projects/${slug}/plans/${planId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ taskIds }),
+  });
+  return response.json();
+}
+
 export async function createTask(slug: string, parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`, {
     method: "POST",

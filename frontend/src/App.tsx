@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, fetchPlans, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, updatePlan, createTask, toggleTaskCompletion, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -27,6 +27,7 @@ export default function App() {
   const [commandError, setCommandError] = useState(false);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activePlanId, setActivePlanId] = useState<number | null>(() => loadGlobal("activePlanId", null));
+  const [editingPlan, setEditingPlan] = useState(false);
   const navigation = useNavigationState(currentSlug);
 
   // Persist global preferences
@@ -71,7 +72,21 @@ export default function App() {
     loadTree(currentSlug);
   };
 
+  const handleTogglePlanTask = async (id: number) => {
+    if (!activePlan) return;
+    const inPlan = activePlan.taskIds.includes(id);
+    const newTaskIds = inPlan
+      ? activePlan.taskIds.filter(t => t !== id)
+      : [...activePlan.taskIds, id];
+    const updated = await updatePlan(currentSlug, activePlan.id, newTaskIds);
+    setPlans(prev => prev.map(p => p.id === updated.id ? updated : p));
+  };
+
   const handleTaskClick = async (id: number) => {
+    if (editingPlan) {
+      handleTogglePlanTask(id);
+      return;
+    }
     if (relocatingTaskId) {
       if (id === relocatingTaskId) return;
       await relocateTask(currentSlug, relocatingTaskId, id);
@@ -118,6 +133,7 @@ export default function App() {
 
   const visibleTree = useMemo(() => {
     if (!tree) return null;
+    if (editingPlan) return tree; // show full tree when editing plan
     if (!planTaskIds || !activePlan) return tree;
     const filtered = filterTreeForPlan(tree, planTaskIds);
     if (!filtered) return tree;
@@ -129,7 +145,7 @@ export default function App() {
       completed: false,
       children: filtered.children,
     };
-  }, [tree, planTaskIds, activePlan, planProgress, filterTreeForPlan]);
+  }, [tree, planTaskIds, activePlan, planProgress, filterTreeForPlan, editingPlan]);
 
   const countDescendants = (task: Task): number => {
     let count = task.children.length;
@@ -311,7 +327,7 @@ export default function App() {
         </select>
         <select
           value={activePlanId ?? ""}
-          onChange={(e) => setActivePlanId(e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) => { setActivePlanId(e.target.value ? Number(e.target.value) : null); setEditingPlan(false); }}
           style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#f8fafc", cursor: "pointer" }}
         >
           <option value="">All tasks</option>
@@ -319,6 +335,22 @@ export default function App() {
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
+        {activePlanId && (
+          <button
+            onClick={() => setEditingPlan(e => !e)}
+            style={{
+              padding: "4px 12px",
+              fontSize: 13,
+              background: editingPlan ? "#fbbf24" : "#f1f5f9",
+              border: `1px solid ${editingPlan ? "#f59e0b" : "#cbd5e1"}`,
+              borderRadius: 4,
+              cursor: "pointer",
+              fontWeight: editingPlan ? 600 : 400,
+            }}
+          >
+            {editingPlan ? "Done editing" : "Edit plan"}
+          </button>
+        )}
         <button
           onClick={() => setViewMode(m => m === "classic" ? "v2" : "classic")}
           style={{ padding: "4px 12px", fontSize: 13, background: viewMode === "v2" ? "#dbeafe" : "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
@@ -531,7 +563,8 @@ export default function App() {
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
           showIds={showIds}
-          planTaskIds={planTaskIds}
+          planTaskIds={editingPlan ? null : planTaskIds}
+          editingPlanTaskIds={editingPlan ? planTaskIds : null}
         />
       ) : (
         <TreeViewV2
@@ -542,7 +575,8 @@ export default function App() {
           relocatingTaskId={relocatingTaskId}
           navigation={navigation}
           showIds={showIds}
-          planTaskIds={planTaskIds}
+          planTaskIds={editingPlan ? null : planTaskIds}
+          editingPlanTaskIds={editingPlan ? planTaskIds : null}
         />
       )}
       {showCommandPalette && (
