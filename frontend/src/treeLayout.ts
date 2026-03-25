@@ -27,9 +27,9 @@ let V_GAP = 56;
 let PARENT_TO_CHILDREN_GAP = 16;
 
 function applySpacing(compact: boolean) {
-  H_GAP = compact ? 12 : 24;
-  V_GAP = compact ? 28 : 56;
-  PARENT_TO_CHILDREN_GAP = compact ? 8 : 16;
+  H_GAP = compact ? 6 : 24;
+  V_GAP = compact ? 20 : 56;
+  PARENT_TO_CHILDREN_GAP = compact ? 6 : 16;
 }
 
 function countDescendants(task: Task): number {
