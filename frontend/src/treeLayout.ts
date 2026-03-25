@@ -10,6 +10,7 @@ export interface LayoutNode {
   parentId: number | null;
   task: Task;
   descendantCount: number;
+  completedDescendantCount: number;
   isAtomicChild: boolean; // true if rendered as part of a stacked list (leaf under a parent)
 }
 
@@ -26,6 +27,15 @@ const PARENT_TO_CHILDREN_GAP = 16; // gap from parent to start of atomic list
 function countDescendants(task: Task): number {
   let count = task.children.length;
   for (const child of task.children) count += countDescendants(child);
+  return count;
+}
+
+function countCompletedDescendants(task: Task): number {
+  let count = 0;
+  for (const child of task.children) {
+    if (child.completed) count++;
+    count += countCompletedDescendants(child);
+  }
   return count;
 }
 
@@ -67,6 +77,7 @@ function layoutAtomicStack(
 
   for (const t of tasks) {
     const dc = countDescendants(t);
+    const cc = countCompletedDescendants(t);
     nodes.push({
       id: t.id,
       x: 0,
@@ -77,6 +88,7 @@ function layoutAtomicStack(
       parentId,
       task: t,
       descendantCount: dc,
+      completedDescendantCount: cc,
       isAtomicChild: true,
     });
     y += ATOMIC_NODE_HEIGHT + ATOMIC_V_GAP;
@@ -90,6 +102,7 @@ function layoutAtomicStack(
 function layoutSubtree(task: Task, parentId: number | null, depth: number, collapsedIds?: Set<number>): SubtreeInfo {
   const w = nodeWidth(task.title);
   const dc = countDescendants(task);
+  const cc = countCompletedDescendants(task);
   const isCollapsed = collapsedIds?.has(task.id);
   const visibleChildren = (!isCollapsed && task.children.length > 0) ? task.children : [];
 
@@ -98,7 +111,7 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
     return {
       width: w,
       height: NODE_HEIGHT,
-      nodes: [{ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, isAtomicChild: false }],
+      nodes: [{ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false }],
     };
   }
 
@@ -109,7 +122,7 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
 
     const subtreeWidth = Math.max(w, stack.width);
     const allNodes: LayoutNode[] = [
-      { id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, isAtomicChild: false },
+      { id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false },
       ...stack.nodes,
     ];
 
@@ -170,7 +183,7 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
 
   // Root of this subtree at (0, 0)
   allNodes.unshift({
-    id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, isAtomicChild: false,
+    id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false,
   });
 
   // Compute total height

@@ -240,33 +240,37 @@ function SvgNode({
           </text>
         </g>
       )}
-      {isCollapsed && node.descendantCount > 0 && (
-        <g
-          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
-          style={{ cursor: "pointer" }}
-        >
-          <rect
-            x={width - 32}
-            y={height / 2 - 9}
-            width={30}
-            height={18}
-            rx={9}
-            fill="#f1f5f9"
-            stroke="#cbd5e1"
-            strokeWidth={0.5}
-          />
-          <text
-            x={width - 17}
-            y={height / 2}
-            dominantBaseline="central"
-            textAnchor="middle"
-            fontSize={10}
-            fill="#64748b"
+      {isCollapsed && node.descendantCount > 0 && (() => {
+        const label = `${node.completedDescendantCount}/${node.descendantCount}`;
+        const badgeW = Math.max(30, label.length * 7 + 12);
+        return (
+          <g
+            onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+            style={{ cursor: "pointer" }}
           >
-            +{node.descendantCount}
-          </text>
-        </g>
-      )}
+            <rect
+              x={width - badgeW + 2}
+              y={height / 2 - 9}
+              width={badgeW}
+              height={18}
+              rx={9}
+              fill="#f1f5f9"
+              stroke="#cbd5e1"
+              strokeWidth={0.5}
+            />
+            <text
+              x={width - badgeW / 2 + 2}
+              y={height / 2}
+              dominantBaseline="central"
+              textAnchor="middle"
+              fontSize={10}
+              fill="#64748b"
+            >
+              {label}
+            </text>
+          </g>
+        );
+      })()}
       {hiddenCompletedCount > 0 && (
         <g
           onClick={(e) => { e.stopPropagation(); onToggleRevealCompleted(); }}
