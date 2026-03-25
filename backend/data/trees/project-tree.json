@@ -1158,13 +1158,13 @@
             {
               "id": 194,
               "title": "Ancestros renderizados greyed out",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 195,
               "title": "Ancestros no-interactuables",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
@@ -1176,48 +1176,68 @@
           ]
         },
         {
-          "id": 197,
-          "title": "Trabajar en el plan",
-          "completed": false,
-          "children": [
-            {
-              "id": 198,
-              "title": "Completar tareas funciona igual que en vista proyecto",
-              "completed": false,
-              "children": []
-            },
-            {
-              "id": 199,
-              "title": "Progreso se actualiza al completar",
-              "completed": false,
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": 200,
-          "title": "Editar plan",
-          "completed": false,
-          "children": [
-            {
-              "id": 201,
-              "title": "Añadir tarea al plan activo",
-              "completed": false,
-              "children": []
-            },
-            {
-              "id": 202,
-              "title": "Quitar tarea del plan activo",
-              "completed": false,
-              "children": []
-            }
-          ]
-        },
-        {
           "id": 203,
           "title": "Recordar plan activo en localStorage",
           "completed": false,
           "children": []
+        },
+        {
+          "id": 204,
+          "title": "Resumen de un plan",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 205,
+          "title": "Este hijo no forma parte del plan!",
+          "completed": false,
+          "children": [
+            {
+              "id": 206,
+              "title": "Pero sus descendientes sí",
+              "completed": false,
+              "children": [
+                {
+                  "id": 197,
+                  "title": "Trabajar en el plan",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 198,
+                      "title": "Completar tareas funciona igual que en vista proyecto",
+                      "completed": false,
+                      "children": []
+                    },
+                    {
+                      "id": 199,
+                      "title": "Progreso se actualiza al completar",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 200,
+                  "title": "Editar plan",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 201,
+                      "title": "Añadir tarea al plan activo",
+                      "completed": false,
+                      "children": []
+                    },
+                    {
+                      "id": 202,
+                      "title": "Quitar tarea del plan activo",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
       "completed": false
