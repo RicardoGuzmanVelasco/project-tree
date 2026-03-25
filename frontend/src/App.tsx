@@ -362,45 +362,48 @@ export default function App() {
             <option key={p.slug} value={p.slug}>{p.title}</option>
           ))}
         </select>
-        <select
-          value={activePlanId ?? ""}
-          onChange={(e) => { setActivePlanId(e.target.value ? Number(e.target.value) : null); setEditingPlan(false); }}
-          style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#f8fafc", cursor: "pointer" }}
-        >
-          <option value="">All tasks</option>
-          {plans.filter(p => !p.archived).map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-          {plans.some(p => p.archived) && (
-            <optgroup label="Archived">
-              {plans.filter(p => p.archived).map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </optgroup>
-          )}
-        </select>
-        <button
-          onClick={handleNewPlan}
-          style={{ padding: "4px 12px", fontSize: 13, background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
-        >
-          + Plan
-        </button>
-        {activePlanId && (
-          <button
-            onClick={() => setEditingPlan(e => !e)}
-            style={{
-              padding: "4px 12px",
-              fontSize: 13,
-              background: editingPlan ? "#fbbf24" : "#f1f5f9",
-              border: `1px solid ${editingPlan ? "#f59e0b" : "#cbd5e1"}`,
-              borderRadius: 4,
-              cursor: "pointer",
-              fontWeight: editingPlan ? 600 : 400,
-            }}
+        <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc" }}>
+          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, letterSpacing: "0.02em" }}>Plan</span>
+          <select
+            value={activePlanId ?? ""}
+            onChange={(e) => { setActivePlanId(e.target.value ? Number(e.target.value) : null); setEditingPlan(false); }}
+            style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#fff", cursor: "pointer" }}
           >
-            {editingPlan ? "Done editing" : "Edit plan"}
+            <option value="">All tasks</option>
+            {plans.filter(p => !p.archived).map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+            {plans.some(p => p.archived) && (
+              <optgroup label="Archived">
+                {plans.filter(p => p.archived).map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+          <button
+            onClick={handleNewPlan}
+            style={{ padding: "4px 8px", fontSize: 12, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
+          >
+            +
           </button>
-        )}
+          {activePlanId && (
+            <button
+              onClick={() => setEditingPlan(e => !e)}
+              style={{
+                padding: "4px 8px",
+                fontSize: 12,
+                background: editingPlan ? "#fbbf24" : "#fff",
+                border: `1px solid ${editingPlan ? "#f59e0b" : "#cbd5e1"}`,
+                borderRadius: 4,
+                cursor: "pointer",
+                fontWeight: editingPlan ? 600 : 400,
+              }}
+            >
+              {editingPlan ? "Done" : "Edit"}
+            </button>
+          )}
+        </div>
         <button
           onClick={() => setViewMode(m => m === "classic" ? "v2" : "classic")}
           style={{ padding: "4px 12px", fontSize: 13, background: viewMode === "v2" ? "#dbeafe" : "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
