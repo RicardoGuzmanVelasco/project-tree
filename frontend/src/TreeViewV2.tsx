@@ -15,6 +15,7 @@ interface TreeViewV2Props {
   planTaskIds?: Set<number> | null;
   editingPlanTaskIds?: Set<number> | null;
   planProgress?: { completed: number; total: number } | null;
+  compact?: boolean;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -386,13 +387,12 @@ export default function TreeViewV2({
   planTaskIds,
   editingPlanTaskIds,
   planProgress,
+  compact,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
   const [showMinimap, setShowMinimap] = useState(() => loadGlobal("showMinimap", true));
   useEffect(() => { saveGlobal("showMinimap", showMinimap); }, [showMinimap]);
-  const [compact, setCompact] = useState(() => loadGlobal("compact", false));
-  useEffect(() => { saveGlobal("compact", compact); }, [compact]);
 
   const { filteredTree, hiddenCompletedCounts } = useMemo(() => {
     if (!hideCompleted) return { filteredTree: task, hiddenCompletedCounts: new Map<number, number>() };
@@ -638,10 +638,6 @@ export default function TreeViewV2({
 
       if (e.key === "m" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         setShowMinimap(prev => !prev);
-        return;
-      }
-      if (e.key === "c" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        setCompact(prev => !prev);
         return;
       }
 

@@ -28,6 +28,7 @@ export default function App() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activePlanId, setActivePlanId] = useState<number | null>(() => loadGlobal("activePlanId", null));
   const [editingPlan, setEditingPlan] = useState(false);
+  const [compact, setCompact] = useState(() => loadGlobal("compact", false));
   const navigation = useNavigationState(currentSlug);
 
   // Persist global preferences
@@ -35,6 +36,7 @@ export default function App() {
   useEffect(() => { saveGlobal("selectedTaskId", selectedTaskId); }, [selectedTaskId]);
   useEffect(() => { saveGlobal("viewMode", viewMode); }, [viewMode]);
   useEffect(() => { saveGlobal("showIds", showIds); }, [showIds]);
+  useEffect(() => { saveGlobal("compact", compact); }, [compact]);
   useEffect(() => { saveGlobal("activePlanId", activePlanId); }, [activePlanId]);
 
   const loadTree = (slug: string) => fetchTree(slug).then(setTree).catch(() => setError("Could not load tree"));
@@ -297,6 +299,9 @@ export default function App() {
           return !prev;
         });
       }
+      if (e.key === "c") {
+        setCompact(c => !c);
+      }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
@@ -393,6 +398,15 @@ export default function App() {
               style={{ cursor: "pointer" }}
             />
             Show IDs (I)
+          </label>
+          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
+            <input
+              type="checkbox"
+              checked={compact}
+              onChange={() => setCompact(c => !c)}
+              style={{ cursor: "pointer" }}
+            />
+            Compact (C)
           </label>
         {maxDepth > 1 && (() => {
           const effectiveDepth = navigation.depthLevel ?? maxDepth;
@@ -597,6 +611,7 @@ export default function App() {
           planTaskIds={editingPlan ? null : planTaskIds}
           editingPlanTaskIds={editingPlan ? planTaskIds : null}
           planProgress={planProgress}
+          compact={compact}
         />
       )}
       {showCommandPalette && (
