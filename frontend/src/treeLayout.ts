@@ -220,18 +220,18 @@ export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boo
   applySpacing(!!compact);
   const { nodes } = layoutSubtree(root, null, 0, collapsedIds);
   if (orientation === "horizontal") {
-    // Swap axes: vertical layout becomes left-to-right
-    // Original: x = horiz center, y = top edge, width = horiz, height = vert
-    // After:    x = horiz center (old y center), y = top edge (old x - half old width)
+    // Rotate 90°: vertical top-down tree → horizontal left-to-right tree.
+    // Keep node dimensions (width × height) intact so content renders correctly.
+    // Coordinate contract: x = horiz center, y = top edge.
+    //
+    // Mapping:
+    //   old y (top edge, increases with depth) → new x (horiz center)
+    //   old x (horiz center, spreads siblings)  → new y (top edge)
     for (const n of nodes) {
-      const ox = n.x;
-      const oy = n.y;
-      const ow = n.width;
-      const oh = n.height;
-      n.x = oy + oh / 2; // old vertical center → new horizontal center
-      n.y = ox - ow / 2; // old horizontal center → new top edge (subtract half new height)
-      n.width = oh;
-      n.height = ow;
+      const ox = n.x;  // old horiz center
+      const oy = n.y;  // old top edge
+      n.x = oy + n.width / 2;   // new horiz center = old depth position + half node width
+      n.y = ox - n.height / 2;  // new top edge = old sibling spread - half node height
     }
   }
   return nodes;
