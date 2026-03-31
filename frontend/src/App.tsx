@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, createProject, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -62,6 +62,18 @@ export default function App() {
     navigation.reset();
     loadTree(slug);
     fetchPlans(slug).then(setPlans).catch(() => {});
+  };
+
+  const handleNewProject = async () => {
+    const name = prompt("Project name:");
+    if (!name?.trim()) return;
+    try {
+      const project = await createProject(name.trim());
+      setProjects(prev => [...prev, project].sort((a, b) => a.slug.localeCompare(b.slug)));
+      handleSwitchProject(project.slug);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Failed to create project");
+    }
   };
 
   const handleCreate = async () => {
@@ -358,15 +370,24 @@ export default function App() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <div style={{ padding: "8px 40px", display: "flex", gap: 8, alignItems: "center", borderBottom: "1px solid #e2e8f0" }}>
-        <select
-          value={currentSlug}
-          onChange={(e) => handleSwitchProject(e.target.value)}
-          style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer" }}
-        >
-          {projects.map(p => (
-            <option key={p.slug} value={p.slug}>{p.title}</option>
-          ))}
-        </select>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc" }}>
+          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, letterSpacing: "0.02em" }}>Project</span>
+          <select
+            value={currentSlug}
+            onChange={(e) => handleSwitchProject(e.target.value)}
+            style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: "#fff", cursor: "pointer" }}
+          >
+            {projects.map(p => (
+              <option key={p.slug} value={p.slug}>{p.title}</option>
+            ))}
+          </select>
+          <button
+            onClick={handleNewProject}
+            style={{ padding: "4px 8px", fontSize: 12, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
+          >
+            +
+          </button>
+        </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc" }}>
           <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, letterSpacing: "0.02em" }}>Plan</span>
           <select
