@@ -112,6 +112,7 @@ function SvgNode({
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
         style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
       >
+        <title>{task.title}</title>
         <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill}
           stroke={isInEditPlan ? "#16a34a" : "none"} strokeWidth={isInEditPlan ? 1.5 : 0} />
         {/* Completion circle with larger hit area */}
@@ -185,6 +186,7 @@ function SvgNode({
       onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
       style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
     >
+      <title>{task.title}</title>
       {/* Shadow */}
       <rect
         x={1}
