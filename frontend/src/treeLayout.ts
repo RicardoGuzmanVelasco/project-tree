@@ -27,6 +27,9 @@ let H_GAP = 24;
 let V_GAP = 56;
 let PARENT_TO_CHILDREN_GAP = 16;
 
+// Orientation flag — set by layoutTree
+let HORIZONTAL = false;
+
 function applySpacing(compact: boolean) {
   NODE_PADDING_X = compact ? 12 : 24;
   MIN_NODE_WIDTH = compact ? 80 : 120;
@@ -69,13 +72,31 @@ function areAllChildrenLeaves(task: Task): boolean {
   return task.children.length > 0 && task.children.every(c => isLeaf(c));
 }
 
-// Layout a vertical stack of leaf nodes, returning their combined info
-// All nodes positioned relative to center x=0
+function makeNode(
+  task: Task, depth: number, parentId: number | null,
+  x: number, y: number, w: number, h: number, isAtomicChild: boolean,
+): LayoutNode {
+  return {
+    id: task.id, x, y, width: w, height: h, depth, parentId, task,
+    descendantCount: countDescendants(task),
+    completedDescendantCount: countCompletedDescendants(task),
+    isAtomicChild,
+  };
+}
+
+function collapsedBadgeWidth(cc: number, dc: number): number {
+  const label = `${cc}/${dc}`;
+  return label.length * 6 + 10 + 16; // badge + padding around it
+}
+
+// Layout a vertical stack of leaf nodes.
+// Vertical mode: stack below parent at x=0, starting at startY.
+// Horizontal mode: stack below parent at startX, starting at y=0.
 function layoutAtomicStack(
   tasks: Task[],
   parentId: number,
   depth: number,
-  startY: number,
+  startOffset: number,
   collapsedIds?: Set<number>,
 ): SubtreeInfo {
   let maxW = 0;
@@ -85,35 +106,26 @@ function layoutAtomicStack(
   }
 
   const nodes: LayoutNode[] = [];
-  let y = startY;
 
-  for (const t of tasks) {
-    const dc = countDescendants(t);
-    const cc = countCompletedDescendants(t);
-    nodes.push({
-      id: t.id,
-      x: 0,
-      y,
-      width: maxW,
-      height: ATOMIC_NODE_HEIGHT,
-      depth,
-      parentId,
-      task: t,
-      descendantCount: dc,
-      completedDescendantCount: cc,
-      isAtomicChild: true,
-    });
-    y += ATOMIC_NODE_HEIGHT + ATOMIC_V_GAP;
+  if (HORIZONTAL) {
+    // Stack vertically to the right of parent
+    let y = 0;
+    for (const t of tasks) {
+      nodes.push(makeNode(t, depth, parentId, startOffset + maxW / 2, y, maxW, ATOMIC_NODE_HEIGHT, true));
+      y += ATOMIC_NODE_HEIGHT + ATOMIC_V_GAP;
+    }
+    const totalHeight = y - ATOMIC_V_GAP;
+    return { width: startOffset + maxW, height: totalHeight, nodes };
   }
 
-  const totalHeight = y - startY - ATOMIC_V_GAP;
-
+  // Vertical: stack below parent at x=0
+  let y = startOffset;
+  for (const t of tasks) {
+    nodes.push(makeNode(t, depth, parentId, 0, y, maxW, ATOMIC_NODE_HEIGHT, true));
+    y += ATOMIC_NODE_HEIGHT + ATOMIC_V_GAP;
+  }
+  const totalHeight = y - startOffset - ATOMIC_V_GAP;
   return { width: maxW, height: totalHeight, nodes };
-}
-
-function collapsedBadgeWidth(cc: number, dc: number): number {
-  const label = `${cc}/${dc}`;
-  return label.length * 6 + 10 + 16; // badge + padding around it
 }
 
 function layoutSubtree(task: Task, parentId: number | null, depth: number, collapsedIds?: Set<number>): SubtreeInfo {
@@ -124,87 +136,67 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   const w = dc > 0 ? Math.max(baseW, baseW + collapsedBadgeWidth(cc, dc) - NODE_PADDING_X) : baseW;
   const visibleChildren = (!isCollapsed && task.children.length > 0) ? task.children : [];
 
+  const rootNode = makeNode(task, depth, parentId, 0, 0, w, NODE_HEIGHT, false);
+
   // Leaf node or collapsed
   if (visibleChildren.length === 0) {
-    return {
-      width: w,
-      height: NODE_HEIGHT,
-      nodes: [{ id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false }],
-    };
+    return { width: w, height: NODE_HEIGHT, nodes: [rootNode] };
   }
 
+  if (HORIZONTAL) {
+    return layoutSubtreeHorizontal(task, rootNode, w, depth, visibleChildren, collapsedIds);
+  }
+  return layoutSubtreeVertical(task, rootNode, w, depth, visibleChildren, collapsedIds);
+}
+
+// Vertical layout: children below, siblings spread horizontally
+function layoutSubtreeVertical(
+  task: Task, rootNode: LayoutNode, w: number, depth: number,
+  visibleChildren: Task[], collapsedIds?: Set<number>,
+): SubtreeInfo {
   // All children are leaves → stack them vertically under parent
   if (areAllChildrenLeaves(task)) {
     const stackStartY = NODE_HEIGHT + PARENT_TO_CHILDREN_GAP;
     const stack = layoutAtomicStack(visibleChildren, task.id, depth + 1, stackStartY, collapsedIds);
-
     const subtreeWidth = Math.max(w, stack.width);
-    const allNodes: LayoutNode[] = [
-      { id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false },
-      ...stack.nodes,
-    ];
-
-    return { width: subtreeWidth, height: stackStartY + stack.height, nodes: allNodes };
+    return { width: subtreeWidth, height: stackStartY + stack.height, nodes: [rootNode, ...stack.nodes] };
   }
 
-  // Mixed children: separate branches (have children) from atomics (leaves)
+  // Mixed children: separate branches from atomics
   const branches = visibleChildren.filter(c => !isLeaf(c));
   const atomics = visibleChildren.filter(c => isLeaf(c));
 
-  // Layout each branch subtree
   const branchResults = branches.map(child => layoutSubtree(child, task.id, depth + 1, collapsedIds));
 
-  // Layout atomic stack if any
   let atomicResult: SubtreeInfo | null = null;
   if (atomics.length > 0) {
     atomicResult = layoutAtomicStack(atomics, task.id, depth + 1, 0, collapsedIds);
   }
 
-  // Compute total width of all columns (branches + optional atomic column)
-  const columns: { width: number }[] = [...branchResults];
+  // Columns: branches + optional atomic column
+  const columns: SubtreeInfo[] = [...branchResults];
   if (atomicResult) columns.push(atomicResult);
 
   const totalColumnsWidth = columns.reduce((sum, c) => sum + c.width, 0)
     + (columns.length - 1) * H_GAP;
-
   const subtreeWidth = Math.max(w, totalColumnsWidth);
 
-  // Position columns side by side
+  // Position columns side by side horizontally
   const startX = -totalColumnsWidth / 2;
   let offsetX = startX;
-
-  const allNodes: LayoutNode[] = [];
   const childrenY = NODE_HEIGHT + V_GAP;
+  const allNodes: LayoutNode[] = [];
 
-  for (const br of branchResults) {
-    const centerOffset = br.width / 2;
-    for (const node of br.nodes) {
-      allNodes.push({
-        ...node,
-        x: node.x + offsetX + centerOffset,
-        y: node.y + childrenY,
-      });
+  for (const col of columns) {
+    const centerOffset = col.width / 2;
+    for (const node of col.nodes) {
+      allNodes.push({ ...node, x: node.x + offsetX + centerOffset, y: node.y + childrenY });
     }
-    offsetX += br.width + H_GAP;
+    offsetX += col.width + H_GAP;
   }
 
-  if (atomicResult) {
-    const centerOffset = atomicResult.width / 2;
-    for (const node of atomicResult.nodes) {
-      allNodes.push({
-        ...node,
-        x: node.x + offsetX + centerOffset,
-        y: node.y + childrenY,
-      });
-    }
-  }
+  allNodes.unshift(rootNode);
 
-  // Root of this subtree at (0, 0)
-  allNodes.unshift({
-    id: task.id, x: 0, y: 0, width: w, height: NODE_HEIGHT, depth, parentId, task, descendantCount: dc, completedDescendantCount: cc, isAtomicChild: false,
-  });
-
-  // Compute total height
   let maxChildBottom = 0;
   for (const n of allNodes) {
     const bottom = n.y + n.height;
@@ -214,25 +206,93 @@ function layoutSubtree(task: Task, parentId: number | null, depth: number, colla
   return { width: subtreeWidth, height: maxChildBottom, nodes: allNodes };
 }
 
+// Horizontal layout: children to the right, siblings spread vertically
+function layoutSubtreeHorizontal(
+  task: Task, rootNode: LayoutNode, w: number, depth: number,
+  visibleChildren: Task[], collapsedIds?: Set<number>,
+): SubtreeInfo {
+  // All children are leaves → stack them vertically to the right
+  if (areAllChildrenLeaves(task)) {
+    const stackStartX = w / 2 + PARENT_TO_CHILDREN_GAP;
+    const stack = layoutAtomicStack(visibleChildren, task.id, depth + 1, stackStartX, collapsedIds);
+
+    // Center parent and stack vertically relative to each other
+    const subtreeHeight = Math.max(NODE_HEIGHT, stack.height);
+    const rootY = (subtreeHeight - NODE_HEIGHT) / 2;
+    const stackYOffset = (subtreeHeight - stack.height) / 2;
+
+    return {
+      width: stack.width,
+      height: subtreeHeight,
+      nodes: [
+        { ...rootNode, y: rootY },
+        ...stack.nodes.map(n => ({ ...n, y: n.y + stackYOffset })),
+      ],
+    };
+  }
+
+  // Mixed children: separate branches from atomics
+  const branches = visibleChildren.filter(c => !isLeaf(c));
+  const atomics = visibleChildren.filter(c => isLeaf(c));
+
+  const branchResults = branches.map(child => layoutSubtree(child, task.id, depth + 1, collapsedIds));
+
+  let atomicResult: SubtreeInfo | null = null;
+  if (atomics.length > 0) {
+    const stackStartX = 0; // will be offset by childrenX later
+    atomicResult = layoutAtomicStack(atomics, task.id, depth + 1, stackStartX, collapsedIds);
+  }
+
+  // Rows: branches + optional atomic row
+  const rows: SubtreeInfo[] = [...branchResults];
+  if (atomicResult) rows.push(atomicResult);
+
+  const totalRowsHeight = rows.reduce((sum, r) => sum + r.height, 0)
+    + (rows.length - 1) * H_GAP;
+
+  // Position rows stacked vertically, centered around y = NODE_HEIGHT/2
+  const startY = NODE_HEIGHT / 2 - totalRowsHeight / 2;
+  let offsetY = startY;
+  const childrenX = w / 2 + V_GAP;
+  const allNodes: LayoutNode[] = [];
+
+  for (const row of rows) {
+    for (const node of row.nodes) {
+      allNodes.push({ ...node, x: node.x + childrenX, y: node.y + offsetY });
+    }
+    offsetY += row.height + H_GAP;
+  }
+
+  allNodes.unshift(rootNode);
+
+  // Compute bounds
+  let minTop = 0, maxBottom = NODE_HEIGHT;
+  for (const n of allNodes) {
+    if (n.y < minTop) minTop = n.y;
+    const bottom = n.y + n.height;
+    if (bottom > maxBottom) maxBottom = bottom;
+  }
+
+  let maxRight = w;
+  for (const n of allNodes) {
+    const right = n.x + n.width / 2;
+    if (right > maxRight) maxRight = right;
+  }
+
+  // Normalize: shift everything so minTop = 0
+  if (minTop < 0) {
+    for (const n of allNodes) n.y -= minTop;
+    maxBottom -= minTop;
+  }
+
+  return { width: maxRight, height: maxBottom, nodes: allNodes };
+}
+
 export type Orientation = "vertical" | "horizontal";
 
 export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean, orientation?: Orientation): LayoutNode[] {
   applySpacing(!!compact);
+  HORIZONTAL = orientation === "horizontal";
   const { nodes } = layoutSubtree(root, null, 0, collapsedIds);
-  if (orientation === "horizontal") {
-    // Rotate 90°: vertical top-down tree → horizontal left-to-right tree.
-    // Keep node dimensions (width × height) intact so content renders correctly.
-    // Coordinate contract: x = horiz center, y = top edge.
-    //
-    // Mapping:
-    //   old y (top edge, increases with depth) → new x (horiz center)
-    //   old x (horiz center, spreads siblings)  → new y (top edge)
-    for (const n of nodes) {
-      const ox = n.x;  // old horiz center
-      const oy = n.y;  // old top edge
-      n.x = oy + n.width / 2;   // new horiz center = old depth position + half node width
-      n.y = ox - n.height / 2;  // new top edge = old sibling spread - half node height
-    }
-  }
   return nodes;
 }
