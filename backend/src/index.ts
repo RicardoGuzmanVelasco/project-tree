@@ -71,6 +71,33 @@ app.get("/projects", (_req, res) => {
   res.json(projects);
 });
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // strip accents
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+app.post("/projects", (req, res) => {
+  const { name } = req.body;
+  if (!name || typeof name !== "string" || !name.trim()) {
+    res.status(400).json({ error: "Name is required" }); return;
+  }
+  const slug = slugify(name.trim());
+  if (!slug) {
+    res.status(400).json({ error: "Invalid name (cannot generate slug)" }); return;
+  }
+  const filePath = path.join(TREES_DIR, `${slug}.json`);
+  if (fs.existsSync(filePath)) {
+    res.status(409).json({ error: "Project already exists" }); return;
+  }
+  const root: Task = { id: 1, title: name.trim(), completed: false, children: [] };
+  trees.set(slug, root);
+  saveTree(slug);
+  res.status(201).json({ slug, title: root.title });
+});
+
 app.get("/projects/:slug/tasks", (req, res) => {
   const { slug } = req.params;
   if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }

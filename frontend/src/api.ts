@@ -5,6 +5,19 @@ export async function fetchProjects(): Promise<{slug: string; title: string}[]> 
   return response.json();
 }
 
+export async function createProject(name: string): Promise<{slug: string; title: string}> {
+  const response = await fetch(`${API_BASE}/projects`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || "Failed to create project");
+  }
+  return response.json();
+}
+
 export async function fetchTree(slug: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`);
   return response.json();
