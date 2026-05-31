@@ -49,7 +49,7 @@ const SLUG_RE = /^[a-z0-9-]+$/;
 const trees = new Map<string, Task>();
 
 function getTree(slug: string): Task | null {
-  if (trees.has(slug)) return trees.get(slug)!;
+  if (!isExternal(slug) && trees.has(slug)) return trees.get(slug)!;
   const filePath = resolveTreePath(slug);
   if (!fs.existsSync(filePath)) return null;
   const tree = ensureCompleted(JSON.parse(fs.readFileSync(filePath, "utf-8")));
