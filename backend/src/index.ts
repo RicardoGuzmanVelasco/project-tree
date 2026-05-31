@@ -8,6 +8,30 @@ const app = express();
 const PORT = 3001;
 const TREES_DIR = path.join(__dirname, "..", "data", "trees");
 const PLANS_DIR = path.join(__dirname, "..", "data", "plans");
+const EXTERNAL_FILE = path.join(__dirname, "..", "data", "external.json");
+
+type ExternalRegistry = Record<string, string>; // slug → directory path
+
+function loadExternalRegistry(): ExternalRegistry {
+  if (!fs.existsSync(EXTERNAL_FILE)) return {};
+  return JSON.parse(fs.readFileSync(EXTERNAL_FILE, "utf-8"));
+}
+
+function resolveTreePath(slug: string): string {
+  const ext = loadExternalRegistry()[slug];
+  if (ext) return path.join(ext, "tree.json");
+  return path.join(TREES_DIR, `${slug}.json`);
+}
+
+function resolvePlansPath(slug: string): string {
+  const ext = loadExternalRegistry()[slug];
+  if (ext) return path.join(ext, "plans.json");
+  return path.join(PLANS_DIR, `${slug}.json`);
+}
+
+function isExternal(slug: string): boolean {
+  return slug in loadExternalRegistry();
+}
 
 app.use(cors());
 app.use(express.json());
@@ -26,7 +50,7 @@ const trees = new Map<string, Task>();
 
 function getTree(slug: string): Task | null {
   if (trees.has(slug)) return trees.get(slug)!;
-  const filePath = path.join(TREES_DIR, `${slug}.json`);
+  const filePath = resolveTreePath(slug);
   if (!fs.existsSync(filePath)) return null;
   const tree = ensureCompleted(JSON.parse(fs.readFileSync(filePath, "utf-8")));
   trees.set(slug, tree);
@@ -36,7 +60,7 @@ function getTree(slug: string): Task | null {
 function saveTree(slug: string) {
   const tree = trees.get(slug);
   if (!tree) return;
-  fs.writeFileSync(path.join(TREES_DIR, `${slug}.json`), JSON.stringify(tree, null, 2) + "\n");
+  fs.writeFileSync(resolveTreePath(slug), JSON.stringify(tree, null, 2) + "\n");
 }
 
 function findTask(node: Task, id: number): Task | null {
@@ -62,9 +86,11 @@ function maxId(node: Task): number {
 }
 
 app.get("/projects", (_req, res) => {
-  const files = fs.readdirSync(TREES_DIR).filter(f => f.endsWith(".json")).sort();
-  const projects = files.map(f => {
-    const slug = f.replace(".json", "");
+  const localFiles = fs.readdirSync(TREES_DIR).filter(f => f.endsWith(".json")).sort();
+  const localSlugs = localFiles.map(f => f.replace(".json", ""));
+  const externalSlugs = Object.keys(loadExternalRegistry());
+  const allSlugs = [...new Set([...localSlugs, ...externalSlugs])].sort();
+  const projects = allSlugs.map(slug => {
     const tree = getTree(slug);
     return { slug, title: tree?.title ?? slug };
   });
@@ -88,7 +114,7 @@ app.post("/projects", (req, res) => {
   if (!slug) {
     res.status(400).json({ error: "Invalid name (cannot generate slug)" }); return;
   }
-  const filePath = path.join(TREES_DIR, `${slug}.json`);
+  const filePath = resolveTreePath(slug);
   if (fs.existsSync(filePath)) {
     res.status(409).json({ error: "Project already exists" }); return;
   }
@@ -251,19 +277,17 @@ app.delete("/projects/:slug/tasks/:id", (req, res) => {
 
 // --- Plans ---
 
-function plansFile(slug: string): string {
-  return path.join(PLANS_DIR, `${slug}.json`);
-}
-
 function getPlans(slug: string): Plan[] {
-  const file = plansFile(slug);
+  const file = resolvePlansPath(slug);
   if (!fs.existsSync(file)) return [];
   return JSON.parse(fs.readFileSync(file, "utf-8"));
 }
 
 function savePlans(slug: string, plans: Plan[]) {
-  if (!fs.existsSync(PLANS_DIR)) fs.mkdirSync(PLANS_DIR, { recursive: true });
-  fs.writeFileSync(plansFile(slug), JSON.stringify(plans, null, 2) + "\n");
+  const file = resolvePlansPath(slug);
+  const dir = path.dirname(file);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(plans, null, 2) + "\n");
 }
 
 function nextPlanId(plans: Plan[]): number {
