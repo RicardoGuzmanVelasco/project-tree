@@ -135,24 +135,24 @@
     {
       "id": 56,
       "title": "Empaquetado npm",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 57,
           "title": "package.json raíz con campo bin y metadata",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 58,
           "title": "Script de build: compila backend TS + bundlea frontend",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 59,
           "title": "Test: npx project-tree funciona en un directorio limpio",
-          "completed": false,
+          "completed": true,
           "children": []
         }
       ]
