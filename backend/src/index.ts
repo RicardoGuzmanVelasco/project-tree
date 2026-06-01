@@ -5,36 +5,25 @@ import path from "path";
 import { Task, Plan } from "./types";
 
 const app = express();
-const PORT = 3001;
-const TREES_DIR = path.join(__dirname, "..", "data", "trees");
-const PLANS_DIR = path.join(__dirname, "..", "data", "plans");
-const EXTERNAL_FILE = path.join(__dirname, "..", "data", "external.json");
+const PORT = parseInt(process.env.PORT || "3001", 10);
 
-type ExternalRegistry = Record<string, string>; // slug → directory path
-
-function loadExternalRegistry(): ExternalRegistry {
-  if (!fs.existsSync(EXTERNAL_FILE)) return {};
-  return JSON.parse(fs.readFileSync(EXTERNAL_FILE, "utf-8"));
+// Resolve data directory: --dir flag, or .project-tree/ in cwd
+function resolveDataDir(): string {
+  const dirIdx = process.argv.indexOf("--dir");
+  if (dirIdx !== -1 && process.argv[dirIdx + 1]) {
+    return path.resolve(process.argv[dirIdx + 1]);
+  }
+  return path.join(process.cwd(), ".project-tree");
 }
 
-function resolveTreePath(slug: string): string {
-  const ext = loadExternalRegistry()[slug];
-  if (ext) return path.join(ext, "tree.json");
-  return path.join(TREES_DIR, `${slug}.json`);
-}
-
-function resolvePlansPath(slug: string): string {
-  const ext = loadExternalRegistry()[slug];
-  if (ext) return path.join(ext, "plans.json");
-  return path.join(PLANS_DIR, `${slug}.json`);
-}
-
-function isExternal(slug: string): boolean {
-  return slug in loadExternalRegistry();
-}
+const DATA_DIR = resolveDataDir();
+const TREE_FILE = path.join(DATA_DIR, "tree.json");
+const PLANS_FILE = path.join(DATA_DIR, "plans.json");
 
 app.use(cors());
 app.use(express.json());
+
+// --- Tree ---
 
 function ensureCompleted(node: Task): Task {
   return {
@@ -44,23 +33,19 @@ function ensureCompleted(node: Task): Task {
   };
 }
 
-const SLUG_RE = /^[a-z0-9-]+$/;
+let tree: Task | null = null;
 
-const trees = new Map<string, Task>();
-
-function getTree(slug: string): Task | null {
-  if (!isExternal(slug) && trees.has(slug)) return trees.get(slug)!;
-  const filePath = resolveTreePath(slug);
-  if (!fs.existsSync(filePath)) return null;
-  const tree = ensureCompleted(JSON.parse(fs.readFileSync(filePath, "utf-8")));
-  trees.set(slug, tree);
+function getTree(): Task | null {
+  if (tree) return tree;
+  if (!fs.existsSync(TREE_FILE)) return null;
+  tree = ensureCompleted(JSON.parse(fs.readFileSync(TREE_FILE, "utf-8")));
   return tree;
 }
 
-function saveTree(slug: string) {
-  const tree = trees.get(slug);
+function saveTree() {
   if (!tree) return;
-  fs.writeFileSync(resolveTreePath(slug), JSON.stringify(tree, null, 2) + "\n");
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(TREE_FILE, JSON.stringify(tree, null, 2) + "\n");
 }
 
 function findTask(node: Task, id: number): Task | null {
@@ -85,58 +70,23 @@ function maxId(node: Task): number {
   return Math.max(node.id, ...node.children.map(maxId));
 }
 
-app.get("/projects", (_req, res) => {
-  const localFiles = fs.readdirSync(TREES_DIR).filter(f => f.endsWith(".json")).sort();
-  const localSlugs = localFiles.map(f => f.replace(".json", ""));
-  const externalSlugs = Object.keys(loadExternalRegistry());
-  const allSlugs = [...new Set([...localSlugs, ...externalSlugs])].sort();
-  const projects = allSlugs.map(slug => {
-    const tree = getTree(slug);
-    return { slug, title: tree?.title ?? slug };
-  });
-  res.json(projects);
-});
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // strip accents
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+function requireTree(_req: express.Request, res: express.Response): Task | null {
+  const t = getTree();
+  if (!t) { res.status(404).json({ error: "No tree found. Run 'project-tree init' first." }); return null; }
+  return t;
 }
 
-app.post("/projects", (req, res) => {
-  const { name } = req.body;
-  if (!name || typeof name !== "string" || !name.trim()) {
-    res.status(400).json({ error: "Name is required" }); return;
-  }
-  const slug = slugify(name.trim());
-  if (!slug) {
-    res.status(400).json({ error: "Invalid name (cannot generate slug)" }); return;
-  }
-  const filePath = resolveTreePath(slug);
-  if (fs.existsSync(filePath)) {
-    res.status(409).json({ error: "Project already exists" }); return;
-  }
-  const root: Task = { id: 1, title: name.trim(), completed: false, children: [] };
-  trees.set(slug, root);
-  saveTree(slug);
-  res.status(201).json({ slug, title: root.title });
+// --- Task routes ---
+
+app.get("/tasks", (_req, res) => {
+  const t = requireTree(_req, res);
+  if (!t) return;
+  res.json(t);
 });
 
-app.get("/projects/:slug/tasks", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  const tree = getTree(slug);
-  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
-  res.json(tree);
-});
-
-app.post("/projects/:slug/tasks", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  const tree = getTree(slug);
-  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+app.post("/tasks", (req, res) => {
+  const t = requireTree(req, res);
+  if (!t) return;
 
   const { parentId, title, description } = req.body;
 
@@ -145,14 +95,14 @@ app.post("/projects/:slug/tasks", (req, res) => {
     return;
   }
 
-  const parent = findTask(tree, parentId);
+  const parent = findTask(t, parentId);
   if (!parent) {
     res.status(400).json({ error: "Parent task not found" });
     return;
   }
 
   const newTask: Task = {
-    id: maxId(tree) + 1,
+    id: maxId(t) + 1,
     title: title.trim(),
     ...(typeof description === "string" ? { description } : {}),
     completed: false,
@@ -160,16 +110,14 @@ app.post("/projects/:slug/tasks", (req, res) => {
   };
 
   parent.children.push(newTask);
-  saveTree(slug);
+  saveTree();
 
   res.status(201).json(newTask);
 });
 
-app.patch("/projects/:slug/tasks/:id", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  const tree = getTree(slug);
-  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+app.patch("/tasks/:id", (req, res) => {
+  const t = requireTree(req, res);
+  if (!t) return;
 
   const id = Number(req.params.id);
   const { completed, abandoned, parentId, title, description } = req.body;
@@ -179,7 +127,7 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
     return;
   }
 
-  const task = findTask(tree, id);
+  const task = findTask(t, id);
   if (!task) {
     res.status(404).json({ error: "Task not found" });
     return;
@@ -192,25 +140,25 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
       return;
     }
     task.title = trimmed;
-    saveTree(slug);
+    saveTree();
     res.json(task);
     return;
   }
 
   if (typeof description === "string") {
     task.description = description || undefined;
-    saveTree(slug);
+    saveTree();
     res.json(task);
     return;
   }
 
   if (typeof parentId === "number") {
-    if (id === tree.id) {
+    if (id === t.id) {
       res.status(400).json({ error: "Cannot relocate the root task" });
       return;
     }
 
-    const newParent = findTask(tree, parentId);
+    const newParent = findTask(t, parentId);
     if (!newParent) {
       res.status(400).json({ error: "New parent task not found" });
       return;
@@ -221,13 +169,13 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
       return;
     }
 
-    const currentParent = findParent(tree, id);
+    const currentParent = findParent(t, id);
     if (currentParent && currentParent.id !== parentId) {
       currentParent.children = currentParent.children.filter(c => c.id !== id);
       newParent.children.push(task);
     }
 
-    saveTree(slug);
+    saveTree();
     res.json(task);
     return;
   }
@@ -235,17 +183,19 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
   if (typeof abandoned === "boolean") {
     task.abandoned = abandoned || undefined;
     if (abandoned) task.completed = false;
-    saveTree(slug);
+    saveTree();
     res.json(task);
     return;
   }
 
   task.completed = completed;
   if (completed) task.abandoned = undefined;
-  saveTree(slug);
+  saveTree();
 
   res.json(task);
 });
+
+// --- Prune ---
 
 function isPrunable(task: Task): boolean {
   if (!task.completed && !task.abandoned) return false;
@@ -266,14 +216,12 @@ function countNodes(task: Task): number {
   return 1 + task.children.reduce((sum, c) => sum + countNodes(c), 0);
 }
 
-app.post("/projects/:slug/tasks/:id/prune", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  const tree = getTree(slug);
-  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+app.post("/tasks/:id/prune", (req, res) => {
+  const t = requireTree(req, res);
+  if (!t) return;
 
   const id = Number(req.params.id);
-  const task = findTask(tree, id);
+  const task = findTask(t, id);
   if (!task) { res.status(404).json({ error: "Task not found" }); return; }
 
   const prunableChildren = task.children.filter(isPrunable);
@@ -281,82 +229,70 @@ app.post("/projects/:slug/tasks/:id/prune", (req, res) => {
     res.status(400).json({ error: "No prunable children" }); return;
   }
 
-  // Build the pruned summary
   let summary = "--- Pruned ---\n";
   for (const child of prunableChildren) {
     summary += formatPrunedTree(child);
   }
 
-  // Append to description
   const existing = task.description || "";
   task.description = existing ? existing + "\n\n" + summary.trimEnd() : summary.trimEnd();
 
-  // Remove prunable children
   const prunableIds = new Set(prunableChildren.map(c => c.id));
   task.children = task.children.filter(c => !prunableIds.has(c.id));
 
   const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
 
-  saveTree(slug);
+  saveTree();
   res.json({ task, prunedCount });
 });
 
-app.delete("/projects/:slug/tasks/:id", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  const tree = getTree(slug);
-  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+app.delete("/tasks/:id", (req, res) => {
+  const t = requireTree(req, res);
+  if (!t) return;
 
   const id = Number(req.params.id);
 
-  if (id === tree.id) {
+  if (id === t.id) {
     res.status(400).json({ error: "Cannot delete the root task" });
     return;
   }
 
-  const task = findTask(tree, id);
+  const task = findTask(t, id);
   if (!task) {
     res.status(404).json({ error: "Task not found" });
     return;
   }
 
-  const parent = findParent(tree, id);
+  const parent = findParent(t, id);
   if (parent) {
     parent.children = parent.children.filter(c => c.id !== id);
   }
 
-  saveTree(slug);
+  saveTree();
   res.json({ deleted: id });
 });
 
 // --- Plans ---
 
-function getPlans(slug: string): Plan[] {
-  const file = resolvePlansPath(slug);
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf-8"));
+function getPlans(): Plan[] {
+  if (!fs.existsSync(PLANS_FILE)) return [];
+  return JSON.parse(fs.readFileSync(PLANS_FILE, "utf-8"));
 }
 
-function savePlans(slug: string, plans: Plan[]) {
-  const file = resolvePlansPath(slug);
-  const dir = path.dirname(file);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(plans, null, 2) + "\n");
+function savePlans(plans: Plan[]) {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2) + "\n");
 }
 
 function nextPlanId(plans: Plan[]): number {
   return plans.length === 0 ? 1 : Math.max(...plans.map(p => p.id)) + 1;
 }
 
-app.get("/projects/:slug/plans", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
-  res.json(getPlans(slug));
+app.get("/plans", (_req, res) => {
+  res.json(getPlans());
 });
 
-app.post("/projects/:slug/plans", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+app.post("/plans", (req, res) => {
   const { name, taskIds } = req.body;
   if (!name || typeof name !== "string" || !name.trim()) {
     res.status(400).json({ error: "Name is required" }); return;
@@ -364,27 +300,23 @@ app.post("/projects/:slug/plans", (req, res) => {
   if (!Array.isArray(taskIds) || !taskIds.every(id => typeof id === "number")) {
     res.status(400).json({ error: "taskIds must be an array of numbers" }); return;
   }
-  const plans = getPlans(slug);
+  const plans = getPlans();
   const plan: Plan = { id: nextPlanId(plans), name: name.trim(), taskIds };
   plans.push(plan);
-  savePlans(slug, plans);
+  savePlans(plans);
   res.status(201).json(plan);
 });
 
-app.get("/projects/:slug/plans/:planId", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+app.get("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plan = getPlans(slug).find(p => p.id === planId);
+  const plan = getPlans().find(p => p.id === planId);
   if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
   res.json(plan);
 });
 
-app.patch("/projects/:slug/plans/:planId", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+app.patch("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plans = getPlans(slug);
+  const plans = getPlans();
   const plan = plans.find(p => p.id === planId);
   if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
   const { name, taskIds, archived } = req.body;
@@ -402,22 +334,21 @@ app.patch("/projects/:slug/plans/:planId", (req, res) => {
     }
     plan.taskIds = taskIds;
   }
-  savePlans(slug, plans);
+  savePlans(plans);
   res.json(plan);
 });
 
-app.delete("/projects/:slug/plans/:planId", (req, res) => {
-  const { slug } = req.params;
-  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+app.delete("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plans = getPlans(slug);
+  const plans = getPlans();
   const idx = plans.findIndex(p => p.id === planId);
   if (idx === -1) { res.status(404).json({ error: "Plan not found" }); return; }
   plans.splice(idx, 1);
-  savePlans(slug, plans);
+  savePlans(plans);
   res.json({ deleted: planId });
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  console.log(`project-tree running on http://localhost:${PORT}`);
+  console.log(`Data directory: ${DATA_DIR}`);
 });
