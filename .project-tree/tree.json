@@ -160,7 +160,7 @@
     {
       "id": 60,
       "title": "Migración y validación",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 61,
@@ -196,18 +196,18 @@
         {
           "id": 66,
           "title": "Migrar competi a .project-tree/",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 67,
               "title": "Mover datos de competi al formato .project-tree/",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 68,
               "title": "Ricardo ejecuta project-tree en el repo de competi y verifica",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -215,24 +215,24 @@
         {
           "id": 69,
           "title": "Limpiar código legacy",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 70,
               "title": "Eliminar backend/data/ centralizado",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 71,
               "title": "Eliminar external.json y lógica de external projects",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 72,
               "title": "Eliminar multi-project selector del frontend",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
