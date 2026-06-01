@@ -348,6 +348,18 @@ app.delete("/plans/:planId", (req, res) => {
   res.json({ deleted: planId });
 });
 
+// --- Static frontend ---
+
+const FRONTEND_DIST = path.join(__dirname, "..", "..", "frontend", "dist");
+
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+  // SPA fallback: serve index.html for any non-API route
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+  });
+}
+
 app.listen(PORT, () => {
   console.log(`project-tree running on http://localhost:${PORT}`);
   console.log(`Data directory: ${DATA_DIR}`);
