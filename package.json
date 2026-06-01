@@ -1,5 +1,21 @@
 {
   "name": "project-tree",
+  "version": "0.1.0",
+  "description": "Visual, persistent, interactive task tree for any project",
+  "bin": {
+    "project-tree": "bin/project-tree.js"
+  },
+  "scripts": {
+    "build": "yarn workspace backend build && yarn workspace frontend build",
+    "dev": "echo 'Run backend and frontend dev servers separately'"
+  },
+  "files": [
+    "bin/",
+    "backend/dist/",
+    "backend/package.json",
+    "backend/node_modules/",
+    "frontend/dist/"
+  ],
   "private": true,
   "workspaces": [
     "backend",
