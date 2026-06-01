@@ -165,30 +165,30 @@
         {
           "id": 61,
           "title": "Migrar project-tree a .project-tree/",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 62,
               "title": "Crear .project-tree/ con tree.json y plans.json",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 63,
               "title": "Verificar: arrancar CLI y comprobar que el árbol se ve y opera",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 64,
               "title": "Verificar: planes se cargan y el progreso funciona",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 65,
               "title": "Verificar: crear, completar, podar y borrar tareas funciona",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
