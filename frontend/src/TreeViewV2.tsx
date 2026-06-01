@@ -855,6 +855,62 @@ export default function TreeViewV2({
     }
   }, []);
 
+  // Horizontal scrollbar drag
+  const scrollbarDragging = useRef(false);
+  const scrollbarDragStartX = useRef(0);
+  const scrollbarDragStartTx = useRef(0);
+
+  const handleScrollbarMouseDown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    scrollbarDragging.current = true;
+    scrollbarDragStartX.current = e.clientX;
+    scrollbarDragStartTx.current = transformRef.current.x;
+
+    const onMove = (ev: MouseEvent) => {
+      if (!scrollbarDragging.current) return;
+      const container = containerRef.current;
+      if (!container) return;
+      const t = transformRef.current;
+      const treeW = treeBounds.maxX - treeBounds.minX;
+      const trackW = container.clientWidth - 24;
+      const totalScaled = treeW * t.scale;
+      if (totalScaled <= 0) return;
+      const dx = ev.clientX - scrollbarDragStartX.current;
+      const ratio = totalScaled / trackW;
+      setTransform(prev => ({ ...prev, x: scrollbarDragStartTx.current - dx * ratio }));
+    };
+    const onUp = () => {
+      scrollbarDragging.current = false;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [treeBounds]);
+
+  const handleScrollbarTrackClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const trackW = rect.width;
+    const t = transformRef.current;
+    const treeW = treeBounds.maxX - treeBounds.minX;
+    const totalScaled = treeW * t.scale;
+    const viewportW = container.clientWidth;
+    // Map click position to tree x
+    const clickRatio = clickX / trackW;
+    const targetTreeX = treeBounds.minX + clickRatio * treeW;
+    // Center viewport on that point
+    setAnimateTransform(true);
+    setTransform(prev => ({
+      ...prev,
+      x: viewportW / 2 - targetTreeX * prev.scale,
+    }));
+    setTimeout(() => setAnimateTransform(false), 300);
+  }, [treeBounds]);
+
   return (
     <>
     {breadcrumbPath.length > 0 && (
@@ -1125,6 +1181,69 @@ export default function TreeViewV2({
                 />
               )}
             </svg>
+          </div>
+        );
+      })()}
+      {/* Horizontal scrollbar */}
+      {(() => {
+        const container = containerRef.current;
+        if (!container) return null;
+        const treeW = treeBounds.maxX - treeBounds.minX;
+        if (treeW === 0) return null;
+
+        const cw = container.clientWidth;
+        const totalScaled = treeW * transform.scale;
+        const viewportW = cw;
+        const thumbRatio = Math.min(1, viewportW / totalScaled);
+        if (thumbRatio >= 1) return null; // everything fits, no scrollbar needed
+
+        const trackW = cw - 24;
+        const thumbW = Math.max(30, trackW * thumbRatio);
+        // viewport left in tree coords
+        const vpLeft = -transform.x / transform.scale;
+        const scrollFraction = (vpLeft - treeBounds.minX) / treeW;
+        const thumbX = 12 + scrollFraction * (trackW - thumbW);
+        const clampedThumbX = Math.max(12, Math.min(12 + trackW - thumbW, thumbX));
+
+        return (
+          <div
+            onClick={handleScrollbarTrackClick}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 12,
+              cursor: "pointer",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: 3,
+                left: 12,
+                right: 12,
+                height: 6,
+                background: "rgba(0,0,0,0.06)",
+                borderRadius: 3,
+              }}
+            />
+            <div
+              onMouseDown={handleScrollbarMouseDown}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute",
+                top: 2,
+                left: clampedThumbX,
+                width: thumbW,
+                height: 8,
+                background: "rgba(0,0,0,0.2)",
+                borderRadius: 4,
+                cursor: "grab",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "rgba(0,0,0,0.35)"; }}
+              onMouseLeave={(e) => { if (!scrollbarDragging.current) (e.currentTarget as HTMLDivElement).style.background = "rgba(0,0,0,0.2)"; }}
+            />
           </div>
         );
       })()}
