@@ -247,6 +247,60 @@ app.patch("/projects/:slug/tasks/:id", (req, res) => {
   res.json(task);
 });
 
+function isPrunable(task: Task): boolean {
+  if (!task.completed && !task.abandoned) return false;
+  return task.children.every(isPrunable);
+}
+
+function formatPrunedTree(task: Task, indent: number = 0): string {
+  const prefix = "  ".repeat(indent) + "- ";
+  const status = task.abandoned ? " [abandoned]" : "";
+  let result = prefix + task.title + status + "\n";
+  for (const child of task.children) {
+    result += formatPrunedTree(child, indent + 1);
+  }
+  return result;
+}
+
+function countNodes(task: Task): number {
+  return 1 + task.children.reduce((sum, c) => sum + countNodes(c), 0);
+}
+
+app.post("/projects/:slug/tasks/:id/prune", (req, res) => {
+  const { slug } = req.params;
+  if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
+  const tree = getTree(slug);
+  if (!tree) { res.status(404).json({ error: "Project not found" }); return; }
+
+  const id = Number(req.params.id);
+  const task = findTask(tree, id);
+  if (!task) { res.status(404).json({ error: "Task not found" }); return; }
+
+  const prunableChildren = task.children.filter(isPrunable);
+  if (prunableChildren.length === 0) {
+    res.status(400).json({ error: "No prunable children" }); return;
+  }
+
+  // Build the pruned summary
+  let summary = "--- Pruned ---\n";
+  for (const child of prunableChildren) {
+    summary += formatPrunedTree(child);
+  }
+
+  // Append to description
+  const existing = task.description || "";
+  task.description = existing ? existing + "\n\n" + summary.trimEnd() : summary.trimEnd();
+
+  // Remove prunable children
+  const prunableIds = new Set(prunableChildren.map(c => c.id));
+  task.children = task.children.filter(c => !prunableIds.has(c.id));
+
+  const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
+
+  saveTree(slug);
+  res.json({ task, prunedCount });
+});
+
 app.delete("/projects/:slug/tasks/:id", (req, res) => {
   const { slug } = req.params;
   if (!SLUG_RE.test(slug)) { res.status(400).json({ error: "Invalid project slug" }); return; }
