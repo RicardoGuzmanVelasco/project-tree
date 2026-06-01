@@ -3,10 +3,7 @@ import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTas
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
-import TreeView from "./TreeView";
 import TreeViewV2 from "./TreeViewV2";
-
-type ViewMode = "classic" | "v2";
 
 export default function App() {
   const [projects, setProjects] = useState<{slug: string; title: string}[]>([]);
@@ -19,7 +16,6 @@ export default function App() {
   const [renamingTaskId, setRenamingTaskId] = useState<number | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => loadGlobal("viewMode", "classic") as ViewMode);
   const [showIds, setShowIds] = useState(() => loadGlobal("showIds", false));
   const [showDescription, setShowDescription] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -35,7 +31,6 @@ export default function App() {
   // Persist global preferences
   useEffect(() => { saveGlobal("currentSlug", currentSlug); }, [currentSlug]);
   useEffect(() => { saveGlobal("selectedTaskId", selectedTaskId); }, [selectedTaskId]);
-  useEffect(() => { saveGlobal("viewMode", viewMode); }, [viewMode]);
   useEffect(() => { saveGlobal("showIds", showIds); }, [showIds]);
   useEffect(() => { saveGlobal("compact", compact); }, [compact]);
   useEffect(() => { saveGlobal("horizontal", horizontal); }, [horizontal]);
@@ -316,9 +311,6 @@ export default function App() {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "v") {
-        setViewMode(m => m === "classic" ? "v2" : "classic");
-      }
       if (e.key === "i") {
         setShowIds(s => !s);
       }
@@ -430,12 +422,6 @@ export default function App() {
             </button>
           )}
         </div>
-        <button
-          onClick={() => setViewMode(m => m === "classic" ? "v2" : "classic")}
-          style={{ padding: "4px 12px", fontSize: 13, background: viewMode === "v2" ? "#dbeafe" : "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
-        >
-          {viewMode === "classic" ? "Switch to V2" : "Switch to Classic"} (V)
-        </button>
         <div style={{ marginLeft: "auto", display: "flex", gap: 16, alignItems: "center" }}>
           <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
             <input
@@ -666,21 +652,7 @@ export default function App() {
             </div>
           );
         })()}
-      {viewMode === "classic" ? (
-        <TreeView
-          task={visibleTree!}
-          selectedTaskId={selectedTaskId}
-          onSelectTask={handleTaskClick}
-          onToggleCompleted={handleToggleCompleted}
-          relocatingTaskId={relocatingTaskId}
-          navigation={navigation}
-          showIds={showIds}
-          planTaskIds={editingPlan ? null : planTaskIds}
-          editingPlanTaskIds={editingPlan ? planTaskIds : null}
-          planProgress={planProgress}
-        />
-      ) : (
-        <TreeViewV2
+      <TreeViewV2
           task={visibleTree!}
           selectedTaskId={selectedTaskId}
           onSelectTask={handleTaskClick}
@@ -694,7 +666,6 @@ export default function App() {
           compact={compact}
           horizontal={horizontal}
         />
-      )}
       {showCommandPalette && (
         <div
           onClick={() => setShowCommandPalette(false)}
