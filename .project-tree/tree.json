@@ -40,23 +40,23 @@
     {
       "id": 41,
       "title": "Single-project mode",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 42,
           "title": "Backend lee de un directorio configurable",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 43,
               "title": "Parámetro --dir y auto-detección de .project-tree/ en cwd",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 44,
               "title": "Eliminar lógica multi-project y external.json del backend",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -64,18 +64,18 @@
         {
           "id": 45,
           "title": "Frontend sin selector de proyectos",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 46,
               "title": "Eliminar project selector y lógica multi-project del frontend",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 47,
               "title": "API client usa rutas sin slug (proyecto implícito)",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
