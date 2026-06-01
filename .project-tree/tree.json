@@ -85,24 +85,24 @@
     {
       "id": 48,
       "title": "Servidor unificado",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 49,
           "title": "Vite build genera estáticos en dist/",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 50,
           "title": "Express sirve estáticos del frontend bundleado",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 51,
           "title": "Un solo puerto para frontend y API",
-          "completed": false,
+          "completed": true,
           "children": []
         }
       ]
