@@ -4,22 +4,22 @@ import fs from "fs";
 import path from "path";
 import { Task, Plan } from "./types";
 
-const app = express();
-const PORT = parseInt(process.env.PORT || "3001", 10);
-
-// Resolve data directory: --dir flag, or .project-tree/ in cwd
-function resolveDataDir(): string {
-  const dirIdx = process.argv.indexOf("--dir");
-  if (dirIdx !== -1 && process.argv[dirIdx + 1]) {
-    return path.resolve(process.argv[dirIdx + 1]);
-  }
-  return path.join(process.cwd(), ".project-tree");
+export interface ServerOptions {
+  dataDir: string;
+  port?: number;
+  frontendDist?: string;
+  onReady?: (port: number) => void;
 }
 
-const DATA_DIR = resolveDataDir();
+export function startServer(options: ServerOptions) {
+  const { dataDir, port = 3001, onReady } = options;
+  const frontendDist = options.frontendDist ?? path.join(__dirname, "..", "..", "frontend", "dist");
+
+const DATA_DIR = path.resolve(dataDir);
 const TREE_FILE = path.join(DATA_DIR, "tree.json");
 const PLANS_FILE = path.join(DATA_DIR, "plans.json");
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
@@ -350,17 +350,32 @@ app.delete("/plans/:planId", (req, res) => {
 
 // --- Static frontend ---
 
-const FRONTEND_DIST = path.join(__dirname, "..", "..", "frontend", "dist");
-
-if (fs.existsSync(FRONTEND_DIST)) {
-  app.use(express.static(FRONTEND_DIST));
-  // SPA fallback: serve index.html for any non-API route
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+    res.sendFile(path.join(frontendDist, "index.html"));
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`project-tree running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`project-tree running on http://localhost:${port}`);
   console.log(`Data directory: ${DATA_DIR}`);
+  onReady?.(port);
 });
+
+} // end startServer
+
+// Direct execution: node backend/dist/index.js [--dir path]
+if (require.main === module) {
+  function resolveDataDir(): string {
+    const dirIdx = process.argv.indexOf("--dir");
+    if (dirIdx !== -1 && process.argv[dirIdx + 1]) {
+      return path.resolve(process.argv[dirIdx + 1]);
+    }
+    return path.join(process.cwd(), ".project-tree");
+  }
+  startServer({
+    dataDir: resolveDataDir(),
+    port: parseInt(process.env.PORT || "3001", 10),
+  });
+}
