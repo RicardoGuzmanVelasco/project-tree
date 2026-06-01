@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Task } from "./types";
-import { saveField, loadField } from "./viewStore";
+import { saveGlobal, loadGlobal } from "./viewStore";
 
 export interface NavigationState {
   collapsedIds: Set<number>;
@@ -13,7 +13,6 @@ export interface NavigationState {
   clearDepthLevel: () => void;
   setHideCompleted: (hide: boolean) => void;
   toggleRevealCompleted: (parentId: number) => void;
-  reset: () => void;
 }
 
 function collectDescendantIdsWithChildren(task: Task): number[] {
@@ -50,24 +49,17 @@ export function computeMaxDepth(task: Task, current: number = 0): number {
   return max;
 }
 
-export function useNavigationState(slug: string): NavigationState {
+export function useNavigationState(): NavigationState {
   const [collapsedIds, setCollapsedIds] = useState<Set<number>>(() => {
-    const saved = loadField<number[]>(slug, "collapsedIds", []);
+    const saved = loadGlobal<number[]>("collapsedIds", []);
     return new Set(saved);
   });
   const [depthLevel, setDepthLevel] = useState<number | null>(null);
-  const [hideCompleted, setHideCompleted] = useState(() => loadField(slug, "hideCompleted", false));
+  const [hideCompleted, setHideCompleted] = useState(() => loadGlobal("hideCompleted", false));
   const [revealedParentIds, setRevealedParentIds] = useState<Set<number>>(new Set());
 
-  // Persist collapsedIds
-  useEffect(() => {
-    saveField(slug, "collapsedIds", [...collapsedIds]);
-  }, [slug, collapsedIds]);
-
-  // Persist hideCompleted
-  useEffect(() => {
-    saveField(slug, "hideCompleted", hideCompleted);
-  }, [slug, hideCompleted]);
+  useEffect(() => { saveGlobal("collapsedIds", [...collapsedIds]); }, [collapsedIds]);
+  useEffect(() => { saveGlobal("hideCompleted", hideCompleted); }, [hideCompleted]);
 
   const collapseSubtree = useCallback((task: Task) => {
     setDepthLevel(null);
@@ -121,16 +113,9 @@ export function useNavigationState(slug: string): NavigationState {
     });
   }, []);
 
-  const reset = useCallback(() => {
-    setCollapsedIds(new Set());
-    setDepthLevel(null);
-    setHideCompleted(false);
-    setRevealedParentIds(new Set());
-  }, []);
-
   return {
     collapsedIds, depthLevel, hideCompleted, revealedParentIds,
     collapseSubtree, toggleCollapse, collapseToDepth, clearDepthLevel,
-    setHideCompleted: handleSetHideCompleted, toggleRevealCompleted, reset,
+    setHideCompleted: handleSetHideCompleted, toggleRevealCompleted,
   };
 }
