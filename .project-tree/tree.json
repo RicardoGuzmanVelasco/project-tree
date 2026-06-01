@@ -5,17 +5,9 @@
     {
       "id": 2,
       "title": "MVP",
-      "children": [
-        {
-          "id": 7,
-          "title": "Plans",
-          "children": [],
-          "completed": true,
-          "description": "--- Pruned ---\n- Modelo de datos de Plan\n- Crear un plan\n  - Acción New plan (input nombre)\n  - Modo selección: click en tareas las toggle dentro/fuera\n  - Indicador visual en tareas seleccionadas para el plan\n  - Confirmar/guardar la selección\n- Ver el plan\n  - Selector de plan (dropdown)\n  - Filtrar árbol: solo tareas del plan + ancestros\n  - Ancestros renderizados greyed out\n  - Ancestros no-interactuables\n  - Indicador de progreso X/N\n  - visualización más bonita del progreso\n  - esconder id -1 de la tarea fake del plan!\n  - qué pasa si creo una tarea hija de la fake del plan\n  - la fake del plan no debería poder siquiera seleccionarse\n  - más greyed out a los que no pertenecen al plan\n    - letra también gris como en las completadas\n- Recordar plan activo en localStorage\n- Resumen de un plan [abandoned]\n- Este hijo no forma parte del plan!\n  - Pero sus descendientes sí\n    - Trabajar en el plan\n      - Completar tareas funciona igual que en vista proyecto\n      - Progreso se actualiza al completar\n      - No permitir completar tareas que no pertenecen al plan\n    - Editar plan\n      - Añadir tarea al plan activo\n      - Quitar tarea del plan activo\n      - si se crea tarea hija en vista de plan, se añade al plan auto\n      - que las tareas hojas del plan también se vean verdes\n    - ejemplo\n- menú cohesivo para planes"
-        }
-      ],
+      "children": [],
       "completed": true,
-      "description": "--- Pruned ---\n- View project\n- Create task\n  - User selects an existing task\n    - Make nodes clickable/selectable\n    - Highlight selected task\n  - User provides a title\n    - Show text input tied to selected task\n    - Send creation request to backend\n  - System creates the task\n    - Expose POST /tasks with parentId and title\n    - Validate request (parent exists, title not empty)\n    - Assign auto-incremental ID\n    - Insert as child in the in-memory tree\n    - Persist updated tree to JSON file\n  - Tree re-renders with the new task\n    - Re-fetch tree after creation\n- Complete task\n  - User toggles task completion\n    - Show completion control on selected task\n    - Allow toggling back (uncomplete)\n  - System updates the task\n    - Extend Task type with completed field\n    - Expose PATCH /tasks/:id with completed flag\n    - Validate task exists\n    - Update task in the in-memory tree\n    - Persist updated tree to JSON file\n  - Tree reflects completion state\n    - Visually distinguish completed tasks\n    - Re-fetch tree after toggling\n  - abandonar una tarea\n    - cómo el usuario marca una tarea abandonada?\n    - diferencia visual entre completada y abandonada\n    - abandonada cuenta como done para el X/Y\n- Visibility steps as list\n  - Extract step detection logic\n  - Render steps as indented list\n- Relocate task\n  - Write use case documentation\n  - User selects a task to relocate\n  - User selects the new parent\n  - System relocates the task\n  - Tree re-renders after relocation\n- Visual connectors in steps\n  - Extract ConnectedList component\n  - Refactor steps to use ConnectedList\n- Atomic task grouping\n  - Separate children into branches and atomics\n  - Render atomics with ConnectedList and bordered box\n- Delete task\n  - User triggers deletion on selected task\n    - Show delete button when task is selected (not root)\n  - System confirms the intent\n    - Compute recursive descendant count for selected task\n    - Leaves (0 descendants) require only the initial click\n    - Tasks with descendants require N additional clicks (N = descendant count)\n    - Show countdown on button: remaining clicks and total tasks to be deleted\n    - Cancel confirmation on Escape or selecting a different task\n  - System deletes the task\n    - Expose DELETE /tasks/:id endpoint\n    - Remove task and entire subtree from parent\n    - Reject deletion of root task\n    - Persist updated tree\n  - Tree re-renders after deletion\n    - Re-fetch tree after deletion\n    - Clear selection if deleted task was selected\n- Navigate across a pleasant tree\n  - Wire up view toggle in App\n  - Implement tree layout algorithm\n  - Render nodes as SVG\n  - Draw curved connectors\n  - Implement pan and zoom\n  - Fit-to-view\n  - Visual design and hierarchy cues\n  - Relocating mode visual feedback\n  - Expand/collapse branches\n  - Focus mode with breadcrumbs\n  - Animated transitions for layout changes\n  - Keyboard navigation\n  - Minimap\n  - zoom out clamped\n- Navigation use cases\n- que se vean también cuántas tareas no están completadas al colapsar una\n- Task ID visibility\n  - Show IDs alongside task titles\n  - Toggle ID visibility (user decides when to see IDs)\n- change navigation in trackpad [NEXT STEP]\n  - zoom only when pinching\n  - navigation with two fingers without needing clicking\n- evitar que el zoom se reinicie todo el rato\n- Description of the task\n  - Show description only when requested\n    - Modify description when it's showing\n      - Create a description is just modifying the \"empty\" desc\n  - Toggle showing/hiding descriptions\n    - Show the description with gracefully design\n      - Show as foreground\n      - Lesser importance to the background tree when the description is shown\n        - Back to normal importance of the tree when description is not shown\n  - A task has empty description by default\n  - Add description to the data structure\n  - bug: opening with key d begins writhing \"d\" as the desc\n  - press ESC to close open description\n- persistencia de la vista del árbol\n  - crear otra estructura de datos para la vista del árbol\n    - incluir qué tareas están plegadas\n      - cuando una tarea es plegada/desplegada, persistir ese estado\n      - cargar vista según esa persistencia\n        - cargar collapsed IDs desde localStorage al iniciar\n      - persistir collapsed IDs\n    - guardar opciones tambien\n      - guardar hide completed\n      - guardar show ids\n      - guardar nivel de colapso\n      - persistir view mode (classic/v2)\n      - persistir show IDs\n      - persistir show minimap\n      - persistir hide completed\n    - usar localStorage como mecanismo de persistencia\n    - persistir tarea seleccionada\n    - persistir proyecto actual\n    - persistir transform (zoom/pan) en V2\n- paleta de comandos\n  - atajo abrir paleta de comandos\n    - overlay paleta de comandos\n      - cerrar con tecla esc\n  - \"Ir a\"\n    - introducir número de tarea\n      - seleccionar esa tarea\n        - feedback error si no existe y no hacer nada\n- compactar/airear árbol\n  - compactar espacio entre diferentes subramas\n  - airear para volver a la vista natural actual\n- Event sourcing [abandoned]\n- crear árbol\n  - unificar menú para árboles\n    - usar layout similar al de plans\n  - elegir un nombre y crer árbol\n    - única tarea raíz al crear árbol\n- nombre completo de tarea on hover\n- types of tasks [abandoned]\n  - bug type [abandoned]\n  - tarea técnica [abandoned]\n\n--- Pruned ---\n- cambiar a vista horizontal\n\n--- Pruned ---\n- borrar UI clásica\n\n--- Pruned ---\n- podar subárbol completado"
+      "description": "--- Pruned ---\n- View project\n- Create task\n  - User selects an existing task\n    - Make nodes clickable/selectable\n    - Highlight selected task\n  - User provides a title\n    - Show text input tied to selected task\n    - Send creation request to backend\n  - System creates the task\n    - Expose POST /tasks with parentId and title\n    - Validate request (parent exists, title not empty)\n    - Assign auto-incremental ID\n    - Insert as child in the in-memory tree\n    - Persist updated tree to JSON file\n  - Tree re-renders with the new task\n    - Re-fetch tree after creation\n- Complete task\n  - User toggles task completion\n    - Show completion control on selected task\n    - Allow toggling back (uncomplete)\n  - System updates the task\n    - Extend Task type with completed field\n    - Expose PATCH /tasks/:id with completed flag\n    - Validate task exists\n    - Update task in the in-memory tree\n    - Persist updated tree to JSON file\n  - Tree reflects completion state\n    - Visually distinguish completed tasks\n    - Re-fetch tree after toggling\n  - abandonar una tarea\n    - cómo el usuario marca una tarea abandonada?\n    - diferencia visual entre completada y abandonada\n    - abandonada cuenta como done para el X/Y\n- Visibility steps as list\n  - Extract step detection logic\n  - Render steps as indented list\n- Relocate task\n  - Write use case documentation\n  - User selects a task to relocate\n  - User selects the new parent\n  - System relocates the task\n  - Tree re-renders after relocation\n- Visual connectors in steps\n  - Extract ConnectedList component\n  - Refactor steps to use ConnectedList\n- Atomic task grouping\n  - Separate children into branches and atomics\n  - Render atomics with ConnectedList and bordered box\n- Delete task\n  - User triggers deletion on selected task\n    - Show delete button when task is selected (not root)\n  - System confirms the intent\n    - Compute recursive descendant count for selected task\n    - Leaves (0 descendants) require only the initial click\n    - Tasks with descendants require N additional clicks (N = descendant count)\n    - Show countdown on button: remaining clicks and total tasks to be deleted\n    - Cancel confirmation on Escape or selecting a different task\n  - System deletes the task\n    - Expose DELETE /tasks/:id endpoint\n    - Remove task and entire subtree from parent\n    - Reject deletion of root task\n    - Persist updated tree\n  - Tree re-renders after deletion\n    - Re-fetch tree after deletion\n    - Clear selection if deleted task was selected\n- Navigate across a pleasant tree\n  - Wire up view toggle in App\n  - Implement tree layout algorithm\n  - Render nodes as SVG\n  - Draw curved connectors\n  - Implement pan and zoom\n  - Fit-to-view\n  - Visual design and hierarchy cues\n  - Relocating mode visual feedback\n  - Expand/collapse branches\n  - Focus mode with breadcrumbs\n  - Animated transitions for layout changes\n  - Keyboard navigation\n  - Minimap\n  - zoom out clamped\n- Navigation use cases\n- que se vean también cuántas tareas no están completadas al colapsar una\n- Task ID visibility\n  - Show IDs alongside task titles\n  - Toggle ID visibility (user decides when to see IDs)\n- change navigation in trackpad [NEXT STEP]\n  - zoom only when pinching\n  - navigation with two fingers without needing clicking\n- evitar que el zoom se reinicie todo el rato\n- Description of the task\n  - Show description only when requested\n    - Modify description when it's showing\n      - Create a description is just modifying the \"empty\" desc\n  - Toggle showing/hiding descriptions\n    - Show the description with gracefully design\n      - Show as foreground\n      - Lesser importance to the background tree when the description is shown\n        - Back to normal importance of the tree when description is not shown\n  - A task has empty description by default\n  - Add description to the data structure\n  - bug: opening with key d begins writhing \"d\" as the desc\n  - press ESC to close open description\n- persistencia de la vista del árbol\n  - crear otra estructura de datos para la vista del árbol\n    - incluir qué tareas están plegadas\n      - cuando una tarea es plegada/desplegada, persistir ese estado\n      - cargar vista según esa persistencia\n        - cargar collapsed IDs desde localStorage al iniciar\n      - persistir collapsed IDs\n    - guardar opciones tambien\n      - guardar hide completed\n      - guardar show ids\n      - guardar nivel de colapso\n      - persistir view mode (classic/v2)\n      - persistir show IDs\n      - persistir show minimap\n      - persistir hide completed\n    - usar localStorage como mecanismo de persistencia\n    - persistir tarea seleccionada\n    - persistir proyecto actual\n    - persistir transform (zoom/pan) en V2\n- paleta de comandos\n  - atajo abrir paleta de comandos\n    - overlay paleta de comandos\n      - cerrar con tecla esc\n  - \"Ir a\"\n    - introducir número de tarea\n      - seleccionar esa tarea\n        - feedback error si no existe y no hacer nada\n- compactar/airear árbol\n  - compactar espacio entre diferentes subramas\n  - airear para volver a la vista natural actual\n- Event sourcing [abandoned]\n- crear árbol\n  - unificar menú para árboles\n    - usar layout similar al de plans\n  - elegir un nombre y crer árbol\n    - única tarea raíz al crear árbol\n- nombre completo de tarea on hover\n- types of tasks [abandoned]\n  - bug type [abandoned]\n  - tarea técnica [abandoned]\n\n--- Pruned ---\n- cambiar a vista horizontal\n\n--- Pruned ---\n- borrar UI clásica\n\n--- Pruned ---\n- podar subárbol completado\n\n--- Pruned ---\n- Plans"
     },
     {
       "id": 37,
@@ -35,178 +27,87 @@
           ],
           "completed": false
         }
-      ]
+      ],
+      "abandoned": true
     },
     {
       "id": 41,
       "title": "Single-project mode",
       "completed": true,
-      "children": [
-        {
-          "id": 42,
-          "title": "Backend lee de un directorio configurable",
-          "completed": true,
-          "children": [
-            {
-              "id": 43,
-              "title": "Parámetro --dir y auto-detección de .project-tree/ en cwd",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 44,
-              "title": "Eliminar lógica multi-project y external.json del backend",
-              "completed": true,
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": 45,
-          "title": "Frontend sin selector de proyectos",
-          "completed": true,
-          "children": [
-            {
-              "id": 46,
-              "title": "Eliminar project selector y lógica multi-project del frontend",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 47,
-              "title": "API client usa rutas sin slug (proyecto implícito)",
-              "completed": true,
-              "children": []
-            }
-          ]
-        }
-      ]
+      "children": [],
+      "description": "--- Pruned ---\n- Backend lee de un directorio configurable\n  - Parámetro --dir y auto-detección de .project-tree/ en cwd\n  - Eliminar lógica multi-project y external.json del backend\n- Frontend sin selector de proyectos\n  - Eliminar project selector y lógica multi-project del frontend\n  - API client usa rutas sin slug (proyecto implícito)"
     },
     {
       "id": 48,
       "title": "Servidor unificado",
       "completed": true,
-      "children": [
-        {
-          "id": 49,
-          "title": "Vite build genera estáticos en dist/",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 50,
-          "title": "Express sirve estáticos del frontend bundleado",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 51,
-          "title": "Un solo puerto para frontend y API",
-          "completed": true,
-          "children": []
-        }
-      ]
+      "children": [],
+      "description": "--- Pruned ---\n- Vite build genera estáticos en dist/\n- Express sirve estáticos del frontend bundleado\n- Un solo puerto para frontend y API"
     },
     {
       "id": 52,
       "title": "CLI entry point",
       "completed": true,
-      "children": [
-        {
-          "id": 53,
-          "title": "Bin script con shebang y parseo de argumentos (--port, --dir, --no-open)",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 54,
-          "title": "Abrir navegador automáticamente al arrancar",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 55,
-          "title": "Subcomando init para scaffoldear .project-tree/ en un repo",
-          "completed": true,
-          "children": []
-        }
-      ]
+      "children": [],
+      "description": "--- Pruned ---\n- Bin script con shebang y parseo de argumentos (--port, --dir, --no-open)\n- Abrir navegador automáticamente al arrancar\n- Subcomando init para scaffoldear .project-tree/ en un repo"
     },
     {
       "id": 56,
       "title": "Empaquetado npm",
       "completed": true,
-      "children": [
-        {
-          "id": 57,
-          "title": "package.json raíz con campo bin y metadata",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 58,
-          "title": "Script de build: compila backend TS + bundlea frontend",
-          "completed": true,
-          "children": []
-        },
-        {
-          "id": 59,
-          "title": "Test: npx project-tree funciona en un directorio limpio",
-          "completed": true,
-          "children": []
-        }
-      ]
+      "children": [],
+      "description": "--- Pruned ---\n- package.json raíz con campo bin y metadata\n- Script de build: compila backend TS + bundlea frontend\n- Test: npx project-tree funciona en un directorio limpio"
     },
     {
       "id": 60,
       "title": "Migración y validación",
       "completed": true,
+      "children": [],
+      "description": "--- Pruned ---\n- Migrar project-tree a .project-tree/\n  - Crear .project-tree/ con tree.json y plans.json\n  - Verificar: arrancar CLI y comprobar que el árbol se ve y opera\n  - Verificar: planes se cargan y el progreso funciona\n  - Verificar: crear, completar, podar y borrar tareas funciona\n- Migrar competi a .project-tree/\n  - Mover datos de competi al formato .project-tree/\n  - Ricardo ejecuta project-tree en el repo de competi y verifica\n- Limpiar código legacy\n  - Eliminar backend/data/ centralizado\n  - Eliminar external.json y lógica de external projects\n  - Eliminar multi-project selector del frontend"
+    },
+    {
+      "id": 61,
+      "title": "Subcomando show en CLI",
+      "completed": true,
       "children": [
         {
-          "id": 61,
-          "title": "Migrar project-tree a .project-tree/",
+          "id": 62,
+          "title": "Parsear argumento: project-tree show <id> [--ids]",
           "completed": true,
-          "children": [
-            {
-              "id": 62,
-              "title": "Crear .project-tree/ con tree.json y plans.json",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 63,
-              "title": "Verificar: arrancar CLI y comprobar que el árbol se ve y opera",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 64,
-              "title": "Verificar: planes se cargan y el progreso funciona",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 65,
-              "title": "Verificar: crear, completar, podar y borrar tareas funciona",
-              "completed": true,
-              "children": []
-            }
-          ]
+          "children": []
         },
         {
-          "id": 66,
-          "title": "Migrar competi a .project-tree/",
+          "id": 63,
+          "title": "Leer tree.json desde disco sin arrancar servidor",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 64,
+          "title": "Buscar tarea por ID en el árbol",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 65,
+          "title": "Renderizar subárbol como texto con conectores",
           "completed": true,
           "children": [
             {
+              "id": 66,
+              "title": "Conectores de árbol: líneas ├── └── │",
+              "completed": true,
+              "children": []
+            },
+            {
               "id": 67,
-              "title": "Mover datos de competi al formato .project-tree/",
+              "title": "Indicadores de estado: [x] completada, [~] abandoned, [ ] pendiente",
               "completed": true,
               "children": []
             },
             {
               "id": 68,
-              "title": "Ricardo ejecuta project-tree en el repo de competi y verifica",
+              "title": "Flag --ids para mostrar el ID de cada tarea",
               "completed": true,
               "children": []
             }
@@ -214,28 +115,9 @@
         },
         {
           "id": 69,
-          "title": "Limpiar código legacy",
+          "title": "Imprimir en stdout y salir (sin servidor)",
           "completed": true,
-          "children": [
-            {
-              "id": 70,
-              "title": "Eliminar backend/data/ centralizado",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 71,
-              "title": "Eliminar external.json y lógica de external projects",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 72,
-              "title": "Eliminar multi-project selector del frontend",
-              "completed": true,
-              "children": []
-            }
-          ]
+          "children": []
         }
       ]
     }
