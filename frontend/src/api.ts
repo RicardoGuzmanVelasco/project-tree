@@ -1,6 +1,6 @@
 import { Plan } from "./types";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "";
 
 export async function fetchTree() {
   const response = await fetch(`${API_BASE}/tasks`);
