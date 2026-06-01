@@ -110,24 +110,24 @@
     {
       "id": 52,
       "title": "CLI entry point",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 53,
           "title": "Bin script con shebang y parseo de argumentos (--port, --dir, --no-open)",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 54,
           "title": "Abrir navegador automáticamente al arrancar",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 55,
           "title": "Subcomando init para scaffoldear .project-tree/ en un repo",
-          "completed": false,
+          "completed": true,
           "children": []
         }
       ]
