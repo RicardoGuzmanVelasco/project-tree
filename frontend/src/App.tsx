@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, createProject, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription } from "./api";
+import { fetchProjects, fetchTree, fetchPlans, createPlan, updatePlan, createTask, createProject, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription, pruneTask } from "./api";
 import { saveField, loadField, saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -205,6 +205,31 @@ export default function App() {
       if (found) return found;
     }
     return null;
+  };
+
+  const isPrunable = (task: Task): boolean => {
+    if (!task.completed && !task.abandoned) return false;
+    return task.children.every(isPrunable);
+  };
+
+  const hasPrunableChildren = (task: Task): boolean => {
+    return task.children.some(isPrunable);
+  };
+
+  const countPrunable = (task: Task): number => {
+    return task.children
+      .filter(isPrunable)
+      .reduce((sum, c) => sum + countDescendants(c) + 1, 0);
+  };
+
+  const handlePrune = async () => {
+    if (!selectedTaskId || !tree) return;
+    const task = findTaskInTree(tree, selectedTaskId);
+    if (!task || !hasPrunableChildren(task)) return;
+    const count = countPrunable(task);
+    if (!window.confirm(`Prune ${count} completed task${count !== 1 ? "s" : ""} from "${task.title}"?`)) return;
+    await pruneTask(currentSlug, selectedTaskId);
+    loadTree(currentSlug);
   };
 
   const handleCommandSubmit = () => {
@@ -573,6 +598,17 @@ export default function App() {
                       ? `Click ${deleteClicksRemaining} more time${deleteClicksRemaining !== 1 ? "s" : ""} to confirm (deletes ${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1} task${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1 !== 1 ? "s" : ""})`
                       : "Delete"}
                   </button>
+                  {(() => {
+                    const task = findTaskInTree(tree, selectedTaskId!);
+                    return task && hasPrunableChildren(task) ? (
+                      <button
+                        onClick={handlePrune}
+                        style={{ padding: "6px 14px", fontSize: 14 }}
+                      >
+                        Prune
+                      </button>
+                    ) : null;
+                  })()}
                 </>
               )}
             </>

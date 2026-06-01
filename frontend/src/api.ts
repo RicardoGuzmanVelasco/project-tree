@@ -107,6 +107,13 @@ export async function toggleTaskAbandoned(slug: string, id: number, abandoned: b
   return response.json();
 }
 
+export async function pruneTask(slug: string, id: number): Promise<{ task: unknown; prunedCount: number }> {
+  const response = await fetch(`${API_BASE}/projects/${slug}/tasks/${id}/prune`, {
+    method: "POST",
+  });
+  return response.json();
+}
+
 export async function createTask(slug: string, parentId: number, title: string) {
   const response = await fetch(`${API_BASE}/projects/${slug}/tasks`, {
     method: "POST",
