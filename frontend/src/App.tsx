@@ -499,7 +499,7 @@ export default function App() {
         </div>
       )}
       <div style={{ position: "relative", flex: 1, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/logo.png)", backgroundSize: "120px", backgroundRepeat: "repeat", opacity: 0.03, pointerEvents: "none", zIndex: 0 }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(/logo.png)", backgroundSize: "120px", backgroundRepeat: "repeat", opacity: 0.06, pointerEvents: "none", zIndex: 0 }} />
         {showDescription && selectedTaskId && (() => {
           const task = findTaskInTree(tree, selectedTaskId);
           if (!task) return null;
