@@ -385,6 +385,56 @@
           ]
         }
       ]
+    },
+    {
+      "id": 112,
+      "title": "Live sync",
+      "completed": false,
+      "children": [
+        {
+          "id": 113,
+          "title": "File watcher + SSE (primera solución pragmática)",
+          "completed": false,
+          "children": [
+            {
+              "id": 114,
+              "title": "Backend: fs.watch sobre tree.json y plans.json con debounce",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 115,
+              "title": "Backend: invalidar caché en memoria al detectar cambio externo",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 116,
+              "title": "Backend: endpoint SSE /events que emite al detectar cambio",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 117,
+              "title": "Backend: ignorar eventos fs.watch provocados por escrituras propias",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 118,
+              "title": "Frontend: EventSource /events que hace re-fetch de tree y plans",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 119,
+          "title": "Modo lectura/edición con lock en memoria",
+          "completed": false,
+          "children": []
+        }
+      ]
     }
   ],
   "completed": false
