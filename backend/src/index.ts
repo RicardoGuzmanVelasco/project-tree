@@ -357,10 +357,27 @@ if (fs.existsSync(frontendDist)) {
   });
 }
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`project-tree running on http://localhost:${port}`);
   console.log(`Data directory: ${DATA_DIR}`);
   onReady?.(port);
+});
+server.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EADDRINUSE") {
+    console.log(`Port ${port} in use, trying ${port + 1}...`);
+    const next = port + 1;
+    const retry = app.listen(next, () => {
+      console.log(`project-tree running on http://localhost:${next}`);
+      console.log(`Data directory: ${DATA_DIR}`);
+      onReady?.(next);
+    });
+    retry.on("error", () => {
+      console.error(`Ports ${port} and ${next} both in use. Use --port to specify a free port.`);
+      process.exit(1);
+    });
+  } else {
+    throw err;
+  }
 });
 
 } // end startServer
