@@ -120,6 +120,126 @@
           "children": []
         }
       ]
+    },
+    {
+      "id": 70,
+      "title": "Navigation & views",
+      "completed": false,
+      "children": [
+        {
+          "id": 71,
+          "title": "Mindmap layout",
+          "completed": false,
+          "children": [
+            {
+              "id": 72,
+              "title": "Dividir hijos del root en dos mitades (arriba/abajo)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 73,
+              "title": "Posicionar nodos hacia arriba en el layout SVG",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 74,
+              "title": "Invertir conectores para ramas superiores",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 75,
+              "title": "Centrar root verticalmente en el viewport",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 76,
+              "title": "Toggle mindmap en la toolbar",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 77,
+              "title": "Combinar mindmap + horizontal (ramas izquierda/derecha)",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 78,
+          "title": "Double-click zoom-to-fit",
+          "completed": false,
+          "children": [
+            {
+              "id": 79,
+              "title": "Eliminar comportamiento actual de doble-click",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 80,
+              "title": "Doble-click centra y hace zoom-to-fit en el nodo con clamp",
+              "completed": false,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "title": "Node visuals",
+      "completed": false,
+      "children": [
+        {
+          "id": 82,
+          "title": "Highlighted node style",
+          "completed": false,
+          "children": [
+            {
+              "id": 83,
+              "title": "Definir estilo highlighted: fondo, mayúsculas, tamaño mayor",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 84,
+              "title": "Aplicar highlighted al nodo raíz en todas las vistas",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 85,
+              "title": "Click en raíz centra la vista (zoom-to-fit todo el árbol)",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 88,
+          "title": "Tab del browser muestra el nombre del proyecto",
+          "completed": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "title": "Plans",
+      "completed": false,
+      "children": [
+        {
+          "id": 87,
+          "title": "Orden de implementación de un plan",
+          "completed": false,
+          "children": []
+        }
+      ]
     }
   ],
   "completed": false
