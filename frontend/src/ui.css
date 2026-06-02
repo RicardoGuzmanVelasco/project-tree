@@ -1,0 +1,259 @@
+/* ── Buttons ─────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+  user-select: none;
+  white-space: nowrap;
+}
+.btn:hover {
+  background: var(--c-bg-muted);
+  border-color: #b0b8c4;
+}
+.btn:active {
+  background: var(--c-bg-subtle);
+  transform: scale(0.97);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 1px;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Primary */
+.btn-primary {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.btn-primary:active {
+  background: #1d4ed8;
+}
+
+/* Danger */
+.btn-danger {
+  background: var(--c-danger);
+  border-color: var(--c-danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* Toggle on — for active toggles */
+.btn-toggle-on {
+  background: var(--c-primary-bg);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+.btn-toggle-on:hover {
+  background: #bfdbfe;
+}
+
+/* Warning toggle (edit plan) */
+.btn-warning {
+  background: #fbbf24;
+  border-color: #f59e0b;
+  color: var(--c-text);
+  font-weight: 600;
+}
+.btn-warning:hover {
+  background: #f59e0b;
+}
+
+/* Abandon (purple) */
+.btn-purple {
+  background: var(--c-purple);
+  border-color: var(--c-purple);
+  color: #fff;
+}
+.btn-purple:hover {
+  background: #7e22ce;
+  border-color: #7e22ce;
+}
+
+/* Small variant */
+.btn-sm {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: var(--r-sm);
+}
+
+/* Icon-only */
+.btn-icon {
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* ── Pill toggles ────────────────────────────── */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  background: var(--c-bg);
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+}
+.pill:hover {
+  background: var(--c-bg-muted);
+  border-color: var(--c-border-strong);
+}
+.pill-on {
+  background: var(--c-primary-bg);
+  border-color: var(--c-primary-border);
+  color: var(--c-primary);
+}
+.pill-on:hover {
+  background: #bfdbfe;
+}
+.pill .pill-key {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--c-bg-muted);
+  color: var(--c-text-faint);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.pill-on .pill-key {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--c-primary);
+}
+
+/* ── Input ───────────────────────────────────── */
+
+.input {
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  color: var(--c-text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.input-error {
+  border-color: var(--c-danger);
+}
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* ── Toolbar ─────────────────────────────────── */
+
+.toolbar {
+  padding: var(--s-sm) var(--s-toolbar-x);
+  display: flex;
+  gap: var(--s-sm);
+  align-items: center;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--c-border);
+  margin: 0 var(--s-sm);
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ── Action bar ──────────────────────────────── */
+
+.action-bar {
+  padding: var(--s-md) var(--s-toolbar-x);
+  display: flex;
+  gap: var(--s-sm);
+  align-items: center;
+  background: var(--c-bg-subtle);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.action-bar .action-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.action-bar .action-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--c-border);
+  margin: 0 4px;
+}
+
+/* ── Overlays ────────────────────────────────── */
+
+.overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+}
+
+.overlay-card {
+  background: var(--c-bg);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+/* ── Relocate banner ─────────────────────────── */
+
+.relocate-banner {
+  padding: var(--s-md) var(--s-toolbar-x);
+  display: flex;
+  gap: var(--s-sm);
+  align-items: center;
+  background: var(--c-warning-bg);
+  border-bottom: 1px solid var(--c-warning-border);
+  font-size: 13px;
+  color: var(--c-text);
+}
