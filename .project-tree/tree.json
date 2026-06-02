@@ -235,7 +235,7 @@
       "children": [
         {
           "id": 87,
-          "title": "Orden de implementación de un plan",
+          "title": "Orden de implementación del plan",
           "completed": false,
           "children": []
         }
@@ -418,12 +418,25 @@
               "id": 117,
               "title": "Backend: ignorar eventos fs.watch provocados por escrituras propias",
               "completed": true,
-              "children": []
+              "children": [
+                {
+                  "id": 121,
+                  "title": "Eliminar selfWriting flag: notificar siempre, re-fetch es idempotente",
+                  "completed": true,
+                  "children": []
+                }
+              ]
             },
             {
               "id": 118,
               "title": "Frontend: EventSource /events que hace re-fetch de tree y plans",
               "completed": true,
+              "children": []
+            },
+            {
+              "id": 120,
+              "title": "Toast visual en el frontend al detectar cambio externo",
+              "completed": false,
               "children": []
             }
           ]

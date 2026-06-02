@@ -33,23 +33,16 @@ function ensureCompleted(node: Task): Task {
   };
 }
 
-let tree: Task | null = null;
-let selfWriting = false; // flag to ignore fs.watch events from our own writes
-
 // SSE clients
 const sseClients = new Set<express.Response>();
 
 function getTree(): Task | null {
-  if (tree) return tree;
   if (!fs.existsSync(TREE_FILE)) return null;
-  tree = ensureCompleted(JSON.parse(fs.readFileSync(TREE_FILE, "utf-8")));
-  return tree;
+  return ensureCompleted(JSON.parse(fs.readFileSync(TREE_FILE, "utf-8")));
 }
 
-function saveTree() {
-  if (!tree) return;
+function saveTree(tree: Task) {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  selfWriting = true;
   fs.writeFileSync(TREE_FILE, JSON.stringify(tree, null, 2) + "\n");
 }
 
@@ -115,7 +108,7 @@ app.post("/tasks", (req, res) => {
   };
 
   parent.children.push(newTask);
-  saveTree();
+  saveTree(t);
 
   res.status(201).json(newTask);
 });
@@ -145,14 +138,14 @@ app.patch("/tasks/:id", (req, res) => {
       return;
     }
     task.title = trimmed;
-    saveTree();
+    saveTree(t);
     res.json(task);
     return;
   }
 
   if (typeof description === "string") {
     task.description = description || undefined;
-    saveTree();
+    saveTree(t);
     res.json(task);
     return;
   }
@@ -180,7 +173,7 @@ app.patch("/tasks/:id", (req, res) => {
       newParent.children.push(task);
     }
 
-    saveTree();
+    saveTree(t);
     res.json(task);
     return;
   }
@@ -188,14 +181,14 @@ app.patch("/tasks/:id", (req, res) => {
   if (typeof abandoned === "boolean") {
     task.abandoned = abandoned || undefined;
     if (abandoned) task.completed = false;
-    saveTree();
+    saveTree(t);
     res.json(task);
     return;
   }
 
   task.completed = completed;
   if (completed) task.abandoned = undefined;
-  saveTree();
+  saveTree(t);
 
   res.json(task);
 });
@@ -247,7 +240,7 @@ app.post("/tasks/:id/prune", (req, res) => {
 
   const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
 
-  saveTree();
+  saveTree(t);
   res.json({ task, prunedCount });
 });
 
@@ -273,7 +266,7 @@ app.delete("/tasks/:id", (req, res) => {
     parent.children = parent.children.filter(c => c.id !== id);
   }
 
-  saveTree();
+  saveTree(t);
   res.json({ deleted: id });
 });
 
@@ -286,7 +279,6 @@ function getPlans(): Plan[] {
 
 function savePlans(plans: Plan[]) {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  selfWriting = true;
   fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2) + "\n");
 }
 
@@ -375,28 +367,18 @@ function broadcastChange() {
 
 // --- File watcher ---
 
+// Watch the real data directory for changes and notify SSE clients.
+// Resolves symlinks since fs.watch doesn't follow them on macOS.
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-function onFileChange() {
-  if (selfWriting) {
-    selfWriting = false;
-    return;
-  }
-  // External change detected — invalidate cache and notify clients
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    tree = null; // force re-read from disk on next request
-    console.log("External file change detected, cache invalidated");
-    broadcastChange();
-  }, 100);
-}
-
-if (fs.existsSync(DATA_DIR)) {
-  for (const file of [TREE_FILE, PLANS_FILE]) {
-    if (fs.existsSync(file)) {
-      fs.watch(file, onFileChange);
-    }
-  }
+const realDataDir = fs.existsSync(TREE_FILE)
+  ? path.dirname(fs.realpathSync(TREE_FILE))
+  : fs.existsSync(DATA_DIR) ? DATA_DIR : null;
+if (realDataDir) {
+  fs.watch(realDataDir, (_event, filename) => {
+    if (filename !== "tree.json" && filename !== "plans.json") return;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(broadcastChange, 100);
+  });
 }
 
 // --- Static frontend ---
