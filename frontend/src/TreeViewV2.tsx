@@ -33,7 +33,6 @@ function SvgNode({
   onToggleCollapse,
   hiddenCompletedCount,
   onToggleRevealCompleted,
-  isFocusDimmed,
   onDoubleClick,
   showIds,
   isAncestorContext,
@@ -50,7 +49,6 @@ function SvgNode({
   onToggleCollapse: () => void;
   hiddenCompletedCount: number;
   onToggleRevealCompleted: () => void;
-  isFocusDimmed: boolean;
   onDoubleClick: () => void;
   showIds: boolean;
   isAncestorContext?: boolean;
@@ -115,7 +113,7 @@ function SvgNode({
       <g
         onClick={handleClick}
         onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
-        style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
+        style={{ cursor, opacity: nodeOpacity }}
       >
         <title>{task.title}</title>
         <rect x={0} y={0} width={width} height={height} rx={4} fill={bgFill}
@@ -189,7 +187,7 @@ function SvgNode({
     <g
       onClick={handleClick}
       onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick(); }}
-      style={{ cursor, opacity: isFocusDimmed ? 0.15 : nodeOpacity }}
+      style={{ cursor, opacity: nodeOpacity }}
     >
       <title>{task.title}</title>
       {/* Shadow */}
@@ -614,6 +612,28 @@ export default function TreeViewV2({
     setTimeout(() => setAnimateTransform(false), 300);
   }, []);
 
+  const zoomToNode = useCallback((nodeId: number) => {
+    const container = containerRef.current;
+    const node = nodesRef.current.find(n => n.id === nodeId);
+    if (!container || !node) return;
+
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const centerX = node.x;
+    const centerY = node.y + node.height / 2;
+
+    // Clamp zoom: close enough to read, not too close
+    const targetScale = Math.min(Math.max(0.8, transformRef.current.scale), 1.5);
+
+    setAnimateTransform(true);
+    setTransform({
+      x: cw / 2 - centerX * targetScale,
+      y: ch / 2 - centerY * targetScale,
+      scale: targetScale,
+    });
+    setTimeout(() => setAnimateTransform(false), 300);
+  }, []);
+
   // Fit to view only on initial mount if no saved transform
   const hasRestoredTransform = useRef(false);
   useEffect(() => {
@@ -948,8 +968,7 @@ export default function TreeViewV2({
                   onToggleCollapse={() => navigation.toggleCollapse(node.task)}
                   hiddenCompletedCount={hiddenCompletedCounts.get(node.id) ?? 0}
                   onToggleRevealCompleted={() => navigation.toggleRevealCompleted(node.id)}
-                  isFocusDimmed={false}
-                  onDoubleClick={() => {}}
+                  onDoubleClick={() => zoomToNode(node.id)}
                   showIds={showIds}
                   isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
                   isInEditPlan={editingPlanTaskIds != null && editingPlanTaskIds.has(node.id)}
