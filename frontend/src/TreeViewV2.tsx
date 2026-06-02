@@ -39,6 +39,7 @@ function SvgNode({
   isAncestorContext,
   isInEditPlan,
   isCompact,
+  isHighlighted,
 }: {
   node: LayoutNode;
   isSelected: boolean;
@@ -55,6 +56,7 @@ function SvgNode({
   isAncestorContext?: boolean;
   isInEditPlan?: boolean;
   isCompact?: boolean;
+  isHighlighted?: boolean;
 }) {
   const { width, height, depth, task } = node;
   // SvgNode draws at local origin (0,0); parent <g> positions it via transform
@@ -72,9 +74,12 @@ function SvgNode({
   const isValid = relocateStatus === "valid-target";
   const isSource = relocateStatus === "source";
 
-  let fill = isAncestorContext ? "#eef0f4" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff";
-  let stroke = isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
-  let strokeWidth = isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
+  const highlightedFontSize = fontSize + 2;
+  const effectiveFontSize = isHighlighted ? highlightedFontSize : fontSize;
+
+  let fill = isHighlighted ? "#ecfdf5" : isAncestorContext ? "#eef0f4" : isInEditPlan ? "#f0fdf4" : isSelected ? "#dbeafe" : "#fff";
+  let stroke = isHighlighted ? "#10b981" : isAncestorContext ? "#d0d5dd" : isInEditPlan ? "#16a34a" : isSelected ? "#3b82f6" : "#e2e8f0";
+  let strokeWidth = isHighlighted ? 2 : isAncestorContext ? 1 : isInEditPlan ? 2 : isSelected ? 2 : 1;
   let strokeDasharray: string | undefined = isAncestorContext ? "4 3" : undefined;
   let nodeOpacity = isAncestorContext ? 0.35 : (task.completed || task.abandoned) ? 0.5 : 1;
   let cursor = isAncestorContext ? "default" : "pointer";
@@ -263,12 +268,13 @@ function SvgNode({
             x={textX}
             y={height / 2}
             dominantBaseline="central"
-            fontSize={fontSize}
-            fill={isAncestorContext ? "#94a3b8" : task.abandoned ? "#9333ea" : "#1e293b"}
+            fontSize={effectiveFontSize}
+            fontWeight={isHighlighted ? 600 : undefined}
+            fill={isHighlighted ? "#065f46" : isAncestorContext ? "#94a3b8" : task.abandoned ? "#9333ea" : "#1e293b"}
             textDecoration={(task.completed || task.abandoned) ? "line-through" : "none"}
             opacity={isAncestorContext ? 1 : (task.completed || task.abandoned) ? 0.5 : 1}
           >
-            {truncate(task.title, textX, 16)}
+            {isHighlighted ? truncate(task.title, textX, 16).toUpperCase() : truncate(task.title, textX, 16)}
           </text>
         );
       })()}
