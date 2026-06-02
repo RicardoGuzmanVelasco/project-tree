@@ -44,6 +44,18 @@ export default function App() {
     loadTree();
   }, []);
 
+  // Live sync: listen for external file changes via SSE
+  useEffect(() => {
+    const es = new EventSource("/events");
+    es.onmessage = (e) => {
+      if (e.data === "changed") {
+        loadTree();
+        fetchPlans().then(setPlans).catch(() => {});
+      }
+    };
+    return () => es.close();
+  }, []);
+
   const handleCreate = async () => {
     if (!selectedTaskId || !newTitle.trim()) return;
     const newTask = await createTask(selectedTaskId, newTitle.trim());
