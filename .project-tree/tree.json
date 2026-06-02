@@ -129,42 +129,42 @@
         {
           "id": 71,
           "title": "Mindmap layout",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 72,
               "title": "Dividir hijos del root en dos mitades (arriba/abajo)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 73,
               "title": "Posicionar nodos hacia arriba en el layout SVG",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 74,
               "title": "Invertir conectores para ramas superiores",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 75,
               "title": "Centrar root verticalmente en el viewport",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 76,
               "title": "Toggle mindmap en la toolbar",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 77,
               "title": "Combinar mindmap + horizontal (ramas izquierda/derecha)",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -172,18 +172,18 @@
         {
           "id": 78,
           "title": "Double-click zoom-to-fit",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 79,
               "title": "Eliminar comportamiento actual de doble-click",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 80,
               "title": "Doble-click centra y hace zoom-to-fit en el nodo con clamp",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -198,24 +198,24 @@
         {
           "id": 82,
           "title": "Highlighted node style",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 83,
               "title": "Definir estilo highlighted: fondo, mayúsculas, tamaño mayor",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 84,
               "title": "Aplicar highlighted al nodo raíz en todas las vistas",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 85,
               "title": "Click en raíz centra la vista (zoom-to-fit todo el árbol)",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
@@ -223,7 +223,7 @@
         {
           "id": 88,
           "title": "Tab del browser muestra el nombre del proyecto",
-          "completed": false,
+          "completed": true,
           "children": []
         }
       ]
