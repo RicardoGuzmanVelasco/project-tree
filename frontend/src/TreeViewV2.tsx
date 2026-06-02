@@ -17,6 +17,7 @@ interface TreeViewV2Props {
   planProgress?: { completed: number; total: number } | null;
   compact?: boolean;
   horizontal?: boolean;
+  mindmap?: boolean;
 }
 
 const DEPTH_FONT_SIZES = [15, 14, 13];
@@ -415,6 +416,7 @@ export default function TreeViewV2({
   planProgress,
   compact,
   horizontal,
+  mindmap,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
   const [showMinimap, setShowMinimap] = useState(() => loadGlobal("showMinimap", true));
@@ -428,7 +430,7 @@ export default function TreeViewV2({
   }, [task, hideCompleted, revealedParentIds]);
 
   const orientation: Orientation = horizontal ? "horizontal" : "vertical";
-  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact, orientation), [filteredTree, collapsedIds, compact, orientation]);
+  const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact, orientation, mindmap), [filteredTree, collapsedIds, compact, orientation, mindmap]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
 
   const nodeById = useMemo(() => {

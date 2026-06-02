@@ -29,6 +29,7 @@ let PARENT_TO_CHILDREN_GAP = 16;
 
 // Orientation flag — set by layoutTree
 let HORIZONTAL = false;
+let MINDMAP = false;
 
 function applySpacing(compact: boolean) {
   NODE_PADDING_X = compact ? 12 : 24;
@@ -288,11 +289,147 @@ function layoutSubtreeHorizontal(
   return { width: maxRight, height: maxBottom, nodes: allNodes };
 }
 
+// Mindmap root layout: split children into two halves, one above/left and one below/right
+function layoutMindmapRoot(task: Task, collapsedIds?: Set<number>): SubtreeInfo {
+  const dc = countDescendants(task);
+  const cc = countCompletedDescendants(task);
+  const baseW = nodeWidth(task.title);
+  const w = dc > 0 ? Math.max(baseW, baseW + collapsedBadgeWidth(cc, dc) - NODE_PADDING_X) : baseW;
+  const isCollapsed = collapsedIds?.has(task.id);
+  const visibleChildren = (!isCollapsed && task.children.length > 0) ? task.children : [];
+
+  const rootNode = makeNode(task, 0, null, 0, 0, w, NODE_HEIGHT, false);
+
+  if (visibleChildren.length === 0) {
+    return { width: w, height: NODE_HEIGHT, nodes: [rootNode] };
+  }
+
+  // Split children: first half goes "up/left", second half goes "down/right"
+  const mid = Math.ceil(visibleChildren.length / 2);
+  const topChildren = visibleChildren.slice(0, mid);
+  const bottomChildren = visibleChildren.slice(mid);
+
+  if (HORIZONTAL) {
+    return layoutMindmapHorizontal(task, rootNode, w, topChildren, bottomChildren, collapsedIds);
+  }
+  return layoutMindmapVertical(task, rootNode, w, topChildren, bottomChildren, collapsedIds);
+}
+
+function layoutMindmapVertical(
+  task: Task, rootNode: LayoutNode, w: number,
+  topChildren: Task[], bottomChildren: Task[],
+  collapsedIds?: Set<number>,
+): SubtreeInfo {
+  const allNodes: LayoutNode[] = [rootNode];
+
+  // Layout bottom half (normal vertical layout, below root)
+  const bottomResults = bottomChildren.map(child => layoutSubtree(child, task.id, 1, collapsedIds));
+  if (bottomResults.length > 0) {
+    const totalW = bottomResults.reduce((sum, r) => sum + r.width, 0) + (bottomResults.length - 1) * H_GAP;
+    let offsetX = -totalW / 2;
+    const childrenY = NODE_HEIGHT + V_GAP;
+    for (const col of bottomResults) {
+      const cx = offsetX + col.width / 2;
+      for (const node of col.nodes) {
+        allNodes.push({ ...node, x: node.x + cx, y: node.y + childrenY });
+      }
+      offsetX += col.width + H_GAP;
+    }
+  }
+
+  // Layout top half (inverted: grows upward from root)
+  const topResults = topChildren.map(child => layoutSubtree(child, task.id, 1, collapsedIds));
+  if (topResults.length > 0) {
+    const totalW = topResults.reduce((sum, r) => sum + r.width, 0) + (topResults.length - 1) * H_GAP;
+    let offsetX = -totalW / 2;
+    for (const col of topResults) {
+      const cx = offsetX + col.width / 2;
+      // Mirror vertically: flip y coordinates so subtree grows upward
+      const colMaxY = col.height;
+      for (const node of col.nodes) {
+        allNodes.push({
+          ...node,
+          x: node.x + cx,
+          y: -(node.y + node.height) - V_GAP + (colMaxY - col.height),
+        });
+      }
+      offsetX += col.width + H_GAP;
+    }
+  }
+
+  // Compute bounds
+  let minY = 0, maxY = NODE_HEIGHT;
+  for (const n of allNodes) {
+    if (n.y < minY) minY = n.y;
+    if (n.y + n.height > maxY) maxY = n.y + n.height;
+  }
+
+  return { width: w, height: maxY - minY, nodes: allNodes };
+}
+
+function layoutMindmapHorizontal(
+  task: Task, rootNode: LayoutNode, w: number,
+  leftChildren: Task[], rightChildren: Task[],
+  collapsedIds?: Set<number>,
+): SubtreeInfo {
+  const allNodes: LayoutNode[] = [rootNode];
+
+  // Right half (normal horizontal layout)
+  const rightResults = rightChildren.map(child => layoutSubtree(child, task.id, 1, collapsedIds));
+  if (rightResults.length > 0) {
+    const totalH = rightResults.reduce((sum, r) => sum + r.height, 0) + (rightResults.length - 1) * H_GAP;
+    let offsetY = NODE_HEIGHT / 2 - totalH / 2;
+    const childrenX = w / 2 + V_GAP;
+    for (const row of rightResults) {
+      for (const node of row.nodes) {
+        allNodes.push({ ...node, x: node.x + childrenX, y: node.y + offsetY });
+      }
+      offsetY += row.height + H_GAP;
+    }
+  }
+
+  // Left half (mirrored: grows leftward from root)
+  const leftResults = leftChildren.map(child => layoutSubtree(child, task.id, 1, collapsedIds));
+  if (leftResults.length > 0) {
+    const totalH = leftResults.reduce((sum, r) => sum + r.height, 0) + (leftResults.length - 1) * H_GAP;
+    let offsetY = NODE_HEIGHT / 2 - totalH / 2;
+    for (const row of leftResults) {
+      // Mirror horizontally: flip x so subtree grows leftward
+      for (const node of row.nodes) {
+        allNodes.push({
+          ...node,
+          x: -(node.x + node.width / 2) - V_GAP + w / 2,
+          y: node.y + offsetY,
+        });
+      }
+      offsetY += row.height + H_GAP;
+    }
+  }
+
+  // Normalize
+  let minX = 0, maxX = w, minY = 0, maxY = NODE_HEIGHT;
+  for (const n of allNodes) {
+    const left = n.x - n.width / 2;
+    const right = n.x + n.width / 2;
+    if (left < minX) minX = left;
+    if (right > maxX) maxX = right;
+    if (n.y < minY) minY = n.y;
+    if (n.y + n.height > maxY) maxY = n.y + n.height;
+  }
+
+  return { width: maxX - minX, height: maxY - minY, nodes: allNodes };
+}
+
 export type Orientation = "vertical" | "horizontal";
 
-export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean, orientation?: Orientation): LayoutNode[] {
+export function layoutTree(root: Task, collapsedIds?: Set<number>, compact?: boolean, orientation?: Orientation, mindmap?: boolean): LayoutNode[] {
   applySpacing(!!compact);
   HORIZONTAL = orientation === "horizontal";
+  MINDMAP = !!mindmap;
+  if (MINDMAP) {
+    const { nodes } = layoutMindmapRoot(root, collapsedIds);
+    return nodes;
+  }
   const { nodes } = layoutSubtree(root, null, 0, collapsedIds);
   return nodes;
 }
