@@ -4,6 +4,7 @@ import { saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeViewV2 from "./TreeViewV2";
+import { computePlanProgress } from "./planProgress";
 
 export default function App() {
   const [tree, setTree] = useState<Task | null>(null);
@@ -118,14 +119,7 @@ export default function App() {
 
   const planProgress = useMemo(() => {
     if (!tree || !activePlan) return null;
-    const total = activePlan.taskIds.length;
-    let completed = 0;
-    const check = (node: Task) => {
-      if (activePlan.taskIds.includes(node.id) && (node.completed || node.abandoned)) completed++;
-      node.children.forEach(check);
-    };
-    check(tree);
-    return { completed, total };
+    return computePlanProgress(tree, activePlan);
   }, [tree, activePlan]);
 
   // Auto-archive/unarchive plans based on progress
