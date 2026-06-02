@@ -1013,6 +1013,7 @@ export default function TreeViewV2({
                   isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
                   isInEditPlan={editingPlanTaskIds != null && editingPlanTaskIds.has(node.id)}
                   isCompact={compact}
+                  isHighlighted={node.parentId === null}
                 />
               </g>
             );
