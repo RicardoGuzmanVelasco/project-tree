@@ -437,7 +437,14 @@
               "id": 120,
               "title": "Toast visual en el frontend al detectar cambio externo",
               "completed": false,
-              "children": []
+              "children": [
+                {
+                  "id": 122,
+                  "title": "estilo de toast unificado con el resto de estilos",
+                  "completed": false,
+                  "children": []
+                }
+              ]
             }
           ]
         },
