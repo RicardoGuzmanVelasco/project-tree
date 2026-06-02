@@ -2,13 +2,12 @@
 
 Visual, persistent, interactive task tree for any project.
 
-## Setup
+## Setup (cloned repo)
 
 ```bash
 git clone https://github.com/RicardoGuzmanVelasco/project-tree.git
 cd project-tree
-yarn install && yarn build
-npm link
+./setup.sh
 ```
 
 ## Usage
