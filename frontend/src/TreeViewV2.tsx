@@ -403,25 +403,6 @@ function findParentTask(root: Task, targetId: number): Task | null {
   return null;
 }
 
-function getPathToTask(root: Task, targetId: number): Task[] {
-  if (root.id === targetId) return [root];
-  for (const child of root.children) {
-    const path = getPathToTask(child, targetId);
-    if (path.length > 0) return [root, ...path];
-  }
-  return [];
-}
-
-function collectDescendantIds(task: Task): Set<number> {
-  const ids = new Set<number>();
-  const stack = [task];
-  while (stack.length > 0) {
-    const t = stack.pop()!;
-    ids.add(t.id);
-    for (const c of t.children) stack.push(c);
-  }
-  return ids;
-}
 
 export default function TreeViewV2({
   task,
@@ -438,7 +419,6 @@ export default function TreeViewV2({
   horizontal,
 }: TreeViewV2Props) {
   const { collapsedIds, hideCompleted, revealedParentIds } = navigation;
-  const [focusedTaskId, setFocusedTaskId] = useState<number | null>(null);
   const [showMinimap, setShowMinimap] = useState(() => loadGlobal("showMinimap", true));
   useEffect(() => { saveGlobal("showMinimap", showMinimap); }, [showMinimap]);
 
@@ -452,17 +432,6 @@ export default function TreeViewV2({
   const orientation: Orientation = horizontal ? "horizontal" : "vertical";
   const nodes = useMemo(() => layoutTree(filteredTree, collapsedIds, compact, orientation), [filteredTree, collapsedIds, compact, orientation]);
   const relocatingSubtree = relocatingTaskId ? findTask(task, relocatingTaskId) : null;
-
-  const focusedSubtree = focusedTaskId ? findTask(task, focusedTaskId) : null;
-  const focusedIds = useMemo(() => {
-    if (!focusedSubtree) return null;
-    return collectDescendantIds(focusedSubtree);
-  }, [focusedSubtree]);
-
-  const breadcrumbPath = useMemo(() => {
-    if (!focusedTaskId) return [];
-    return getPathToTask(task, focusedTaskId);
-  }, [task, focusedTaskId]);
 
   const nodeById = useMemo(() => {
     const map = new Map<number, LayoutNode>();
@@ -738,9 +707,7 @@ export default function TreeViewV2({
       }
 
       if (e.key === "Escape") {
-        if (focusedTaskId !== null) {
-          setFocusedTaskId(null);
-        } else if (selectedTaskId !== null) {
+        if (selectedTaskId !== null) {
           onSelectTask(selectedTaskId); // deselect handled by parent
         }
         return;
@@ -803,7 +770,7 @@ export default function TreeViewV2({
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [fitToView, focusedTaskId, selectedTaskId, task, onSelectTask, onToggleCompleted]);
+  }, [fitToView, selectedTaskId, task, onSelectTask, onToggleCompleted]);
 
   // Compute tree bounding box for minimap
   const treeBounds = useMemo(() => {
@@ -919,27 +886,6 @@ export default function TreeViewV2({
 
   return (
     <>
-    {breadcrumbPath.length > 0 && (
-      <div style={{ padding: "6px 40px", display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#64748b", borderBottom: "1px solid #e2e8f0" }}>
-        {breadcrumbPath.map((t, i) => (
-          <span key={t.id}>
-            {i > 0 && <span style={{ margin: "0 4px" }}>&gt;</span>}
-            <span
-              style={{ cursor: "pointer", color: i === breadcrumbPath.length - 1 ? "#1e293b" : "#64748b", fontWeight: i === breadcrumbPath.length - 1 ? 600 : 400 }}
-              onClick={() => setFocusedTaskId(t.id === task.id ? null : t.id)}
-            >
-              {t.title}
-            </span>
-          </span>
-        ))}
-        <span
-          style={{ marginLeft: 8, cursor: "pointer", color: "#94a3b8", fontSize: 12 }}
-          onClick={() => setFocusedTaskId(null)}
-        >
-          (clear)
-        </span>
-      </div>
-    )}
     <div
       ref={containerRef}
       style={{
@@ -964,20 +910,15 @@ export default function TreeViewV2({
           transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}
           style={{ transition: animateTransform ? "transform 300ms ease-out" : "none" }}
         >
-          {connectors.map((c) => {
-            const [parentIdStr, childIdStr] = c.key.split("-");
-            const dimmed = focusedIds !== null && (!focusedIds.has(Number(parentIdStr)) || !focusedIds.has(Number(childIdStr)));
-            return (
-              <path
-                key={c.key}
-                d={c.d}
-                fill="none"
-                stroke="#cbd5e1"
-                strokeWidth={1.5}
-                opacity={dimmed ? 0.15 : 1}
-              />
-            );
-          })}
+          {connectors.map((c) => (
+            <path
+              key={c.key}
+              d={c.d}
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth={1.5}
+            />
+          ))}
           {nodes.map((node) => {
             let relocateStatus: RelocateStatus = "none";
             if (relocatingTaskId) {
@@ -1007,8 +948,8 @@ export default function TreeViewV2({
                   onToggleCollapse={() => navigation.toggleCollapse(node.task)}
                   hiddenCompletedCount={hiddenCompletedCounts.get(node.id) ?? 0}
                   onToggleRevealCompleted={() => navigation.toggleRevealCompleted(node.id)}
-                  isFocusDimmed={focusedIds !== null && !focusedIds.has(node.id)}
-                  onDoubleClick={() => setFocusedTaskId(node.id)}
+                  isFocusDimmed={false}
+                  onDoubleClick={() => {}}
                   showIds={showIds}
                   isAncestorContext={planTaskIds != null && !planTaskIds.has(node.id)}
                   isInEditPlan={editingPlanTaskIds != null && editingPlanTaskIds.has(node.id)}
