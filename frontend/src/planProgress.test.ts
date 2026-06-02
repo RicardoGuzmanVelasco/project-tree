@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computePlanProgress } from "./planProgress";
+import { computePlanProgress, isPlanComplete } from "./planProgress";
 import { Task, Plan } from "./types";
 
 function task(id: number, overrides: Partial<Task> = {}): Task {
@@ -42,5 +42,27 @@ describe("computePlanProgress", () => {
     const progress = computePlanProgress(tree, plan);
 
     expect(progress).toEqual({ completed: 0, total: 0 });
+  });
+});
+
+describe("isPlanComplete", () => {
+  it("returns true when all tasks are completed", () => {
+    const plan: Plan = { id: 1, name: "test", taskIds: [1, 2] };
+    expect(isPlanComplete({ completed: 2, total: 2 }, plan)).toBe(true);
+  });
+
+  it("returns false when some tasks are pending", () => {
+    const plan: Plan = { id: 1, name: "test", taskIds: [1, 2] };
+    expect(isPlanComplete({ completed: 1, total: 2 }, plan)).toBe(false);
+  });
+
+  it("returns true when all plan tasks are ghosts", () => {
+    const plan: Plan = { id: 1, name: "ghost plan", taskIds: [10, 20, 30] };
+    expect(isPlanComplete({ completed: 0, total: 0 }, plan)).toBe(true);
+  });
+
+  it("returns false for an empty plan with no task IDs", () => {
+    const plan: Plan = { id: 1, name: "empty", taskIds: [] };
+    expect(isPlanComplete({ completed: 0, total: 0 }, plan)).toBe(false);
   });
 });

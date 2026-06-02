@@ -4,7 +4,7 @@ import { saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
 import TreeViewV2 from "./TreeViewV2";
-import { computePlanProgress } from "./planProgress";
+import { computePlanProgress, isPlanComplete } from "./planProgress";
 
 export default function App() {
   const [tree, setTree] = useState<Task | null>(null);
@@ -145,7 +145,7 @@ export default function App() {
   // Auto-archive/unarchive plans based on progress
   useEffect(() => {
     if (!activePlan || !planProgress) return;
-    const isComplete = planProgress.total > 0 && planProgress.completed === planProgress.total;
+    const isComplete = isPlanComplete(planProgress, activePlan);
     if (isComplete && !activePlan.archived) {
       updatePlan(activePlan.id, activePlan.taskIds, true).then(updated => {
         setPlans(prev => prev.map(p => p.id === updated.id ? updated : p));
