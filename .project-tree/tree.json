@@ -240,6 +240,151 @@
           "children": []
         }
       ]
+    },
+    {
+      "id": 89,
+      "title": "UI polish",
+      "completed": true,
+      "children": [
+        {
+          "id": 90,
+          "title": "Design tokens (CSS custom properties)",
+          "completed": true,
+          "children": [
+            {
+              "id": 91,
+              "title": "Define color, spacing, shadow, and radius tokens in index.html",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 92,
+              "title": "Migrate inline styles to use tokens where impactful",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 93,
+          "title": "Consistent button system",
+          "completed": true,
+          "children": [
+            {
+              "id": 94,
+              "title": "Create base button styles with hover, active, and focus states",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 95,
+              "title": "Define button variants: default, primary, danger, toggle-on",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 96,
+              "title": "Apply button system to toolbar and action bar",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 97,
+          "title": "Toolbar redesign",
+          "completed": true,
+          "children": [
+            {
+              "id": 98,
+              "title": "Replace checkboxes with pill toggles",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 99,
+              "title": "Visual separator between plan controls and view toggles",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 100,
+              "title": "Keyboard shortcut hints as subtle badges on toggles",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 101,
+          "title": "Action bar polish",
+          "completed": true,
+          "children": [
+            {
+              "id": 102,
+              "title": "Style input field with proper focus ring and radius",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 103,
+              "title": "Group action buttons logically: create | edit | danger zone",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 104,
+          "title": "Overlay modals polish",
+          "completed": true,
+          "children": [
+            {
+              "id": 105,
+              "title": "Polish command palette: search icon, better shadow, rounded corners",
+              "completed": true,
+              "children": []
+            },
+            {
+              "id": 106,
+              "title": "Polish description modal: close button, header divider",
+              "completed": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 107,
+          "title": "Future UI proposals",
+          "completed": false,
+          "children": [
+            {
+              "id": 108,
+              "title": "Empty state when no task selected",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 109,
+              "title": "Dark mode",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 110,
+              "title": "Minimap visual refinement (shadow, label, better viewport indicator)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 111,
+              "title": "Relocate banner styled as notification toast",
+              "completed": false,
+              "children": []
+            }
+          ]
+        }
+      ]
     }
   ],
   "completed": false
