@@ -19,6 +19,35 @@ function hasFlag(name) {
   return args.includes(name);
 }
 
+// --- Help ---
+
+const HELP = `
+  project-tree — visual task tree for any project
+
+  Usage:
+    project-tree                Open the web viewer (default)
+    project-tree init           Create .project-tree/ in the current directory
+    project-tree show [id]      Print a subtree to the terminal
+
+  Options:
+    --port <n>     Use a different port (default: 3001)
+    --no-open      Don't open the browser
+    --dir <path>   Use a different data directory
+    --ids          Show task IDs (with show command)
+
+  Examples:
+    project-tree                    # open viewer for current project
+    project-tree init               # initialize a new project tree
+    project-tree show               # print full tree
+    project-tree show 42 --ids      # print subtree from task #42 with IDs
+    project-tree --port 3005        # serve on a custom port
+`.trimStart();
+
+if (hasFlag("--help") || hasFlag("-h") || command === "help") {
+  process.stdout.write(HELP);
+  process.exit(0);
+}
+
 // --- Init command ---
 
 if (command === "init") {
