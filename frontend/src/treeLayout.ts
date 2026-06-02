@@ -344,13 +344,12 @@ function layoutMindmapVertical(
     let offsetX = -totalW / 2;
     for (const col of topResults) {
       const cx = offsetX + col.width / 2;
-      // Mirror vertically: flip y coordinates so subtree grows upward
-      const colMaxY = col.height;
+      // Mirror vertically: flip y so subtree grows upward from root top edge
       for (const node of col.nodes) {
         allNodes.push({
           ...node,
           x: node.x + cx,
-          y: -(node.y + node.height) - V_GAP + (colMaxY - col.height),
+          y: -(node.y + node.height) - V_GAP,
         });
       }
       offsetX += col.width + H_GAP;
@@ -394,11 +393,17 @@ function layoutMindmapHorizontal(
     const totalH = leftResults.reduce((sum, r) => sum + r.height, 0) + (leftResults.length - 1) * H_GAP;
     let offsetY = NODE_HEIGHT / 2 - totalH / 2;
     for (const row of leftResults) {
-      // Mirror horizontally: flip x so subtree grows leftward
+      // Find the rightmost edge of the subtree to know total width
+      let maxRight = 0;
+      for (const node of row.nodes) {
+        const right = node.x + node.width / 2;
+        if (right > maxRight) maxRight = right;
+      }
+      // Mirror horizontally: flip x so subtree grows leftward from root
       for (const node of row.nodes) {
         allNodes.push({
           ...node,
-          x: -(node.x + node.width / 2) - V_GAP + w / 2,
+          x: -(maxRight - node.x) - V_GAP - w / 2,
           y: node.y + offsetY,
         });
       }
