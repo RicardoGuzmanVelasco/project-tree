@@ -25,6 +25,7 @@ export default function App() {
   const [editingPlan, setEditingPlan] = useState(false);
   const [compact, setCompact] = useState(() => loadGlobal("compact", false));
   const [horizontal, setHorizontal] = useState(() => loadGlobal("horizontal", false));
+  const [mindmap, setMindmap] = useState(() => loadGlobal("mindmap", false));
   const navigation = useNavigationState();
 
   // Persist preferences
@@ -32,6 +33,7 @@ export default function App() {
   useEffect(() => { saveGlobal("showIds", showIds); }, [showIds]);
   useEffect(() => { saveGlobal("compact", compact); }, [compact]);
   useEffect(() => { saveGlobal("horizontal", horizontal); }, [horizontal]);
+  useEffect(() => { saveGlobal("mindmap", mindmap); }, [mindmap]);
   useEffect(() => { saveGlobal("activePlanId", activePlanId); }, [activePlanId]);
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
@@ -394,6 +396,10 @@ export default function App() {
             <input type="checkbox" checked={horizontal} onChange={() => setHorizontal(h => !h)} style={{ cursor: "pointer" }} />
             Horizontal (H)
           </label>
+          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
+            <input type="checkbox" checked={mindmap} onChange={() => setMindmap(m => !m)} style={{ cursor: "pointer" }} />
+            Mindmap
+          </label>
           {maxDepth > 1 && (() => {
             const effectiveDepth = navigation.depthLevel ?? maxDepth;
             return (
@@ -551,6 +557,7 @@ export default function App() {
           planProgress={planProgress}
           compact={compact}
           horizontal={horizontal}
+          mindmap={mindmap}
         />
         {showCommandPalette && (
           <div
