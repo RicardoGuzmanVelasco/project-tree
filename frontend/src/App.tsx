@@ -337,13 +337,14 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <div style={{ padding: "8px 40px", display: "flex", gap: 8, alignItems: "center", borderBottom: "1px solid #e2e8f0" }}>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#f8fafc" }}>
-          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, letterSpacing: "0.02em" }}>Plan</span>
+      <div className="toolbar">
+        <div className="toolbar-group" style={{ padding: "2px 8px", border: "1px solid var(--c-border)", borderRadius: "var(--r-md)", background: "var(--c-bg-subtle)" }}>
+          <span style={{ fontSize: 11, color: "var(--c-text-faint)", fontWeight: 500, letterSpacing: "0.02em" }}>Plan</span>
           <select
             value={activePlanId ?? ""}
             onChange={(e) => { setActivePlanId(e.target.value ? Number(e.target.value) : null); setEditingPlan(false); }}
-            style={{ padding: "4px 8px", fontSize: 13, border: "1px solid #cbd5e1", borderRadius: 4, background: activePlanId ? "#dbeafe" : "#fff", cursor: "pointer" }}
+            className="input"
+            style={{ padding: "3px 8px", fontSize: 12, background: activePlanId ? "var(--c-primary-bg)" : "var(--c-bg)" }}
           >
             <option value="">All tasks</option>
             {plans.filter(p => !p.archived).map(p => (
@@ -357,67 +358,53 @@ export default function App() {
               </optgroup>
             )}
           </select>
-          <button
-            onClick={handleNewPlan}
-            style={{ padding: "4px 8px", fontSize: 12, background: "#fff", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer" }}
-          >
-            +
-          </button>
+          <button onClick={handleNewPlan} className="btn btn-sm btn-icon" style={{ width: 24, height: 24 }}>+</button>
           {activePlanId && (
             <button
               onClick={() => setEditingPlan(e => !e)}
-              style={{
-                padding: "4px 8px",
-                fontSize: 12,
-                background: editingPlan ? "#fbbf24" : "#fff",
-                border: `1px solid ${editingPlan ? "#f59e0b" : "#cbd5e1"}`,
-                borderRadius: 4,
-                cursor: "pointer",
-                fontWeight: editingPlan ? 600 : 400,
-              }}
+              className={`btn btn-sm ${editingPlan ? "btn-warning" : ""}`}
             >
               {editingPlan ? "Done" : "Edit"}
             </button>
           )}
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 16, alignItems: "center" }}>
-          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={navigation.hideCompleted} onChange={(e) => navigation.setHideCompleted(e.target.checked)} style={{ cursor: "pointer" }} />
+
+        <div className="toolbar-separator" />
+
+        <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
+          <button className={`pill ${navigation.hideCompleted ? "pill-on" : ""}`} onClick={() => navigation.setHideCompleted(!navigation.hideCompleted)}>
             Hide completed
-          </label>
-          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={showIds} onChange={(e) => setShowIds(e.target.checked)} style={{ cursor: "pointer" }} />
-            Show IDs (I)
-          </label>
-          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={compact} onChange={() => setCompact(c => !c)} style={{ cursor: "pointer" }} />
-            Compact (C)
-          </label>
-          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={horizontal} onChange={() => setHorizontal(h => !h)} style={{ cursor: "pointer" }} />
-            Horizontal (H)
-          </label>
-          <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 13, color: "#475569", cursor: "pointer", userSelect: "none" }}>
-            <input type="checkbox" checked={mindmap} onChange={() => setMindmap(m => !m)} style={{ cursor: "pointer" }} />
+          </button>
+          <button className={`pill ${showIds ? "pill-on" : ""}`} onClick={() => setShowIds(s => !s)}>
+            IDs <span className="pill-key">I</span>
+          </button>
+          <button className={`pill ${compact ? "pill-on" : ""}`} onClick={() => setCompact(c => !c)}>
+            Compact <span className="pill-key">C</span>
+          </button>
+          <button className={`pill ${horizontal ? "pill-on" : ""}`} onClick={() => setHorizontal(h => !h)}>
+            Horizontal <span className="pill-key">H</span>
+          </button>
+          <button className={`pill ${mindmap ? "pill-on" : ""}`} onClick={() => setMindmap(m => !m)}>
             Mindmap
-          </label>
+          </button>
+
           {maxDepth > 1 && (() => {
             const effectiveDepth = navigation.depthLevel ?? maxDepth;
             return (
-              <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 13, color: "#475569" }}>
-                <span>Collapse from lvl</span>
+              <div className="toolbar-group" style={{ fontSize: 12, color: "var(--c-text-muted)" }}>
+                <span>Depth</span>
                 <button
                   onClick={() => navigation.collapseToDepth(tree, Math.max(1, effectiveDepth - 1))}
                   disabled={effectiveDepth <= 1}
-                  style={{ width: 24, height: 24, fontSize: 14, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                  className="btn btn-icon btn-sm"
                 >
                   {"\u2212"}
                 </button>
-                <span style={{ minWidth: 20, textAlign: "center", fontWeight: 600 }}>{effectiveDepth}</span>
+                <span style={{ minWidth: 18, textAlign: "center", fontWeight: 600 }}>{effectiveDepth}</span>
                 <button
                   onClick={() => navigation.collapseToDepth(tree, Math.min(maxDepth, effectiveDepth + 1))}
                   disabled={effectiveDepth >= maxDepth}
-                  style={{ width: 24, height: 24, fontSize: 14, border: "1px solid #cbd5e1", borderRadius: 4, background: "#f8fafc", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                  className="btn btn-icon btn-sm"
                 >
                   +
                 </button>
@@ -427,77 +414,70 @@ export default function App() {
         </div>
       </div>
       {relocatingTaskId && (
-        <div style={{ padding: "12px 40px", display: "flex", gap: 8, alignItems: "center", background: "#fef3c7", borderBottom: "1px solid #f59e0b" }}>
-          <span style={{ fontSize: 14 }}>Click a task to set as new parent</span>
-          <button onClick={cancelRelocate} style={{ padding: "6px 14px", fontSize: 14 }}>Cancel</button>
+        <div className="relocate-banner">
+          <span>Click a task to set as new parent</span>
+          <button onClick={cancelRelocate} className="btn btn-sm">Cancel</button>
         </div>
       )}
       {selectedTaskId && !relocatingTaskId && (
-        <div style={{ padding: "12px 40px", display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="action-bar">
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (renamingTaskId ? handleRename() : handleCreate())}
             placeholder={renamingTaskId ? "New task title" : "New child task title"}
-            style={{ padding: "6px 10px", fontSize: 14 }}
+            className="input"
+            style={{ minWidth: 200 }}
           />
           {renamingTaskId ? (
-            <>
-              <button onClick={handleRename} style={{ padding: "6px 14px", fontSize: 14 }}>Rename</button>
-              <button onClick={cancelRename} style={{ padding: "6px 14px", fontSize: 14 }}>Cancel</button>
-            </>
+            <div className="action-group">
+              <button onClick={handleRename} className="btn btn-primary">Rename</button>
+              <button onClick={cancelRename} className="btn">Cancel</button>
+            </div>
           ) : (
             <>
-              <button onClick={handleCreate} style={{ padding: "6px 14px", fontSize: 14 }}>Create</button>
-              <button
-                onClick={() => setShowDescription(d => !d)}
-                style={{
-                  padding: "6px 14px",
-                  fontSize: 14,
-                  ...(showDescription ? { background: "#2563eb", color: "white", borderColor: "#2563eb" } : {}),
-                }}
-              >
-                Description
-              </button>
+              <div className="action-group">
+                <button onClick={handleCreate} className="btn btn-primary">Create</button>
+                <button
+                  onClick={() => setShowDescription(d => !d)}
+                  className={`btn ${showDescription ? "btn-toggle-on" : ""}`}
+                >
+                  Description
+                </button>
+              </div>
               {!isRoot && (
                 <>
-                  <button onClick={startRename} style={{ padding: "6px 14px", fontSize: 14 }}>Rename</button>
-                  <button onClick={() => setRelocatingTaskId(selectedTaskId)} style={{ padding: "6px 14px", fontSize: 14 }}>Relocate</button>
-                  <button
-                    onClick={() => {
+                  <div className="action-divider" style={{ width: 1, height: 20, background: "var(--c-border)" }} />
+                  <div className="action-group">
+                    <button onClick={startRename} className="btn">Rename</button>
+                    <button onClick={() => setRelocatingTaskId(selectedTaskId)} className="btn">Relocate</button>
+                  </div>
+                  <div className="action-divider" style={{ width: 1, height: 20, background: "var(--c-border)" }} />
+                  <div className="action-group">
+                    <button
+                      onClick={() => {
+                        const task = findTaskInTree(tree, selectedTaskId!);
+                        if (task) handleToggleAbandoned(selectedTaskId!, !task.abandoned);
+                      }}
+                      className={`btn ${findTaskInTree(tree, selectedTaskId!)?.abandoned ? "btn-purple" : ""}`}
+                    >
+                      {findTaskInTree(tree, selectedTaskId!)?.abandoned ? "Restore" : "Abandon"}
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className={`btn ${deletingTaskId === selectedTaskId ? "btn-danger" : ""}`}
+                    >
+                      {deletingTaskId === selectedTaskId
+                        ? `Click ${deleteClicksRemaining} more${deleteClicksRemaining !== 1 ? "" : ""} to confirm`
+                        : "Delete"}
+                    </button>
+                    {(() => {
                       const task = findTaskInTree(tree, selectedTaskId!);
-                      if (task) handleToggleAbandoned(selectedTaskId!, !task.abandoned);
-                    }}
-                    style={{
-                      padding: "6px 14px",
-                      fontSize: 14,
-                      ...(findTaskInTree(tree, selectedTaskId!)?.abandoned
-                        ? { background: "#9333ea", color: "white", borderColor: "#9333ea" }
-                        : {}),
-                    }}
-                  >
-                    {findTaskInTree(tree, selectedTaskId!)?.abandoned ? "Restore" : "Abandon"}
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    style={{
-                      padding: "6px 14px",
-                      fontSize: 14,
-                      ...(deletingTaskId === selectedTaskId
-                        ? { background: "#dc2626", color: "white", borderColor: "#dc2626" }
-                        : {}),
-                    }}
-                  >
-                    {deletingTaskId === selectedTaskId
-                      ? `Click ${deleteClicksRemaining} more time${deleteClicksRemaining !== 1 ? "s" : ""} to confirm (deletes ${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1} task${countDescendants(findTaskInTree(tree, selectedTaskId!)!) + 1 !== 1 ? "s" : ""})`
-                      : "Delete"}
-                  </button>
-                  {(() => {
-                    const task = findTaskInTree(tree, selectedTaskId!);
-                    return task && hasPrunableChildren(task) ? (
-                      <button onClick={handlePrune} style={{ padding: "6px 14px", fontSize: 14 }}>Prune</button>
-                    ) : null;
-                  })()}
+                      return task && hasPrunableChildren(task) ? (
+                        <button onClick={handlePrune} className="btn">Prune</button>
+                      ) : null;
+                    })()}
+                  </div>
                 </>
               )}
             </>
@@ -512,13 +492,18 @@ export default function App() {
           return (
             <div
               onClick={() => setShowDescription(false)}
-              style={{ position: "absolute", inset: 0, zIndex: 10, background: "rgba(0, 0, 0, 0.15)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 60 }}
+              className="overlay-backdrop"
+              style={{ alignItems: "flex-start", paddingTop: 60, zIndex: 10 }}
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", padding: "24px 28px", width: "min(520px, 90%)", maxHeight: "70vh", display: "flex", flexDirection: "column", gap: 12 }}
+                className="overlay-card"
+                style={{ padding: "24px 28px", width: "min(520px, 90%)", maxHeight: "70vh", display: "flex", flexDirection: "column", gap: 12 }}
               >
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#1e293b" }}>{task.title}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text)" }}>{task.title}</div>
+                  <button onClick={() => setShowDescription(false)} className="btn btn-icon btn-sm" style={{ flexShrink: 0 }}>&times;</button>
+                </div>
                 <textarea
                   key={selectedTaskId}
                   defaultValue={task.description || ""}
@@ -539,7 +524,8 @@ export default function App() {
                       setTree(updated);
                     }
                   }}
-                  style={{ width: "100%", minHeight: 120, fontSize: 14, color: "#475569", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 12px", outline: "none", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5 }}
+                  className="input"
+                  style={{ width: "100%", minHeight: 120, fontSize: 14, padding: "10px 12px", resize: "vertical", lineHeight: 1.5, borderRadius: "var(--r-lg)" }}
                 />
               </div>
             </div>
@@ -563,13 +549,15 @@ export default function App() {
         {showCommandPalette && (
           <div
             onClick={() => setShowCommandPalette(false)}
-            style={{ position: "absolute", inset: 0, zIndex: 20, background: "rgba(0, 0, 0, 0.15)", display: "flex", justifyContent: "center", paddingTop: 40 }}
+            className="overlay-backdrop"
+            style={{ paddingTop: 80 }}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              style={{ background: "#fff", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.16)", padding: "12px 16px", width: "min(400px, 90%)", height: "fit-content" }}
+              className="overlay-card"
+              style={{ padding: "16px 20px", width: "min(400px, 90%)", height: "fit-content" }}
             >
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>Go to task</div>
+              <div style={{ fontSize: 11, color: "var(--c-text-faint)", marginBottom: 8, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Go to task</div>
               <input
                 autoFocus
                 value={commandInput}
@@ -579,10 +567,11 @@ export default function App() {
                   if (e.key === "Escape") setShowCommandPalette(false);
                 }}
                 placeholder="Task ID (e.g. 134)"
-                style={{ width: "100%", padding: "8px 12px", fontSize: 15, border: `1.5px solid ${commandError ? "#ef4444" : "#e2e8f0"}`, borderRadius: 8, outline: "none", fontFamily: "inherit", transition: "border-color 150ms" }}
+                className={`input ${commandError ? "input-error" : ""}`}
+                style={{ width: "100%", padding: "10px 14px", fontSize: 15, borderRadius: "var(--r-lg)" }}
               />
               {commandError && (
-                <div style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>Task not found</div>
+                <div style={{ fontSize: 12, color: "var(--c-danger)", marginTop: 6 }}>Task not found</div>
               )}
             </div>
           </div>
