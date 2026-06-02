@@ -38,10 +38,6 @@ export default function App() {
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
 
-  // Update browser tab title with project name
-  useEffect(() => {
-    if (tree) document.title = tree.title;
-  }, [tree]);
 
   useEffect(() => {
     fetchPlans().then(setPlans).catch(() => {});
@@ -107,6 +103,11 @@ export default function App() {
 
   // Filter tree to only show plan tasks + their ancestors
   const activePlan = plans.find(p => p.id === activePlanId) || null;
+
+  // Update browser tab title with project name and active plan
+  useEffect(() => {
+    if (tree) document.title = activePlan ? `${tree.title} - ${activePlan.name}` : tree.title;
+  }, [tree, activePlan]);
 
   const filterTreeForPlan = useCallback((node: Task, planTaskIds: Set<number>): Task | null => {
     const isInPlan = planTaskIds.has(node.id);
