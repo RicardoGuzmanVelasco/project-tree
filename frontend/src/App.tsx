@@ -36,6 +36,11 @@ export default function App() {
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
 
+  // Update browser tab title with project name
+  useEffect(() => {
+    if (tree) document.title = tree.title;
+  }, [tree]);
+
   useEffect(() => {
     fetchPlans().then(setPlans).catch(() => {});
     loadTree();
