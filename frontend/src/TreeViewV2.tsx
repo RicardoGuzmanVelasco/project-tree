@@ -99,7 +99,7 @@ function SvgNode({
   }
 
   const handleClick = () => {
-    if (isAncestorContext || isInvalid || task.id < 0) return;
+    if (isAncestorContext || isInvalid || (task.id < 0 && !isHighlighted)) return;
     onSelect();
   };
 
@@ -1000,7 +1000,7 @@ export default function TreeViewV2({
                 <SvgNode
                   node={node}
                   isSelected={node.id === selectedTaskId}
-                  onSelect={() => onSelectTask(node.id)}
+                  onSelect={node.parentId === null ? fitToView : () => onSelectTask(node.id)}
                   onToggleCompleted={() => onToggleCompleted(node.id, !node.task.completed)}
                   relocateStatus={relocateStatus}
                   isCollapsed={collapsedIds.has(node.id)}
