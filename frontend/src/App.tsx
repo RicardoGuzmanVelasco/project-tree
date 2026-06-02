@@ -153,7 +153,7 @@ export default function App() {
     if (!filtered) return tree;
     return {
       id: -1,
-      title: activePlan.name,
+      title: `${tree.title} - ${activePlan.name}`,
       completed: false,
       children: filtered.children,
     };
