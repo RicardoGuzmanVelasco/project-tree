@@ -7,6 +7,7 @@ export default defineConfig({
     proxy: {
       "/tasks": "http://localhost:3001",
       "/plans": "http://localhost:3001",
+      "/events": "http://localhost:3001",
     },
   },
 });

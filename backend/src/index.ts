@@ -34,6 +34,10 @@ function ensureCompleted(node: Task): Task {
 }
 
 let tree: Task | null = null;
+let selfWriting = false; // flag to ignore fs.watch events from our own writes
+
+// SSE clients
+const sseClients = new Set<express.Response>();
 
 function getTree(): Task | null {
   if (tree) return tree;
@@ -45,6 +49,7 @@ function getTree(): Task | null {
 function saveTree() {
   if (!tree) return;
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  selfWriting = true;
   fs.writeFileSync(TREE_FILE, JSON.stringify(tree, null, 2) + "\n");
 }
 
@@ -281,6 +286,7 @@ function getPlans(): Plan[] {
 
 function savePlans(plans: Plan[]) {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  selfWriting = true;
   fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2) + "\n");
 }
 
@@ -347,6 +353,51 @@ app.delete("/plans/:planId", (req, res) => {
   savePlans(plans);
   res.json({ deleted: planId });
 });
+
+// --- SSE endpoint ---
+
+app.get("/events", (_req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+  });
+  res.write("data: connected\n\n");
+  sseClients.add(res);
+  _req.on("close", () => sseClients.delete(res));
+});
+
+function broadcastChange() {
+  for (const client of sseClients) {
+    client.write("data: changed\n\n");
+  }
+}
+
+// --- File watcher ---
+
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onFileChange() {
+  if (selfWriting) {
+    selfWriting = false;
+    return;
+  }
+  // External change detected — invalidate cache and notify clients
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    tree = null; // force re-read from disk on next request
+    console.log("External file change detected, cache invalidated");
+    broadcastChange();
+  }, 100);
+}
+
+if (fs.existsSync(DATA_DIR)) {
+  for (const file of [TREE_FILE, PLANS_FILE]) {
+    if (fs.existsSync(file)) {
+      fs.watch(file, onFileChange);
+    }
+  }
+}
 
 // --- Static frontend ---
 
