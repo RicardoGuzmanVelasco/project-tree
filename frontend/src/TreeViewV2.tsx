@@ -457,10 +457,11 @@ export default function TreeViewV2({
         const parent = nodeById.get(node.parentId);
         if (!parent) continue;
         if (isHoriz) {
-          // Horizontal: parent right edge center → child left edge center
-          const x1 = parent.x + parent.width / 2;
+          // Detect direction: child to the right or left of parent
+          const childIsRight = node.x > parent.x;
+          const x1 = childIsRight ? parent.x + parent.width / 2 : parent.x - parent.width / 2;
           const y1 = parent.y + parent.height / 2;
-          const x2 = node.x - node.width / 2;
+          const x2 = childIsRight ? node.x - node.width / 2 : node.x + node.width / 2;
           const y2 = node.y + node.height / 2;
           const midX = (x1 + x2) / 2;
           paths.push({
@@ -469,11 +470,12 @@ export default function TreeViewV2({
             isAtomic: false,
           });
         } else {
-          // Vertical: parent bottom → child top
+          // Detect direction: child below or above parent
+          const childIsBelow = node.y > parent.y;
           const x1 = parent.x;
-          const y1 = parent.y + parent.height;
+          const y1 = childIsBelow ? parent.y + parent.height : parent.y;
           const x2 = node.x;
-          const y2 = node.y;
+          const y2 = childIsBelow ? node.y : node.y + node.height;
           const midY = (y1 + y2) / 2;
           paths.push({
             key: `${parent.id}-${node.id}`,
@@ -515,9 +517,11 @@ export default function TreeViewV2({
 
         const parent = nodeById.get(parentId);
         if (parent) {
+          const childIsRight = children[0].x > parent.x;
+          const stemX = childIsRight ? parent.x + parent.width / 2 : parent.x - parent.width / 2;
           paths.push({
             key: `atomic-stem-${parentId}`,
-            d: `M${parent.x + parent.width / 2},${parent.y + parent.height / 2} L${railX},${firstY}`,
+            d: `M${stemX},${parent.y + parent.height / 2} L${railX},${firstY}`,
             isAtomic: true,
           });
         }
@@ -526,13 +530,13 @@ export default function TreeViewV2({
         const leftEdge = Math.min(...children.map(c => c.x - c.width / 2));
         const railX = leftEdge - TICK_GAP;
 
-        const firstY = children[0].y;
-        const lastChild = children[children.length - 1];
-        const lastY = lastChild.y + lastChild.height / 2;
+        const ys = children.map(c => c.y + c.height / 2);
+        const minChildY = Math.min(...ys);
+        const maxChildY = Math.max(...ys);
 
         paths.push({
           key: `atomic-rail-${parentId}`,
-          d: `M${railX},${firstY} L${railX},${lastY}`,
+          d: `M${railX},${minChildY} L${railX},${maxChildY}`,
           isAtomic: true,
         });
 
@@ -547,9 +551,11 @@ export default function TreeViewV2({
 
         const parent = nodeById.get(parentId);
         if (parent) {
+          const childIsBelow = children[0].y > parent.y;
+          const stemY = childIsBelow ? parent.y + parent.height : parent.y;
           paths.push({
             key: `atomic-stem-${parentId}`,
-            d: `M${parent.x},${parent.y + parent.height} L${railX},${firstY}`,
+            d: `M${parent.x},${stemY} L${railX},${minChildY}`,
             isAtomic: true,
           });
         }
