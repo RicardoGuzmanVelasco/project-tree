@@ -725,7 +725,11 @@ export default function TreeViewV2({
       if (tag === "INPUT" || tag === "TEXTAREA") return;
 
       if (e.key === "f" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        fitToView();
+        if (selectedTaskId) {
+          zoomToNode(selectedTaskId);
+        } else {
+          fitToView();
+        }
         return;
       }
 
@@ -798,7 +802,7 @@ export default function TreeViewV2({
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [fitToView, selectedTaskId, task, onSelectTask, onToggleCompleted]);
+  }, [fitToView, zoomToNode, selectedTaskId, task, onSelectTask, onToggleCompleted]);
 
   // Compute tree bounding box for minimap
   const treeBounds = useMemo(() => {
@@ -935,8 +939,10 @@ export default function TreeViewV2({
         onClickCapture={handleSvgClick}
       >
         <g
-          transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}
-          style={{ transition: animateTransform ? "transform 300ms ease-out" : "none" }}
+          style={{
+            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+            transition: animateTransform ? "transform 300ms ease-out" : "none",
+          }}
         >
           {connectors.map((c) => (
             <path
