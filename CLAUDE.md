@@ -22,57 +22,54 @@ The tool is being used to manage its own development (dogfooding from day one).
 
 ## Current State
 
-### Tree operations
-- **View project** — See the full task tree at a glance
-- **Create task** — Select any task, create a child under it
-- **Complete task** — Toggle a task's completion state
-- **Delete task** — Remove a task and its entire subtree, with progressive confirmation
+### Two interfaces
+
+**Web viewer** (`project-tree serve`) — Interactive SVG tree with pan/zoom, collapse, mindmap layout, keyboard shortcuts, and live sync via SSE.
+
+**CLI** (`project-tree <command>`) — Full-featured command line for all tree and plan operations. Unix-friendly (stdout for data, stderr for errors, pipes work cleanly).
+
+### Tree operations (available in both web and CLI)
+- **View tree** — Web: interactive SVG. CLI: `print` with depth control, `--hide-completed`, `--ids`
+- **Create task** — Web: click + input. CLI: `create <parentId> "title"`
+- **Complete/abandon task** — Toggle completion or abandonment
+- **Delete task** — Remove task and subtree, with confirmation
 - **Relocate task** — Move a task (with subtree) under a different parent
-- **Rename task** — Rename from the top bar
-- **Task descriptions** — Optional rich text per task, editable via overlay card (D key or button)
+- **Rename task** — Change task title
+- **Task descriptions** — Optional text per task. Web: overlay card (D key). CLI: `describe <id>`
+- **Prune** — Archive completed/abandoned subtrees into the parent's description
 
-### Navigation & views
-- Two view modes (toggle with **V** key):
-  - **Classic** — HTML-based tree with inline connectors
-  - **V2** — SVG-based tree with pan/zoom, collapse, focus mode, minimap
-- **Trackpad support** — Two-finger scroll pans, pinch zooms
-- **Keyboard shortcuts** — V (view mode), I (show IDs), D (description), G (go to task), F (fit to view), M (minimap), number keys (collapse to depth)
-- **Command palette** — G key opens go-to-task by ID
-- **Collapsed badge** — Shows X/Y completion fraction when a subtree is collapsed
-
-### Plans
-- **Create plan** — "+ Plan" button, name it, then click tasks to add them
-- **View plan** — Dropdown selector filters the tree to plan tasks only. Non-plan ancestors shown as greyed-out structural context (non-interactive, no checkbox)
-- **Edit plan** — "Edit plan" button shows full tree with plan tasks highlighted in green; click to toggle tasks in/out
-- **Progress** — Floating progress bar above plan root node with X/N and percentage
-- **Auto-add** — New child tasks created in plan view are automatically added to the active plan
-- Plans stored as JSON per project in `backend/data/plans/`
+### Plans (available in both web and CLI)
+- **Create plan** — Name it, then add tasks to it
+- **View plan** — Filters tree to plan tasks only; ancestors shown as structural context
+- **Progress** — Web: floating progress bar. CLI: `plans` shows X/N per plan
+- **Edit plan** — Add/remove tasks. CLI: `plan add/remove <name> <taskId>`
+- **Archive plan** — Hide completed plans
+- Plans stored in `.project-tree/plans.json`
 
 ### Persistence
-- **Backend** — Trees and plans as JSON files
-- **Frontend** — View state persisted in localStorage: current project, selected task, view mode, show IDs, show minimap, hide completed, collapsed IDs, active plan, zoom/pan transform
-
-### Multi-project
-- Backend serves multiple independent trees from `backend/data/trees/`
-- Frontend has a project selector dropdown
-- See `docs/` for detailed use cases
+- **Data** — `.project-tree/tree.json` and `plans.json` (plain JSON, version-controllable)
+- **View state** — localStorage: selected task, show IDs, show minimap, hide completed, collapsed IDs, active plan, zoom/pan transform
+- **Live sync** — File watcher + SSE: changes from CLI reflect instantly in the open web viewer
 
 ## Tech Stack
 
 - **Monorepo**: Yarn 1.22 (classic) workspaces — `backend/` and `frontend/`
-- **Backend**: Express + TypeScript (port 3001)
-- **Frontend**: React + TypeScript + Vite (port 5173)
+- **Backend**: Express + TypeScript
+- **Frontend**: React + TypeScript + Vite
+- **CLI**: Node.js scripts in `bin/`, consuming shared modules (`tree-ops.ts` + `io.ts`) from backend
+- **Tests**: Vitest (backend unit tests + frontend)
 - **Typography**: Inter (Google Fonts), fallback to system UI fonts
-- **No linter/formatter** — intentional, can be added later as a task in the tree
 
 ## Commands
 
 ```bash
 yarn install                        # Install all dependencies
-yarn workspace backend dev          # Start backend (http://localhost:3001)
-yarn workspace frontend dev         # Start frontend (http://localhost:5173)
+yarn workspace backend dev          # Start backend dev server
+yarn workspace frontend dev         # Start frontend dev server (Vite)
 yarn workspace backend build        # Type-check backend
 yarn workspace frontend build       # Type-check + bundle frontend
+yarn workspace backend test         # Run backend unit tests
+project-tree help                   # CLI usage reference
 ```
 
 ## Conventions
