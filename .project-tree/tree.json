@@ -26,6 +26,13 @@
             }
           ],
           "completed": false
+        },
+        {
+          "id": 56,
+          "title": "Empaquetado npm",
+          "completed": true,
+          "children": [],
+          "description": "--- Pruned ---\n- package.json raíz con campo bin y metadata\n- Script de build: compila backend TS + bundlea frontend\n- Test: npx project-tree funciona en un directorio limpio"
         }
       ],
       "abandoned": true
@@ -34,36 +41,24 @@
       "id": 41,
       "title": "Single-project mode",
       "completed": true,
-      "children": [],
+      "children": [
+        {
+          "id": 48,
+          "title": "Servidor unificado",
+          "completed": true,
+          "children": [
+            {
+              "id": 60,
+              "title": "Migración y validación",
+              "completed": true,
+              "children": [],
+              "description": "--- Pruned ---\n- Migrar project-tree a .project-tree/\n  - Crear .project-tree/ con tree.json y plans.json\n  - Verificar: arrancar CLI y comprobar que el árbol se ve y opera\n  - Verificar: planes se cargan y el progreso funciona\n  - Verificar: crear, completar, podar y borrar tareas funciona\n- Migrar competi a .project-tree/\n  - Mover datos de competi al formato .project-tree/\n  - Ricardo ejecuta project-tree en el repo de competi y verifica\n- Limpiar código legacy\n  - Eliminar backend/data/ centralizado\n  - Eliminar external.json y lógica de external projects\n  - Eliminar multi-project selector del frontend"
+            }
+          ],
+          "description": "--- Pruned ---\n- Vite build genera estáticos en dist/\n- Express sirve estáticos del frontend bundleado\n- Un solo puerto para frontend y API"
+        }
+      ],
       "description": "--- Pruned ---\n- Backend lee de un directorio configurable\n  - Parámetro --dir y auto-detección de .project-tree/ en cwd\n  - Eliminar lógica multi-project y external.json del backend\n- Frontend sin selector de proyectos\n  - Eliminar project selector y lógica multi-project del frontend\n  - API client usa rutas sin slug (proyecto implícito)"
-    },
-    {
-      "id": 48,
-      "title": "Servidor unificado",
-      "completed": true,
-      "children": [],
-      "description": "--- Pruned ---\n- Vite build genera estáticos en dist/\n- Express sirve estáticos del frontend bundleado\n- Un solo puerto para frontend y API"
-    },
-    {
-      "id": 52,
-      "title": "CLI entry point",
-      "completed": true,
-      "children": [],
-      "description": "--- Pruned ---\n- Bin script con shebang y parseo de argumentos (--port, --dir, --no-open)\n- Abrir navegador automáticamente al arrancar\n- Subcomando init para scaffoldear .project-tree/ en un repo"
-    },
-    {
-      "id": 56,
-      "title": "Empaquetado npm",
-      "completed": true,
-      "children": [],
-      "description": "--- Pruned ---\n- package.json raíz con campo bin y metadata\n- Script de build: compila backend TS + bundlea frontend\n- Test: npx project-tree funciona en un directorio limpio"
-    },
-    {
-      "id": 60,
-      "title": "Migración y validación",
-      "completed": true,
-      "children": [],
-      "description": "--- Pruned ---\n- Migrar project-tree a .project-tree/\n  - Crear .project-tree/ con tree.json y plans.json\n  - Verificar: arrancar CLI y comprobar que el árbol se ve y opera\n  - Verificar: planes se cargan y el progreso funciona\n  - Verificar: crear, completar, podar y borrar tareas funciona\n- Migrar competi a .project-tree/\n  - Mover datos de competi al formato .project-tree/\n  - Ricardo ejecuta project-tree en el repo de competi y verifica\n- Limpiar código legacy\n  - Eliminar backend/data/ centralizado\n  - Eliminar external.json y lógica de external projects\n  - Eliminar multi-project selector del frontend"
     },
     {
       "id": 61,
@@ -225,6 +220,37 @@
               "title": "plan archive: archivar plan",
               "completed": true,
               "children": []
+            },
+            {
+              "id": 159,
+              "title": "Añadir/quitar tareas recursivamente en plan",
+              "completed": false,
+              "children": [
+                {
+                  "id": 160,
+                  "title": "Extraer collectDescendantIds a tree-ops.ts",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 161,
+                  "title": "--recursive en plan add (tarea + descendientes)",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 162,
+                  "title": "--recursive en plan remove (tarea + descendientes)",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 163,
+                  "title": "Test unitario de collectDescendantIds",
+                  "completed": false,
+                  "children": []
+                }
+              ]
             }
           ]
         },
@@ -264,133 +290,83 @@
               "children": []
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": 70,
-      "title": "Navigation & views",
-      "completed": true,
-      "children": [
+        },
         {
-          "id": 71,
-          "title": "Mindmap layout",
+          "id": 112,
+          "title": "Live sync",
           "completed": true,
           "children": [
             {
-              "id": 72,
-              "title": "Dividir hijos del root en dos mitades (arriba/abajo)",
+              "id": 113,
+              "title": "File watcher + SSE (primera solución pragmática)",
               "completed": true,
-              "children": []
-            },
-            {
-              "id": 73,
-              "title": "Posicionar nodos hacia arriba en el layout SVG",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 74,
-              "title": "Invertir conectores para ramas superiores",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 75,
-              "title": "Centrar root verticalmente en el viewport",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 76,
-              "title": "Toggle mindmap en la toolbar",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 77,
-              "title": "Combinar mindmap + horizontal (ramas izquierda/derecha)",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 123,
-              "title": "equilibrar el reparto entre ambos lados",
-              "completed": false,
               "children": [
                 {
-                  "id": 124,
-                  "title": "no solo basta con la cantidad de tareas",
+                  "id": 114,
+                  "title": "Backend: fs.watch sobre tree.json y plans.json con debounce",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 115,
+                  "title": "Backend: invalidar caché en memoria al detectar cambio externo",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 116,
+                  "title": "Backend: endpoint SSE /events que emite al detectar cambio",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 117,
+                  "title": "Backend: ignorar eventos fs.watch provocados por escrituras propias",
+                  "completed": true,
+                  "children": [
+                    {
+                      "id": 121,
+                      "title": "Eliminar selfWriting flag: notificar siempre, re-fetch es idempotente",
+                      "completed": true,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 118,
+                  "title": "Frontend: EventSource /events que hace re-fetch de tree y plans",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 120,
+                  "title": "Toast visual en el frontend al detectar cambio externo",
                   "completed": false,
                   "children": [
                     {
-                      "id": 125,
-                      "title": "si se ponen a un lado todas las tareas con muchas hijas, el desequilibrio persiste",
+                      "id": 122,
+                      "title": "estilo de toast unificado con el resto de estilos",
                       "completed": false,
                       "children": []
                     }
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "id": 78,
-          "title": "Double-click zoom-to-fit",
-          "completed": true,
-          "children": [
-            {
-              "id": 79,
-              "title": "Eliminar comportamiento actual de doble-click",
-              "completed": true,
-              "children": []
             },
             {
-              "id": 80,
-              "title": "Doble-click centra y hace zoom-to-fit en el nodo con clamp",
-              "completed": true,
-              "children": []
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 81,
-      "title": "Node visuals",
-      "completed": true,
-      "children": [
-        {
-          "id": 82,
-          "title": "Highlighted node style",
-          "completed": true,
-          "children": [
-            {
-              "id": 83,
-              "title": "Definir estilo highlighted: fondo, mayúsculas, tamaño mayor",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 84,
-              "title": "Aplicar highlighted al nodo raíz en todas las vistas",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 85,
-              "title": "Click en raíz centra la vista (zoom-to-fit todo el árbol)",
-              "completed": true,
+              "id": 119,
+              "title": "Modo lectura/edición con lock en memoria",
+              "completed": false,
               "children": []
             }
           ]
         },
         {
-          "id": 88,
-          "title": "Tab del browser muestra el nombre del proyecto",
+          "id": 52,
+          "title": "CLI entry point",
           "completed": true,
-          "children": []
+          "children": [],
+          "description": "--- Pruned ---\n- Bin script con shebang y parseo de argumentos (--port, --dir, --no-open)\n- Abrir navegador automáticamente al arrancar\n- Subcomando init para scaffoldear .project-tree/ en un repo"
         }
       ]
     },
@@ -405,7 +381,8 @@
           "completed": false,
           "children": []
         }
-      ]
+      ],
+      "description": "This was pruned after the whole feature was done.\n"
     },
     {
       "id": 89,
@@ -605,76 +582,133 @@
               ]
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": 112,
-      "title": "Live sync",
-      "completed": true,
-      "children": [
+        },
         {
-          "id": 113,
-          "title": "File watcher + SSE (primera solución pragmática)",
+          "id": 81,
+          "title": "Node visuals",
           "completed": true,
           "children": [
             {
-              "id": 114,
-              "title": "Backend: fs.watch sobre tree.json y plans.json con debounce",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 115,
-              "title": "Backend: invalidar caché en memoria al detectar cambio externo",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 116,
-              "title": "Backend: endpoint SSE /events que emite al detectar cambio",
-              "completed": true,
-              "children": []
-            },
-            {
-              "id": 117,
-              "title": "Backend: ignorar eventos fs.watch provocados por escrituras propias",
+              "id": 82,
+              "title": "Highlighted node style",
               "completed": true,
               "children": [
                 {
-                  "id": 121,
-                  "title": "Eliminar selfWriting flag: notificar siempre, re-fetch es idempotente",
+                  "id": 83,
+                  "title": "Definir estilo highlighted: fondo, mayúsculas, tamaño mayor",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 84,
+                  "title": "Aplicar highlighted al nodo raíz en todas las vistas",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 85,
+                  "title": "Click en raíz centra la vista (zoom-to-fit todo el árbol)",
                   "completed": true,
                   "children": []
                 }
               ]
             },
             {
-              "id": 118,
-              "title": "Frontend: EventSource /events que hace re-fetch de tree y plans",
+              "id": 88,
+              "title": "Tab del browser muestra el nombre del proyecto",
               "completed": true,
               "children": []
-            },
+            }
+          ]
+        },
+        {
+          "id": 70,
+          "title": "Navigation & views",
+          "completed": true,
+          "children": [
             {
-              "id": 120,
-              "title": "Toast visual en el frontend al detectar cambio externo",
-              "completed": false,
+              "id": 71,
+              "title": "Mindmap layout",
+              "completed": true,
               "children": [
                 {
-                  "id": 122,
-                  "title": "estilo de toast unificado con el resto de estilos",
+                  "id": 72,
+                  "title": "Dividir hijos del root en dos mitades (arriba/abajo)",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 73,
+                  "title": "Posicionar nodos hacia arriba en el layout SVG",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 74,
+                  "title": "Invertir conectores para ramas superiores",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 75,
+                  "title": "Centrar root verticalmente en el viewport",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 76,
+                  "title": "Toggle mindmap en la toolbar",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 77,
+                  "title": "Combinar mindmap + horizontal (ramas izquierda/derecha)",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 123,
+                  "title": "equilibrar el reparto entre ambos lados",
                   "completed": false,
+                  "children": [
+                    {
+                      "id": 124,
+                      "title": "no solo basta con la cantidad de tareas",
+                      "completed": false,
+                      "children": [
+                        {
+                          "id": 125,
+                          "title": "si se ponen a un lado todas las tareas con muchas hijas, el desequilibrio persiste",
+                          "completed": false,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 78,
+              "title": "Double-click zoom-to-fit",
+              "completed": true,
+              "children": [
+                {
+                  "id": 79,
+                  "title": "Eliminar comportamiento actual de doble-click",
+                  "completed": true,
+                  "children": []
+                },
+                {
+                  "id": 80,
+                  "title": "Doble-click centra y hace zoom-to-fit en el nodo con clamp",
+                  "completed": true,
                   "children": []
                 }
               ]
             }
           ]
-        },
-        {
-          "id": 119,
-          "title": "Modo lectura/edición con lock en memoria",
-          "completed": false,
-          "children": []
         }
       ]
     }
