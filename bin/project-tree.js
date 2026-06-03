@@ -3,6 +3,8 @@
 const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
+const { readTree } = require("../backend/dist/io");
+const { findTask } = require("../backend/dist/tree-ops");
 
 // --- Argument parsing ---
 
@@ -74,27 +76,16 @@ if (command === "init") {
 if (command === "show") {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const showIds = hasFlag("--ids");
-  const treeFile = path.join(dataDir, "tree.json");
 
-  if (!fs.existsSync(treeFile)) {
+  const tree = readTree(dataDir);
+  if (!tree) {
     console.error(`No tree.json found in ${dataDir}`);
     process.exit(1);
   }
 
-  const tree = JSON.parse(fs.readFileSync(treeFile, "utf-8"));
-
   // Task ID is the first non-flag argument after "show"
   const idArg = args.find((a, i) => i > 0 && !a.startsWith("-") && args[i - 1] !== "--dir");
   const taskId = idArg ? parseInt(idArg, 10) : tree.id;
-
-  function findTask(node, id) {
-    if (node.id === id) return node;
-    for (const child of node.children || []) {
-      const found = findTask(child, id);
-      if (found) return found;
-    }
-    return null;
-  }
 
   const task = findTask(tree, taskId);
   if (!task) {
