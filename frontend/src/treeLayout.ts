@@ -304,22 +304,24 @@ function layoutMindmapRoot(task: Task, collapsedIds?: Set<number>): SubtreeInfo 
     return { width: w, height: NODE_HEIGHT, nodes: [rootNode] };
   }
 
-  // Split children by subtree weight so both halves are visually balanced.
-  // Greedy: accumulate weight until we reach half the total.
-  const weights = visibleChildren.map(c => 1 + countDescendants(c));
-  const totalWeight = weights.reduce((a, b) => a + b, 0);
-  const halfWeight = totalWeight / 2;
-  let accumulated = 0;
-  let mid = 0;
-  for (let i = 0; i < weights.length; i++) {
-    if (accumulated + weights[i] > halfWeight && mid > 0) break;
-    accumulated += weights[i];
-    mid = i + 1;
+  // Split children by subtree weight using LPT (Largest Processing Time):
+  // Sort by weight descending, assign each to the lighter side.
+  // Produces near-optimal balance regardless of child order.
+  const indexed = visibleChildren.map((c, i) => ({ child: c, weight: 1 + countDescendants(c), index: i }));
+  const sorted = [...indexed].sort((a, b) => b.weight - a.weight);
+  const topSet = new Set<number>();
+  let topWeight = 0, bottomWeight = 0;
+  for (const item of sorted) {
+    if (topWeight <= bottomWeight) {
+      topSet.add(item.index);
+      topWeight += item.weight;
+    } else {
+      bottomWeight += item.weight;
+    }
   }
-  // Ensure at least one child on each side when there are 2+
-  if (mid === visibleChildren.length && visibleChildren.length > 1) mid = visibleChildren.length - 1;
-  const topChildren = visibleChildren.slice(0, mid);
-  const bottomChildren = visibleChildren.slice(mid);
+  // Preserve original order within each side
+  const topChildren = visibleChildren.filter((_, i) => topSet.has(i));
+  const bottomChildren = visibleChildren.filter((_, i) => !topSet.has(i));
 
   if (HORIZONTAL) {
     return layoutMindmapHorizontal(task, rootNode, w, topChildren, bottomChildren, collapsedIds);
