@@ -3,6 +3,8 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import { Task, Plan } from "./types";
+import { findTask, findParent, maxId, isPrunable, formatPrunedTree, countNodes, nextPlanId } from "./tree-ops";
+import { readTree, writeTree, readPlans, writePlans } from "./io";
 
 export interface ServerOptions {
   dataDir: string;
@@ -17,59 +19,16 @@ export function startServer(options: ServerOptions) {
 
 const DATA_DIR = path.resolve(dataDir);
 const TREE_FILE = path.join(DATA_DIR, "tree.json");
-const PLANS_FILE = path.join(DATA_DIR, "plans.json");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Tree ---
-
-function ensureCompleted(node: Task): Task {
-  return {
-    ...node,
-    completed: node.completed ?? false,
-    children: node.children.map(ensureCompleted),
-  };
-}
-
 // SSE clients
 const sseClients = new Set<express.Response>();
 
-function getTree(): Task | null {
-  if (!fs.existsSync(TREE_FILE)) return null;
-  return ensureCompleted(JSON.parse(fs.readFileSync(TREE_FILE, "utf-8")));
-}
-
-function saveTree(tree: Task) {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(TREE_FILE, JSON.stringify(tree, null, 2) + "\n");
-}
-
-function findTask(node: Task, id: number): Task | null {
-  if (node.id === id) return node;
-  for (const child of node.children) {
-    const found = findTask(child, id);
-    if (found) return found;
-  }
-  return null;
-}
-
-function findParent(node: Task, taskId: number): Task | null {
-  for (const child of node.children) {
-    if (child.id === taskId) return node;
-    const found = findParent(child, taskId);
-    if (found) return found;
-  }
-  return null;
-}
-
-function maxId(node: Task): number {
-  return Math.max(node.id, ...node.children.map(maxId));
-}
-
 function requireTree(_req: express.Request, res: express.Response): Task | null {
-  const t = getTree();
+  const t = readTree(DATA_DIR);
   if (!t) { res.status(404).json({ error: "No tree found. Run 'project-tree init' first." }); return null; }
   return t;
 }
@@ -108,7 +67,7 @@ app.post("/tasks", (req, res) => {
   };
 
   parent.children.push(newTask);
-  saveTree(t);
+  writeTree(DATA_DIR, t);
 
   res.status(201).json(newTask);
 });
@@ -138,14 +97,14 @@ app.patch("/tasks/:id", (req, res) => {
       return;
     }
     task.title = trimmed;
-    saveTree(t);
+    writeTree(DATA_DIR, t);
     res.json(task);
     return;
   }
 
   if (typeof description === "string") {
     task.description = description || undefined;
-    saveTree(t);
+    writeTree(DATA_DIR, t);
     res.json(task);
     return;
   }
@@ -173,7 +132,7 @@ app.patch("/tasks/:id", (req, res) => {
       newParent.children.push(task);
     }
 
-    saveTree(t);
+    writeTree(DATA_DIR, t);
     res.json(task);
     return;
   }
@@ -181,38 +140,19 @@ app.patch("/tasks/:id", (req, res) => {
   if (typeof abandoned === "boolean") {
     task.abandoned = abandoned || undefined;
     if (abandoned) task.completed = false;
-    saveTree(t);
+    writeTree(DATA_DIR, t);
     res.json(task);
     return;
   }
 
   task.completed = completed;
   if (completed) task.abandoned = undefined;
-  saveTree(t);
+  writeTree(DATA_DIR, t);
 
   res.json(task);
 });
 
 // --- Prune ---
-
-function isPrunable(task: Task): boolean {
-  if (!task.completed && !task.abandoned) return false;
-  return task.children.every(isPrunable);
-}
-
-function formatPrunedTree(task: Task, indent: number = 0): string {
-  const prefix = "  ".repeat(indent) + "- ";
-  const status = task.abandoned ? " [abandoned]" : "";
-  let result = prefix + task.title + status + "\n";
-  for (const child of task.children) {
-    result += formatPrunedTree(child, indent + 1);
-  }
-  return result;
-}
-
-function countNodes(task: Task): number {
-  return 1 + task.children.reduce((sum, c) => sum + countNodes(c), 0);
-}
 
 app.post("/tasks/:id/prune", (req, res) => {
   const t = requireTree(req, res);
@@ -240,7 +180,7 @@ app.post("/tasks/:id/prune", (req, res) => {
 
   const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
 
-  saveTree(t);
+  writeTree(DATA_DIR, t);
   res.json({ task, prunedCount });
 });
 
@@ -266,28 +206,14 @@ app.delete("/tasks/:id", (req, res) => {
     parent.children = parent.children.filter(c => c.id !== id);
   }
 
-  saveTree(t);
+  writeTree(DATA_DIR, t);
   res.json({ deleted: id });
 });
 
 // --- Plans ---
 
-function getPlans(): Plan[] {
-  if (!fs.existsSync(PLANS_FILE)) return [];
-  return JSON.parse(fs.readFileSync(PLANS_FILE, "utf-8"));
-}
-
-function savePlans(plans: Plan[]) {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2) + "\n");
-}
-
-function nextPlanId(plans: Plan[]): number {
-  return plans.length === 0 ? 1 : Math.max(...plans.map(p => p.id)) + 1;
-}
-
 app.get("/plans", (_req, res) => {
-  res.json(getPlans());
+  res.json(readPlans(DATA_DIR));
 });
 
 app.post("/plans", (req, res) => {
@@ -298,23 +224,23 @@ app.post("/plans", (req, res) => {
   if (!Array.isArray(taskIds) || !taskIds.every(id => typeof id === "number")) {
     res.status(400).json({ error: "taskIds must be an array of numbers" }); return;
   }
-  const plans = getPlans();
+  const plans = readPlans(DATA_DIR);
   const plan: Plan = { id: nextPlanId(plans), name: name.trim(), taskIds };
   plans.push(plan);
-  savePlans(plans);
+  writePlans(DATA_DIR, plans);
   res.status(201).json(plan);
 });
 
 app.get("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plan = getPlans().find(p => p.id === planId);
+  const plan = readPlans(DATA_DIR).find(p => p.id === planId);
   if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
   res.json(plan);
 });
 
 app.patch("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plans = getPlans();
+  const plans = readPlans(DATA_DIR);
   const plan = plans.find(p => p.id === planId);
   if (!plan) { res.status(404).json({ error: "Plan not found" }); return; }
   const { name, taskIds, archived } = req.body;
@@ -332,17 +258,17 @@ app.patch("/plans/:planId", (req, res) => {
     }
     plan.taskIds = taskIds;
   }
-  savePlans(plans);
+  writePlans(DATA_DIR, plans);
   res.json(plan);
 });
 
 app.delete("/plans/:planId", (req, res) => {
   const planId = Number(req.params.planId);
-  const plans = getPlans();
+  const plans = readPlans(DATA_DIR);
   const idx = plans.findIndex(p => p.id === planId);
   if (idx === -1) { res.status(404).json({ error: "Plan not found" }); return; }
   plans.splice(idx, 1);
-  savePlans(plans);
+  writePlans(DATA_DIR, plans);
   res.json({ deleted: planId });
 });
 
