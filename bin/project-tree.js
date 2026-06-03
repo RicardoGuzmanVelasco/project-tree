@@ -29,19 +29,19 @@ const HELP = `
   Usage:
     project-tree                Open the web viewer (default)
     project-tree init           Create .project-tree/ in the current directory
-    project-tree show [id]      Print a subtree to the terminal
+    project-tree print [id]     Print a subtree to the terminal
 
   Options:
     --port <n>     Use a different port (default: 3001)
     --no-open      Don't open the browser
     --dir <path>   Use a different data directory
-    --ids          Show task IDs (with show command)
+    --ids          Show task IDs (with print command)
 
   Examples:
     project-tree                    # open viewer for current project
     project-tree init               # initialize a new project tree
-    project-tree show               # print full tree
-    project-tree show 42 --ids      # print subtree from task #42 with IDs
+    project-tree print               # print full tree
+    project-tree print 42 --ids     # print subtree from task #42 with IDs
     project-tree --port 3005        # serve on a custom port
 `.trimStart();
 
@@ -71,9 +71,9 @@ if (command === "init") {
   process.exit(0);
 }
 
-// --- Show command ---
+// --- Print command ---
 
-if (command === "show") {
+if (command === "print") {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const showIds = hasFlag("--ids");
 
