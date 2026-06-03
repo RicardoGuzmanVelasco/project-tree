@@ -63,6 +63,15 @@ export function computeMaxDepth(task: Task, current: number = 0): number {
   return max;
 }
 
+export function collectDescendantIds(task: Task): number[] {
+  const ids: number[] = [];
+  for (const child of task.children) {
+    ids.push(child.id);
+    ids.push(...collectDescendantIds(child));
+  }
+  return ids;
+}
+
 // --- Prune helpers ---
 
 export function isPrunable(task: Task): boolean {

@@ -9,6 +9,7 @@ import {
   countDescendants,
   countCompletedDescendants,
   computeMaxDepth,
+  collectDescendantIds,
   isPrunable,
   formatPrunedTree,
   nextPlanId,
@@ -245,6 +246,34 @@ describe("formatPrunedTree", () => {
       children: [task(2, { title: "Child" })],
     });
     expect(formatPrunedTree(t)).toBe("- Parent\n  - Child\n");
+  });
+});
+
+// --- collectDescendantIds ---
+
+describe("collectDescendantIds", () => {
+  it("returns empty array for a leaf", () => {
+    expect(collectDescendantIds(task(1))).toEqual([]);
+  });
+
+  it("collects direct children", () => {
+    const t = task(1, { children: [task(2), task(3)] });
+    expect(collectDescendantIds(t)).toEqual([2, 3]);
+  });
+
+  it("collects nested descendants depth-first", () => {
+    const t = task(1, {
+      children: [
+        task(2, { children: [task(4), task(5)] }),
+        task(3),
+      ],
+    });
+    expect(collectDescendantIds(t)).toEqual([2, 4, 5, 3]);
+  });
+
+  it("does not include the root task itself", () => {
+    const t = task(10, { children: [task(20)] });
+    expect(collectDescendantIds(t)).not.toContain(10);
   });
 });
 

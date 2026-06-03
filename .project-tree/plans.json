@@ -189,5 +189,11 @@
       139
     ],
     "archived": true
+  },
+  {
+    "id": 8,
+    "name": "test-recursive",
+    "taskIds": [],
+    "archived": true
   }
 ]

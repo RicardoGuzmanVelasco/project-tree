@@ -224,30 +224,30 @@
             {
               "id": 159,
               "title": "Añadir/quitar tareas recursivamente en plan",
-              "completed": false,
+              "completed": true,
               "children": [
                 {
                   "id": 160,
                   "title": "Extraer collectDescendantIds a tree-ops.ts",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 161,
                   "title": "--recursive en plan add (tarea + descendientes)",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 162,
                   "title": "--recursive en plan remove (tarea + descendientes)",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 },
                 {
                   "id": 163,
                   "title": "Test unitario de collectDescendantIds",
-                  "completed": false,
+                  "completed": true,
                   "children": []
                 }
               ]

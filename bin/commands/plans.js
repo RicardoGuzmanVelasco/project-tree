@@ -1,6 +1,6 @@
 const path = require("path");
 const { readTree, readPlans, writePlans } = require("../../backend/dist/io");
-const { findTask, nextPlanId } = require("../../backend/dist/tree-ops");
+const { findTask, nextPlanId, collectDescendantIds } = require("../../backend/dist/tree-ops");
 
 function list(args, { getFlag, hasFlag }) {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
@@ -56,12 +56,13 @@ function plan(args, { getFlag, hasFlag }) {
     process.exit(0);
   }
 
-  // plan add <planName> <taskId>
+  // plan add <planName> <taskId> [--recursive]
   if (subcommand === "add") {
     const planName = args[2];
     const taskId = parseInt(args[3], 10);
+    const recursive = hasFlag("--recursive");
     if (!planName || !taskId || isNaN(taskId)) {
-      console.error("Usage: project-tree plan add <planName> <taskId>");
+      console.error("Usage: project-tree plan add <planName> <taskId> [--recursive]");
       process.exit(1);
     }
     const plans = readPlans(dataDir);
@@ -73,37 +74,55 @@ function plan(args, { getFlag, hasFlag }) {
     const task = findTask(tree, taskId);
     if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
 
-    if (p.taskIds.includes(taskId)) {
-      console.log(`Task #${taskId} is already in plan "${planName}".`);
+    const idsToAdd = recursive ? [taskId, ...collectDescendantIds(task)] : [taskId];
+    const existing = new Set(p.taskIds);
+    const newIds = idsToAdd.filter(id => !existing.has(id));
+
+    if (newIds.length === 0) {
+      console.log(`All tasks already in plan "${planName}".`);
       process.exit(0);
     }
 
-    p.taskIds.push(taskId);
+    p.taskIds.push(...newIds);
     writePlans(dataDir, plans);
-    console.log(`Added task #${taskId} "${task.title}" to plan "${planName}"`);
+    console.log(`Added ${newIds.length} task(s) to plan "${planName}"`);
     process.exit(0);
   }
 
-  // plan remove <planName> <taskId>
+  // plan remove <planName> <taskId> [--recursive]
   if (subcommand === "remove") {
     const planName = args[2];
     const taskId = parseInt(args[3], 10);
+    const recursive = hasFlag("--recursive");
     if (!planName || !taskId || isNaN(taskId)) {
-      console.error("Usage: project-tree plan remove <planName> <taskId>");
+      console.error("Usage: project-tree plan remove <planName> <taskId> [--recursive]");
       process.exit(1);
     }
     const plans = readPlans(dataDir);
     const p = plans.find(p => p.name === planName);
     if (!p) { console.error(`Plan "${planName}" not found.`); process.exit(1); }
 
-    if (!p.taskIds.includes(taskId)) {
-      console.log(`Task #${taskId} is not in plan "${planName}".`);
+    let idsToRemove = [taskId];
+    if (recursive) {
+      const tree = readTree(dataDir);
+      if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+      const task = findTask(tree, taskId);
+      if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+      idsToRemove = [taskId, ...collectDescendantIds(task)];
+    }
+
+    const toRemoveSet = new Set(idsToRemove);
+    const before = p.taskIds.length;
+    p.taskIds = p.taskIds.filter(id => !toRemoveSet.has(id));
+    const removed = before - p.taskIds.length;
+
+    if (removed === 0) {
+      console.log(`No matching tasks in plan "${planName}".`);
       process.exit(0);
     }
 
-    p.taskIds = p.taskIds.filter(id => id !== taskId);
     writePlans(dataDir, plans);
-    console.log(`Removed task #${taskId} from plan "${planName}"`);
+    console.log(`Removed ${removed} task(s) from plan "${planName}"`);
     process.exit(0);
   }
 
