@@ -304,8 +304,20 @@ function layoutMindmapRoot(task: Task, collapsedIds?: Set<number>): SubtreeInfo 
     return { width: w, height: NODE_HEIGHT, nodes: [rootNode] };
   }
 
-  // Split children: first half goes "up/left", second half goes "down/right"
-  const mid = Math.ceil(visibleChildren.length / 2);
+  // Split children by subtree weight so both halves are visually balanced.
+  // Greedy: accumulate weight until we reach half the total.
+  const weights = visibleChildren.map(c => 1 + countDescendants(c));
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  const halfWeight = totalWeight / 2;
+  let accumulated = 0;
+  let mid = 0;
+  for (let i = 0; i < weights.length; i++) {
+    if (accumulated + weights[i] > halfWeight && mid > 0) break;
+    accumulated += weights[i];
+    mid = i + 1;
+  }
+  // Ensure at least one child on each side when there are 2+
+  if (mid === visibleChildren.length && visibleChildren.length > 1) mid = visibleChildren.length - 1;
   const topChildren = visibleChildren.slice(0, mid);
   const bottomChildren = visibleChildren.slice(mid);
 

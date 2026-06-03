@@ -670,17 +670,17 @@
                 {
                   "id": 123,
                   "title": "equilibrar el reparto entre ambos lados",
-                  "completed": false,
+                  "completed": true,
                   "children": [
                     {
                       "id": 124,
                       "title": "no solo basta con la cantidad de tareas",
-                      "completed": false,
+                      "completed": true,
                       "children": [
                         {
                           "id": 125,
                           "title": "si se ponen a un lado todas las tareas con muchas hijas, el desequilibrio persiste",
-                          "completed": false,
+                          "completed": true,
                           "children": []
                         }
                       ]
