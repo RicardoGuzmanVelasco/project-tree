@@ -231,7 +231,7 @@
         {
           "id": 153,
           "title": "Actualizar help con todos los nuevos subcomandos",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {

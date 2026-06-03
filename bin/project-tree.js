@@ -27,9 +27,23 @@ const HELP = `
   project-tree — visual task tree for any project
 
   Usage:
-    project-tree                Open the web viewer (default)
-    project-tree init           Create .project-tree/ in the current directory
-    project-tree print [id]     Print a subtree to the terminal
+    project-tree                         Open the web viewer (default)
+    project-tree init                    Create .project-tree/ in the current directory
+    project-tree print [id]              Print a subtree to the terminal
+    project-tree create <parentId> "t"   Create a task under a parent
+    project-tree complete <id>           Toggle task completion
+    project-tree abandon <id>            Toggle task abandonment
+    project-tree delete <id> [--force]   Delete a task (and subtree)
+    project-tree rename <id> "title"     Rename a task
+    project-tree move <id> <parentId>    Move a task under a new parent
+    project-tree describe <id> ["text"]  View or set task description
+    project-tree prune <id> [--force]    Prune completed/abandoned children
+    project-tree plans                   List plans with progress
+    project-tree plan <name>             Print tree filtered by plan
+    project-tree plan create "name"      Create a new plan
+    project-tree plan add <name> <id>    Add task to plan
+    project-tree plan remove <name> <id> Remove task from plan
+    project-tree plan archive <name>     Archive a plan
 
   Options:
     --port <n>     Use a different port (default: 3001)
@@ -38,15 +52,15 @@ const HELP = `
     --ids          Show task IDs (with print command)
     --depth <n>    Max depth to display (default: 3)
     --all          Show full tree without depth limit
+    --force        Skip confirmation (delete, prune)
 
   Examples:
-    project-tree                    # open viewer for current project
-    project-tree init               # initialize a new project tree
-    project-tree print               # print tree (depth 3)
-    project-tree print --all         # print full tree
-    project-tree print 42 --ids     # print subtree from task #42 with IDs
-    project-tree print --depth 2    # print tree limited to 2 levels
-    project-tree --port 3005        # serve on a custom port
+    project-tree print                    # print tree (depth 3)
+    project-tree print --all              # print full tree
+    project-tree print 42 --ids           # subtree from task #42 with IDs
+    project-tree create 1 "New feature"   # create task under root
+    project-tree complete 42              # toggle task #42 completion
+    project-tree plans                    # list active plans
 `.trimStart();
 
 if (hasFlag("--help") || hasFlag("-h") || command === "help") {
