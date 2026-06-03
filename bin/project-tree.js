@@ -7,7 +7,7 @@ const { execSync } = require("child_process");
 // --- Argument parsing ---
 
 const args = process.argv.slice(2);
-const command = args[0] && !args[0].startsWith("-") ? args[0] : "serve";
+const command = args[0] && !args[0].startsWith("-") ? args[0] : null;
 
 function getFlag(name) {
   const idx = args.indexOf(name);
@@ -27,7 +27,7 @@ const HELP = `
   project-tree — visual task tree for any project
 
   Usage:
-    project-tree                         Open the web viewer (default)
+    project-tree serve                   Open the web viewer
     project-tree init                    Create .project-tree/ in the current directory
     project-tree print [id]              Print a subtree to the terminal
     project-tree create <parentId> "t"   Create a task under a parent
@@ -46,16 +46,17 @@ const HELP = `
     project-tree plan archive <name>     Archive a plan
 
   Options:
-    --port <n>     Use a different port (default: 3001)
-    --no-open      Don't open the browser
-    --dir <path>   Use a different data directory
-    --ids          Show task IDs (with print command)
-    --depth <n>    Max depth to display (default: 3)
-    --all          Show full tree without depth limit
+    --port <n>         Use a different port (default: 3001)
+    --no-open          Don't open the browser
+    --dir <path>       Use a different data directory
+    --ids              Show task IDs (with print command)
+    --depth <n>        Max depth to display (default: 3)
+    --all              Show full tree without depth limit
     --force            Skip confirmation (delete, prune)
     --hide-completed   Hide completed/abandoned tasks
 
   Examples:
+    project-tree serve                    # open web viewer
     project-tree print                    # print tree (depth 3)
     project-tree print --all              # print full tree
     project-tree print 42 --ids           # subtree from task #42 with IDs
@@ -64,7 +65,7 @@ const HELP = `
     project-tree plans                    # list active plans
 `.trimStart();
 
-if (hasFlag("--help") || hasFlag("-h") || command === "help") {
+if (!command || hasFlag("--help") || hasFlag("-h") || command === "help") {
   process.stdout.write(HELP);
   process.exit(0);
 }
@@ -86,7 +87,7 @@ if (command === "init") {
   fs.writeFileSync(path.join(dir, "plans.json"), "[]\n");
 
   console.log(`Initialized .project-tree/ for "${name}"`);
-  console.log("Run 'project-tree' to open the viewer.");
+  console.log("Run 'project-tree serve' to open the viewer.");
   process.exit(0);
 }
 
@@ -123,35 +124,42 @@ if (command === "plan") {
   plans.plan(args, flags);
 }
 
-// --- Serve command (default) ---
+// --- Serve command ---
 
-const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
-const port = parseInt(getFlag("--port") || "3001", 10);
-const noOpen = hasFlag("--no-open");
+if (command === "serve") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const port = parseInt(getFlag("--port") || "3001", 10);
+  const noOpen = hasFlag("--no-open");
 
-if (!fs.existsSync(path.join(dataDir, "tree.json"))) {
-  console.error(`No tree.json found in ${dataDir}`);
-  console.error("Run 'project-tree init' to create one.");
+  if (!fs.existsSync(path.join(dataDir, "tree.json"))) {
+    console.error(`No tree.json found in ${dataDir}`);
+    console.error("Run 'project-tree init' to create one.");
+    process.exit(1);
+  }
+
+  const frontendDist = path.join(__dirname, "..", "frontend", "dist");
+  const { startServer } = require("../backend/dist/index.js");
+
+  startServer({
+    dataDir,
+    port,
+    frontendDist,
+    onReady(actualPort) {
+      if (!noOpen) {
+        const url = `http://localhost:${actualPort}`;
+        try {
+          if (process.platform === "darwin") execSync(`open ${url}`);
+          else if (process.platform === "linux") execSync(`xdg-open ${url}`);
+          else if (process.platform === "win32") execSync(`start ${url}`);
+        } catch {
+          // Silently fail if browser can't be opened
+        }
+      }
+    },
+  });
+} else {
+  // Unknown command
+  console.error(`Unknown command: ${command}`);
+  console.error("Run 'project-tree help' for usage.");
   process.exit(1);
 }
-
-const frontendDist = path.join(__dirname, "..", "frontend", "dist");
-const { startServer } = require("../backend/dist/index.js");
-
-startServer({
-  dataDir,
-  port,
-  frontendDist,
-  onReady(actualPort) {
-    if (!noOpen) {
-      const url = `http://localhost:${actualPort}`;
-      try {
-        if (process.platform === "darwin") execSync(`open ${url}`);
-        else if (process.platform === "linux") execSync(`xdg-open ${url}`);
-        else if (process.platform === "win32") execSync(`start ${url}`);
-      } catch {
-        // Silently fail if browser can't be opened
-      }
-    }
-  },
-});
