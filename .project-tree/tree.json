@@ -67,7 +67,7 @@
     },
     {
       "id": 61,
-      "title": "Subcomando show en CLI",
+      "title": "CLI commands",
       "completed": true,
       "children": [
         {
@@ -118,13 +118,159 @@
           "title": "Imprimir en stdout y salir (sin servidor)",
           "completed": true,
           "children": []
+        },
+        {
+          "id": 135,
+          "title": "Extraer módulo compartido (tree-ops.ts + io.ts)",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 136,
+          "title": "CLI usa módulo compartido (eliminar duplicación)",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 137,
+          "title": "Renombrar show → print",
+          "completed": true,
+          "children": []
+        },
+        {
+          "id": 138,
+          "title": "Subcomando create: crear tarea",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 139,
+          "title": "Subcomando complete: completar/descompletar tarea",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 140,
+          "title": "Subcomando abandon: abandonar tarea",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 141,
+          "title": "Subcomando delete: eliminar tarea y subárbol",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 142,
+          "title": "Subcomando rename: renombrar tarea",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 143,
+          "title": "Subcomando move: reubicar tarea",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 144,
+          "title": "Subcomando describe: ver/editar descripción",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 145,
+          "title": "Subcomando prune: podar completados/abandonados",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 146,
+          "title": "Subcomandos de planes",
+          "completed": false,
+          "children": [
+            {
+              "id": 147,
+              "title": "plans: listar planes con progreso",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 148,
+              "title": "plan <nombre>: imprimir árbol filtrado al plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 149,
+              "title": "plan create: crear plan vacío",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 150,
+              "title": "plan add: añadir tarea al plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 151,
+              "title": "plan remove: quitar tarea del plan",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 152,
+              "title": "plan archive: archivar plan",
+              "completed": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 153,
+          "title": "Actualizar help con todos los nuevos subcomandos",
+          "completed": false,
+          "children": []
+        },
+        {
+          "id": 154,
+          "title": "Límite de profundidad en print",
+          "completed": false,
+          "children": [
+            {
+              "id": 155,
+              "title": "Extraer countDescendants y countCompletedDescendants a tree-ops.ts",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 156,
+              "title": "Flag --depth N para limitar profundidad",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 157,
+              "title": "Profundidad por defecto razonable (ej. 3)",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 158,
+              "title": "Indicador de tareas ocultas al truncar (ej. (+12 tareas, 8 completadas))",
+              "completed": false,
+              "children": []
+            }
+          ]
         }
       ]
     },
     {
       "id": 70,
       "title": "Navigation & views",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 71,
@@ -166,6 +312,26 @@
               "title": "Combinar mindmap + horizontal (ramas izquierda/derecha)",
               "completed": true,
               "children": []
+            },
+            {
+              "id": 123,
+              "title": "equilibrar el reparto entre ambos lados",
+              "completed": false,
+              "children": [
+                {
+                  "id": 124,
+                  "title": "no solo basta con la cantidad de tareas",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 125,
+                      "title": "si se ponen a un lado todas las tareas con muchas hijas, el desequilibrio persiste",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -193,7 +359,7 @@
     {
       "id": 81,
       "title": "Node visuals",
-      "completed": false,
+      "completed": true,
       "children": [
         {
           "id": 82,
@@ -381,6 +547,62 @@
               "title": "Relocate banner styled as notification toast",
               "completed": false,
               "children": []
+            },
+            {
+              "id": 126,
+              "title": "URGENTE: no poder seleccionar NINGÚN texto del canvas",
+              "completed": false,
+              "children": []
+            },
+            {
+              "id": 127,
+              "title": "visualizar subárbol",
+              "completed": false,
+              "children": [
+                {
+                  "id": 128,
+                  "title": "reutilizar modo plan",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 129,
+                  "title": "es como crear un plan dinámicamente para verlo, sin que exista como plan realmente",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 130,
+                  "title": "visualiza solo las tareas a partir de la selecciónada",
+                  "completed": false,
+                  "children": []
+                },
+                {
+                  "id": 131,
+                  "title": "añadir opción en UI",
+                  "completed": false,
+                  "children": [
+                    {
+                      "id": 132,
+                      "title": "añadir botón si alguno libre es apto",
+                      "completed": false,
+                      "children": []
+                    },
+                    {
+                      "id": 133,
+                      "title": "volver atrás",
+                      "completed": false,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 134,
+                  "title": "¿cómo se llama este modo en la UI?",
+                  "completed": false,
+                  "children": []
+                }
+              ]
             }
           ]
         }
