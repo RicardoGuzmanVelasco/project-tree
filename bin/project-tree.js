@@ -3,8 +3,8 @@
 const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
-const { readTree } = require("../backend/dist/io");
-const { findTask, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
+const { readTree, writeTree } = require("../backend/dist/io");
+const { findTask, maxId, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
 
 // --- Argument parsing ---
 
@@ -72,6 +72,44 @@ if (command === "init") {
 
   console.log(`Initialized .project-tree/ for "${name}"`);
   console.log("Run 'project-tree' to open the viewer.");
+  process.exit(0);
+}
+
+// --- Create command ---
+
+if (command === "create") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const parentId = parseInt(args[1], 10);
+  const title = args.find((a, i) => i > 1 && !a.startsWith("-") && args[i - 1] !== "--dir");
+
+  if (!parentId || isNaN(parentId) || !title) {
+    console.error("Usage: project-tree create <parentId> \"title\"");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) {
+    console.error(`No tree.json found in ${dataDir}`);
+    process.exit(1);
+  }
+
+  const parent = findTask(tree, parentId);
+  if (!parent) {
+    console.error(`Parent task #${parentId} not found.`);
+    process.exit(1);
+  }
+
+  const newTask = {
+    id: maxId(tree) + 1,
+    title: title.trim(),
+    completed: false,
+    children: [],
+  };
+
+  parent.children.push(newTask);
+  writeTree(dataDir, tree);
+
+  console.log(`Created task #${newTask.id} "${newTask.title}" under #${parentId}`);
   process.exit(0);
 }
 
