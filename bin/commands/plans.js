@@ -152,7 +152,7 @@ function plan(args, { getFlag, hasFlag }) {
     const connector = isRoot ? "" : isLast ? "└── " : "├── ";
     const idLabel = showIds && node.id >= 0 ? `#${node.id} ` : "";
     const status = isRoot ? "" : `${statusIcon(node)} `;
-    const dim = !isRoot && !inPlan ? "\x1b[2m" : "";
+    const dim = !isRoot && !inPlan && process.stdout.isTTY ? "\x1b[2m" : "";
     const reset = dim ? "\x1b[0m" : "";
     console.log(`${prefix}${connector}${dim}${status}${idLabel}${node.title}${reset}`);
 
