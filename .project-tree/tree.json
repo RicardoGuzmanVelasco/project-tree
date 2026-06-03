@@ -237,30 +237,30 @@
         {
           "id": 154,
           "title": "Límite de profundidad en print",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 155,
               "title": "Extraer countDescendants y countCompletedDescendants a tree-ops.ts",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 156,
               "title": "Flag --depth N para limitar profundidad",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 157,
               "title": "Profundidad por defecto razonable (ej. 3)",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 158,
               "title": "Indicador de tareas ocultas al truncar (ej. (+12 tareas, 8 completadas))",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
