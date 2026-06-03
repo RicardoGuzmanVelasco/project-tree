@@ -113,6 +113,74 @@ if (command === "create") {
   process.exit(0);
 }
 
+// --- Rename command ---
+
+if (command === "rename") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+  const newTitle = args.find((a, i) => i > 1 && !a.startsWith("-") && args[i - 1] !== "--dir");
+
+  if (!taskId || isNaN(taskId) || !newTitle) {
+    console.error('Usage: project-tree rename <taskId> "new title"');
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  const oldTitle = task.title;
+  task.title = newTitle.trim();
+  writeTree(dataDir, tree);
+
+  console.log(`Renamed task #${taskId} "${oldTitle}" → "${task.title}"`);
+  process.exit(0);
+}
+
+// --- Move command ---
+
+if (command === "move") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+  const newParentId = parseInt(args[2], 10);
+
+  if (!taskId || isNaN(taskId) || !newParentId || isNaN(newParentId)) {
+    console.error("Usage: project-tree move <taskId> <newParentId>");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  if (taskId === tree.id) {
+    console.error("Cannot move the root task.");
+    process.exit(1);
+  }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  const newParent = findTask(tree, newParentId);
+  if (!newParent) { console.error(`New parent #${newParentId} not found.`); process.exit(1); }
+
+  if (findTask(task, newParentId)) {
+    console.error("Cannot move a task under its own descendant.");
+    process.exit(1);
+  }
+
+  const currentParent = findParent(tree, taskId);
+  if (currentParent && currentParent.id !== newParentId) {
+    currentParent.children = currentParent.children.filter(c => c.id !== taskId);
+    newParent.children.push(task);
+  }
+
+  writeTree(dataDir, tree);
+  console.log(`Moved task #${taskId} "${task.title}" under #${newParentId} "${newParent.title}"`);
+  process.exit(0);
+}
+
 // --- Delete command ---
 
 if (command === "delete") {

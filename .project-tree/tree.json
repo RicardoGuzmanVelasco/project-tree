@@ -164,13 +164,13 @@
         {
           "id": 142,
           "title": "Subcomando rename: renombrar tarea",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 143,
           "title": "Subcomando move: reubicar tarea",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
