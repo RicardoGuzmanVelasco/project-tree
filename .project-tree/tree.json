@@ -140,19 +140,19 @@
         {
           "id": 138,
           "title": "Subcomando create: crear tarea",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 139,
           "title": "Subcomando complete: completar/descompletar tarea",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 140,
           "title": "Subcomando abandon: abandonar tarea",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {

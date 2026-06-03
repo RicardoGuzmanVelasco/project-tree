@@ -113,6 +113,57 @@ if (command === "create") {
   process.exit(0);
 }
 
+// --- Complete command ---
+
+if (command === "complete") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+
+  if (!taskId || isNaN(taskId)) {
+    console.error("Usage: project-tree complete <taskId>");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  task.completed = !task.completed;
+  if (task.completed) task.abandoned = undefined;
+  writeTree(dataDir, tree);
+
+  console.log(`Task #${taskId} "${task.title}" ${task.completed ? "completed" : "uncompleted"}`);
+  process.exit(0);
+}
+
+// --- Abandon command ---
+
+if (command === "abandon") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+
+  if (!taskId || isNaN(taskId)) {
+    console.error("Usage: project-tree abandon <taskId>");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  const wasAbandoned = !!task.abandoned;
+  task.abandoned = wasAbandoned ? undefined : true;
+  if (!wasAbandoned) task.completed = false;
+  writeTree(dataDir, tree);
+
+  console.log(`Task #${taskId} "${task.title}" ${wasAbandoned ? "restored" : "abandoned"}`);
+  process.exit(0);
+}
+
 // --- Print command ---
 
 if (command === "print") {
