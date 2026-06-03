@@ -52,7 +52,8 @@ const HELP = `
     --ids          Show task IDs (with print command)
     --depth <n>    Max depth to display (default: 3)
     --all          Show full tree without depth limit
-    --force        Skip confirmation (delete, prune)
+    --force            Skip confirmation (delete, prune)
+    --hide-completed   Hide completed/abandoned tasks
 
   Examples:
     project-tree print                    # print tree (depth 3)
