@@ -176,13 +176,13 @@
         {
           "id": 144,
           "title": "Subcomando describe: ver/editar descripción",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
           "id": 145,
           "title": "Subcomando prune: podar completados/abandonados",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {

@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
 const { readTree, writeTree } = require("../backend/dist/io");
-const { findTask, findParent, maxId, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
+const { findTask, findParent, maxId, countDescendants, countCompletedDescendants, computeMaxDepth, isPrunable, formatPrunedTree, countNodes } = require("../backend/dist/tree-ops");
 
 // --- Argument parsing ---
 
@@ -110,6 +110,96 @@ if (command === "create") {
   writeTree(dataDir, tree);
 
   console.log(`Created task #${newTask.id} "${newTask.title}" under #${parentId}`);
+  process.exit(0);
+}
+
+// --- Describe command ---
+
+if (command === "describe") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+  // Everything after taskId and flags is the description text
+  const descArgs = args.slice(2).filter((a, i, arr) => !a.startsWith("-") && arr[i - 1] !== "--dir");
+  const newDesc = descArgs.length > 0 ? descArgs.join(" ") : null;
+
+  if (!taskId || isNaN(taskId)) {
+    console.error('Usage: project-tree describe <taskId> ["description text"]');
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  // Read mode: no description argument provided
+  if (newDesc === null) {
+    if (task.description) {
+      console.log(`#${taskId} ${task.title}\n`);
+      console.log(task.description);
+    } else {
+      console.log(`Task #${taskId} "${task.title}" has no description.`);
+    }
+    process.exit(0);
+  }
+
+  // Write mode: set description
+  task.description = newDesc || undefined;
+  writeTree(dataDir, tree);
+  console.log(newDesc ? `Description set for task #${taskId}` : `Description cleared for task #${taskId}`);
+  process.exit(0);
+}
+
+// --- Prune command ---
+
+if (command === "prune") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+  const force = hasFlag("--force");
+
+  if (!taskId || isNaN(taskId)) {
+    console.error("Usage: project-tree prune <taskId> [--force]");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  const prunableChildren = task.children.filter(isPrunable);
+  if (prunableChildren.length === 0) {
+    console.log(`No prunable children under task #${taskId}.`);
+    process.exit(0);
+  }
+
+  const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
+
+  if (!force) {
+    console.log(`Will prune ${prunedCount} task(s) under #${taskId} "${task.title}":\n`);
+    for (const child of prunableChildren) {
+      process.stdout.write(formatPrunedTree(child));
+    }
+    console.log("\nUse --force to confirm.");
+    process.exit(1);
+  }
+
+  // Build pruned summary for description
+  let summary = "--- Pruned ---\n";
+  for (const child of prunableChildren) {
+    summary += formatPrunedTree(child);
+  }
+
+  const existing = task.description || "";
+  task.description = existing ? existing + "\n\n" + summary.trimEnd() : summary.trimEnd();
+
+  const prunableIds = new Set(prunableChildren.map(c => c.id));
+  task.children = task.children.filter(c => !prunableIds.has(c.id));
+
+  writeTree(dataDir, tree);
+  console.log(`Pruned ${prunedCount} task(s) from #${taskId} "${task.title}"`);
   process.exit(0);
 }
 
