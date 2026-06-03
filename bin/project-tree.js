@@ -41,8 +41,8 @@ const HELP = `
     project-tree plans                   List plans with progress
     project-tree plan <name>             Print tree filtered by plan
     project-tree plan create "name"      Create a new plan
-    project-tree plan add <name> <id>    Add task to plan
-    project-tree plan remove <name> <id> Remove task from plan
+    project-tree plan add <name> <id>    Add task to plan [--recursive]
+    project-tree plan remove <name> <id> Remove task from plan [--recursive]
     project-tree plan archive <name>     Archive a plan
 
   Options:
@@ -54,6 +54,7 @@ const HELP = `
     --all              Show full tree without depth limit
     --force            Skip confirmation (delete, prune)
     --hide-completed   Hide completed/abandoned tasks
+    --recursive        Include descendants (plan add/remove)
 
   Examples:
     project-tree serve                    # open web viewer

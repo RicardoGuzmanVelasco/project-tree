@@ -61,7 +61,9 @@ project-tree plans                    # list plans with progress
 project-tree plan "sprint-1"          # print tree filtered by plan
 project-tree plan create "sprint-2"   # create a new plan
 project-tree plan add "sprint-2" 42   # add task to plan
+project-tree plan add "sprint-2" 42 --recursive  # add task + descendants
 project-tree plan remove "sprint-2" 42
+project-tree plan remove "sprint-2" 42 --recursive
 project-tree plan archive "sprint-2"
 ```
 
