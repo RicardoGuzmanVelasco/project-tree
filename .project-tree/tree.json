@@ -188,42 +188,42 @@
         {
           "id": 146,
           "title": "Subcomandos de planes",
-          "completed": false,
+          "completed": true,
           "children": [
             {
               "id": 147,
               "title": "plans: listar planes con progreso",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 148,
               "title": "plan <nombre>: imprimir árbol filtrado al plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 149,
               "title": "plan create: crear plan vacío",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 150,
               "title": "plan add: añadir tarea al plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 151,
               "title": "plan remove: quitar tarea del plan",
-              "completed": false,
+              "completed": true,
               "children": []
             },
             {
               "id": 152,
               "title": "plan archive: archivar plan",
-              "completed": false,
+              "completed": true,
               "children": []
             }
           ]
