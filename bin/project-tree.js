@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
 const { readTree, writeTree } = require("../backend/dist/io");
-const { findTask, maxId, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
+const { findTask, findParent, maxId, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
 
 // --- Argument parsing ---
 
@@ -110,6 +110,47 @@ if (command === "create") {
   writeTree(dataDir, tree);
 
   console.log(`Created task #${newTask.id} "${newTask.title}" under #${parentId}`);
+  process.exit(0);
+}
+
+// --- Delete command ---
+
+if (command === "delete") {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const taskId = parseInt(args[1], 10);
+  const force = hasFlag("--force");
+
+  if (!taskId || isNaN(taskId)) {
+    console.error("Usage: project-tree delete <taskId> [--force]");
+    process.exit(1);
+  }
+
+  const tree = readTree(dataDir);
+  if (!tree) { console.error(`No tree.json found in ${dataDir}`); process.exit(1); }
+
+  if (taskId === tree.id) {
+    console.error("Cannot delete the root task.");
+    process.exit(1);
+  }
+
+  const task = findTask(tree, taskId);
+  if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
+
+  const dc = countDescendants(task);
+
+  if (!force && dc > 0) {
+    console.log(`Task #${taskId} "${task.title}" has ${dc} descendant(s).`);
+    console.log("Use --force to confirm deletion.");
+    process.exit(1);
+  }
+
+  const parent = findParent(tree, taskId);
+  if (parent) {
+    parent.children = parent.children.filter(c => c.id !== taskId);
+  }
+
+  writeTree(dataDir, tree);
+  console.log(`Deleted task #${taskId} "${task.title}"${dc > 0 ? ` and ${dc} descendant(s)` : ""}`);
   process.exit(0);
 }
 

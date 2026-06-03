@@ -158,7 +158,7 @@
         {
           "id": 141,
           "title": "Subcomando delete: eliminar tarea y subárbol",
-          "completed": false,
+          "completed": true,
           "children": []
         },
         {
