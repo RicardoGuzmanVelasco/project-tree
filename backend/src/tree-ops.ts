@@ -36,6 +36,33 @@ export function countNodes(task: Task): number {
   return 1 + task.children.reduce((sum, c) => sum + countNodes(c), 0);
 }
 
+// --- Descendant counting ---
+
+export function countDescendants(task: Task): number {
+  let count = task.children.length;
+  for (const child of task.children) count += countDescendants(child);
+  return count;
+}
+
+export function countCompletedDescendants(task: Task): number {
+  let count = 0;
+  for (const child of task.children) {
+    if (child.completed || child.abandoned) count++;
+    count += countCompletedDescendants(child);
+  }
+  return count;
+}
+
+export function computeMaxDepth(task: Task, current: number = 0): number {
+  if (task.children.length === 0) return current;
+  let max = current;
+  for (const child of task.children) {
+    const d = computeMaxDepth(child, current + 1);
+    if (d > max) max = d;
+  }
+  return max;
+}
+
 // --- Prune helpers ---
 
 export function isPrunable(task: Task): boolean {

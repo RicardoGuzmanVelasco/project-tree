@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
 const { readTree } = require("../backend/dist/io");
-const { findTask } = require("../backend/dist/tree-ops");
+const { findTask, countDescendants, countCompletedDescendants, computeMaxDepth } = require("../backend/dist/tree-ops");
 
 // --- Argument parsing ---
 
@@ -36,12 +36,16 @@ const HELP = `
     --no-open      Don't open the browser
     --dir <path>   Use a different data directory
     --ids          Show task IDs (with print command)
+    --depth <n>    Max depth to display (default: 3)
+    --all          Show full tree without depth limit
 
   Examples:
     project-tree                    # open viewer for current project
     project-tree init               # initialize a new project tree
-    project-tree print               # print full tree
+    project-tree print               # print tree (depth 3)
+    project-tree print --all         # print full tree
     project-tree print 42 --ids     # print subtree from task #42 with IDs
+    project-tree print --depth 2    # print tree limited to 2 levels
     project-tree --port 3005        # serve on a custom port
 `.trimStart();
 
@@ -74,8 +78,12 @@ if (command === "init") {
 // --- Print command ---
 
 if (command === "print") {
+  const DEFAULT_DEPTH = 3;
+
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const showIds = hasFlag("--ids");
+  const depthFlag = getFlag("--depth");
+  const maxDepth = depthFlag !== undefined ? parseInt(depthFlag, 10) : (hasFlag("--all") ? Infinity : DEFAULT_DEPTH);
 
   const tree = readTree(dataDir);
   if (!tree) {
@@ -83,8 +91,8 @@ if (command === "print") {
     process.exit(1);
   }
 
-  // Task ID is the first non-flag argument after "show"
-  const idArg = args.find((a, i) => i > 0 && !a.startsWith("-") && args[i - 1] !== "--dir");
+  // Task ID is the first non-flag argument after "print"
+  const idArg = args.find((a, i) => i > 0 && !a.startsWith("-") && args[i - 1] !== "--dir" && args[i - 1] !== "--depth");
   const taskId = idArg ? parseInt(idArg, 10) : tree.id;
 
   const task = findTask(tree, taskId);
@@ -99,20 +107,30 @@ if (command === "print") {
     return "[ ]";
   }
 
-  function renderTree(node, prefix, isLast, isRoot) {
+  function renderTree(node, prefix, isLast, isRoot, depth) {
     const connector = isRoot ? "" : isLast ? "└── " : "├── ";
     const idLabel = showIds && node.id >= 0 ? `#${node.id} ` : "";
     const status = isRoot ? "" : `${statusIcon(node)} `;
-    console.log(`${prefix}${connector}${status}${idLabel}${node.title}`);
 
     const children = node.children || [];
+
+    // At depth limit with hidden children: show truncation indicator
+    if (depth >= maxDepth && children.length > 0) {
+      const dc = countDescendants(node);
+      const cc = countCompletedDescendants(node);
+      console.log(`${prefix}${connector}${status}${idLabel}${node.title}  (+${dc} tareas, ${cc} completadas)`);
+      return;
+    }
+
+    console.log(`${prefix}${connector}${status}${idLabel}${node.title}`);
+
     const childPrefix = isRoot ? "" : prefix + (isLast ? "    " : "│   ");
     children.forEach((child, i) => {
-      renderTree(child, childPrefix, i === children.length - 1, false);
+      renderTree(child, childPrefix, i === children.length - 1, false, depth + 1);
     });
   }
 
-  renderTree(task, "", true, true);
+  renderTree(task, "", true, true, 0);
   process.exit(0);
 }
 
