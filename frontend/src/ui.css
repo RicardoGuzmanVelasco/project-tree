@@ -20,7 +20,7 @@
 }
 .btn:hover {
   background: var(--c-bg-muted);
-  border-color: #b0b8c4;
+  border-color: #a8b8ae;
 }
 .btn:active {
   background: var(--c-bg-subtle);
@@ -42,11 +42,11 @@
   color: #fff;
 }
 .btn-primary:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #15803d;
+  border-color: #15803d;
 }
 .btn-primary:active {
-  background: #1d4ed8;
+  background: #166534;
 }
 
 /* Danger */
@@ -67,7 +67,7 @@
   color: var(--c-primary);
 }
 .btn-toggle-on:hover {
-  background: #bfdbfe;
+  background: #bbf7d0;
 }
 
 /* Warning toggle (edit plan) */
@@ -138,7 +138,7 @@
   color: var(--c-primary);
 }
 .pill-on:hover {
-  background: #bfdbfe;
+  background: #bbf7d0;
 }
 .pill .pill-key {
   font-size: 10px;
@@ -150,7 +150,7 @@
   letter-spacing: 0.03em;
 }
 .pill-on .pill-key {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(22, 163, 74, 0.15);
   color: var(--c-primary);
 }
 
@@ -169,7 +169,7 @@
 }
 .input:focus {
   border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
 }
 .input-error {
   border-color: var(--c-danger);
@@ -232,7 +232,7 @@
   position: absolute;
   inset: 0;
   z-index: 20;
-  background: rgba(15, 23, 42, 0.2);
+  background: rgba(15, 30, 22, 0.2);
   backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
