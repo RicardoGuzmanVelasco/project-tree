@@ -53,6 +53,7 @@ const HELP = `
     --all              Show full tree without depth limit
     --force            Skip confirmation (delete, prune)
     --show-completed   Include completed/abandoned tasks (hidden by default)
+    --show-pruned      Mark tasks with a pruned snapshot (✂)
     --recursive        Include descendants (plan add/remove)
 
   Examples:
