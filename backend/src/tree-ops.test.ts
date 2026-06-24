@@ -10,6 +10,7 @@ import {
   countCompletedDescendants,
   computeMaxDepth,
   collectDescendantIds,
+  suggestPrunes,
   nextPlanId,
 } from "./tree-ops";
 
@@ -236,5 +237,71 @@ describe("nextPlanId", () => {
       { id: 7, name: "b", taskIds: [] },
     ];
     expect(nextPlanId(plans)).toBe(8);
+  });
+});
+
+// --- suggestPrunes ---
+
+function done(id: number, kids: Task[] = []): Task {
+  return { id, title: `T${id}`, completed: true, children: kids };
+}
+function open(id: number, kids: Task[] = []): Task {
+  return { id, title: `T${id}`, completed: false, children: kids };
+}
+
+describe("suggestPrunes", () => {
+  const OPTS = { minRatio: 0.8, minSize: 3 };
+
+  it("excludes the root even if it qualifies", () => {
+    const root = open(1, [done(2), done(3), done(4)]);
+    const out = suggestPrunes(root, OPTS);
+    expect(out.find(s => s.id === 1)).toBeUndefined();
+  });
+
+  it("excludes leaves (no children)", () => {
+    const root = open(1, [done(2)]);
+    const out = suggestPrunes(root, { minRatio: 1, minSize: 0 });
+    expect(out).toEqual([]);
+  });
+
+  it("filters by minSize on total descendants", () => {
+    const small = open(2, [done(3), done(4)]);              // total=2
+    const big = open(5, [done(6), done(7), done(8), done(9)]); // total=4
+    const root = open(1, [small, big]);
+    const out = suggestPrunes(root, { minRatio: 0.5, minSize: 3 });
+    expect(out.map(s => s.id)).toEqual([5]);
+  });
+
+  it("filters by minRatio", () => {
+    // hub has 4 descendants, 3 closed -> ratio 0.75
+    const hub = open(2, [done(3), done(4), done(5), open(6)]);
+    const root = open(1, [hub]);
+    const at80 = suggestPrunes(root, { minRatio: 0.8, minSize: 1 });
+    expect(at80.map(s => s.id)).not.toContain(2);
+    const at50 = suggestPrunes(root, { minRatio: 0.5, minSize: 1 });
+    expect(at50.map(s => s.id)).toContain(2);
+  });
+
+  it("ranks by ratio desc, then total desc", () => {
+    // hub A: 5 descendants, 5 closed (ratio 1.0)
+    const a = open(10, [done(11), done(12), done(13), done(14), done(15)]);
+    // hub B: 10 descendants, 9 closed (ratio 0.9)
+    const b = open(20, [done(21), done(22), done(23), done(24), done(25), done(26), done(27), done(28), done(29), open(30)]);
+    // hub C: 4 descendants, 4 closed (ratio 1.0)
+    const c = open(40, [done(41), done(42), done(43), done(44)]);
+    const root = open(1, [a, b, c]);
+    const out = suggestPrunes(root, { minRatio: 0.8, minSize: 3 });
+    expect(out.map(s => s.id)).toEqual([10, 40, 20]);
+  });
+
+  it("counts abandoned as closed", () => {
+    const hub = open(2, [
+      { id: 3, title: "a", completed: false, abandoned: true, children: [] },
+      done(4),
+      done(5),
+    ]);
+    const root = open(1, [hub]);
+    const out = suggestPrunes(root, { minRatio: 1, minSize: 3 });
+    expect(out.map(s => s.id)).toEqual([2]);
   });
 });

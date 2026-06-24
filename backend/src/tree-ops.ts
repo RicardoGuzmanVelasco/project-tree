@@ -72,6 +72,40 @@ export function collectDescendantIds(task: Task): number[] {
   return ids;
 }
 
+// --- Prune suggestions ---
+
+export interface PruneSuggestion {
+  id: number;
+  title: string;
+  closed: number;
+  total: number;
+  ratio: number;
+}
+
+export interface SuggestOptions {
+  minRatio: number;
+  minSize: number;
+}
+
+export function suggestPrunes(root: Task, opts: SuggestOptions): PruneSuggestion[] {
+  const out: PruneSuggestion[] = [];
+  visit(root, true);
+  out.sort((a, b) => b.ratio - a.ratio || b.total - a.total);
+  return out;
+
+  function visit(node: Task, isRoot: boolean) {
+    const total = countDescendants(node);
+    if (!isRoot && node.children.length > 0 && total >= opts.minSize) {
+      const closed = countCompletedDescendants(node);
+      const ratio = closed / total;
+      if (ratio >= opts.minRatio) {
+        out.push({ id: node.id, title: node.title, closed, total, ratio });
+      }
+    }
+    for (const child of node.children) visit(child, false);
+  }
+}
+
 // --- Plan helpers ---
 
 export function nextPlanId(plans: Plan[]): number {
