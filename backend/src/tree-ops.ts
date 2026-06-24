@@ -80,6 +80,7 @@ export interface PruneSuggestion {
   closed: number;
   total: number;
   ratio: number;
+  parentSuggestionId?: number;
 }
 
 export interface SuggestOptions {
@@ -89,20 +90,24 @@ export interface SuggestOptions {
 
 export function suggestPrunes(root: Task, opts: SuggestOptions): PruneSuggestion[] {
   const out: PruneSuggestion[] = [];
-  visit(root, true);
+  visit(root, true, undefined);
   out.sort((a, b) => b.ratio - a.ratio || b.total - a.total);
   return out;
 
-  function visit(node: Task, isRoot: boolean) {
+  function visit(node: Task, isRoot: boolean, ancestorId: number | undefined) {
+    let nextAncestorId = ancestorId;
     const total = countDescendants(node);
     if (!isRoot && node.children.length > 0 && total >= opts.minSize) {
       const closed = countCompletedDescendants(node);
       const ratio = closed / total;
       if (ratio >= opts.minRatio) {
-        out.push({ id: node.id, title: node.title, closed, total, ratio });
+        const suggestion: PruneSuggestion = { id: node.id, title: node.title, closed, total, ratio };
+        if (ancestorId !== undefined) suggestion.parentSuggestionId = ancestorId;
+        out.push(suggestion);
+        nextAncestorId = node.id;
       }
     }
-    for (const child of node.children) visit(child, false);
+    for (const child of node.children) visit(child, false, nextAncestorId);
   }
 }
 

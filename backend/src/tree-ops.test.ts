@@ -294,6 +294,18 @@ describe("suggestPrunes", () => {
     expect(out.map(s => s.id)).toEqual([10, 40, 20]);
   });
 
+  it("links nested suggestions to their nearest candidate ancestor", () => {
+    // outer hub qualifies; inner hub also qualifies and lives under outer
+    const inner = open(20, [done(21), done(22), done(23)]);
+    const outer = open(10, [inner, done(11), done(12)]);
+    const root = open(1, [outer]);
+    const out = suggestPrunes(root, { minRatio: 0.8, minSize: 3 });
+    const outerSug = out.find(s => s.id === 10)!;
+    const innerSug = out.find(s => s.id === 20)!;
+    expect(outerSug.parentSuggestionId).toBeUndefined();
+    expect(innerSug.parentSuggestionId).toBe(10);
+  });
+
   it("counts abandoned as closed", () => {
     const hub = open(2, [
       { id: 3, title: "a", completed: false, abandoned: true, children: [] },

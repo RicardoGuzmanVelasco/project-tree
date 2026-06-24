@@ -1,6 +1,6 @@
 const path = require("path");
 const { readTree, writeTree } = require("../../backend/dist/io");
-const { findTask, findParent, maxId, countDescendants, countNodes } = require("../../backend/dist/tree-ops");
+const { findTask, findParent, maxId, countDescendants, countNodes, suggestPrunes } = require("../../backend/dist/tree-ops");
 const { appendPrunedForest } = require("../../backend/dist/pruned");
 
 function create(args, { getFlag }) {
@@ -216,7 +216,17 @@ function describe(args, { getFlag }) {
   process.exit(0);
 }
 
-function prune(args, { getFlag, hasFlag }) {
+const SUGGEST_DEFAULT_MIN_RATIO = 0.8;
+const SUGGEST_DEFAULT_MIN_SIZE = 10;
+const SUGGEST_DEFAULT_LIMIT = 10;
+
+function prune(args, flags) {
+  if (args[1] === "suggest") {
+    pruneSuggest(flags);
+    return;
+  }
+
+  const { getFlag, hasFlag } = flags;
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const taskId = parseInt(args[1], 10);
   const force = hasFlag("--force");
@@ -253,6 +263,62 @@ function prune(args, { getFlag, hasFlag }) {
   task.children = [];
   writeTree(dataDir, tree);
   console.log(`Pruned ${prunedCount} task(s) from #${taskId} "${task.title}" -> pruned/${taskId}.json`);
+  process.exit(0);
+}
+
+function pruneSuggest({ getFlag, hasFlag }) {
+  const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
+  const tree = readTree(dataDir);
+  if (!tree) {
+    console.error(`No tree.json found in ${dataDir}`);
+    process.exit(1);
+  }
+
+  const minRatio = getFlag("--min") !== undefined ? parseFloat(getFlag("--min")) / 100 : SUGGEST_DEFAULT_MIN_RATIO;
+  const minSize = getFlag("--size") !== undefined ? parseInt(getFlag("--size"), 10) : SUGGEST_DEFAULT_MIN_SIZE;
+  const showAll = hasFlag("--all");
+
+  const all = suggestPrunes(tree, { minRatio, minSize });
+  if (all.length === 0) {
+    console.log("No prune candidates.");
+    process.exit(0);
+  }
+
+  // Cap by root count, but always render every descendant of a shown root so
+  // the hierarchy isn't half-displayed.
+  const roots = all.filter(s => s.parentSuggestionId === undefined);
+  const shownRoots = showAll ? roots : roots.slice(0, SUGGEST_DEFAULT_LIMIT);
+  const shownIds = new Set();
+  (function include(rs) {
+    for (const r of rs) {
+      shownIds.add(r.id);
+      include(all.filter(s => s.parentSuggestionId === r.id));
+    }
+  })(shownRoots);
+
+  const shown = all.filter(s => shownIds.has(s.id));
+  const depth = new Map();
+  for (const s of all) {
+    depth.set(s.id, s.parentSuggestionId === undefined ? 0 : depth.get(s.parentSuggestionId) + 1);
+  }
+  const prefixWidth = Math.max(...shown.map(s =>
+    2 * depth.get(s.id) + `#${s.id} "${s.title}"`.length
+  ));
+
+  function render(parentId, level) {
+    const siblings = shown.filter(s => (s.parentSuggestionId ?? null) === (parentId ?? null));
+    for (const s of siblings) {
+      const head = `${"  ".repeat(level)}#${s.id} "${s.title}"`.padEnd(prefixWidth);
+      const pct = Math.round(s.ratio * 100);
+      console.log(`${head} — ${pct}% (${s.closed} closed / ${s.total} total)`);
+      render(s.id, level + 1);
+    }
+  }
+  render(undefined, 0);
+
+  if (!showAll && roots.length > SUGGEST_DEFAULT_LIMIT) {
+    console.log(`\n... and ${roots.length - SUGGEST_DEFAULT_LIMIT} more root candidate(s). Use --all to show every one.`);
+  }
   process.exit(0);
 }
 
