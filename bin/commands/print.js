@@ -11,6 +11,7 @@ function parseRenderOptions({ getFlag, hasFlag }, dataDir) {
     hideCompleted: !hasFlag("--show-completed"),
     maxDepth: depthFlag !== undefined ? parseInt(depthFlag, 10) : (hasFlag("--all") ? Infinity : DEFAULT_DEPTH),
     prunedIds: hasFlag("--show-pruned") ? listPrunedIds(dataDir) : new Set(),
+    showRootStatus: false,
   };
 }
 
@@ -23,7 +24,8 @@ function renderForest(roots, opts) {
 function renderNode(node, prefix, isLast, isRoot, depth, opts) {
   const connector = isRoot ? "" : isLast ? "└── " : "├── ";
   const idLabel = node.id >= 0 ? `#${node.id} ` : "";
-  const status = isRoot ? "" : `${statusIcon(node)} `;
+  const showStatus = !isRoot || opts.showRootStatus;
+  const status = showStatus ? `${statusIcon(node)} ` : "";
   const prunedMark = opts.prunedIds.has(node.id) ? PRUNED_MARK : "";
 
   const allChildren = node.children || [];
