@@ -40,6 +40,7 @@ const HELP = `
     project-tree prune <id> [--force]    Snapshot all children of <id> aside (zoom-out)
     project-tree pruned                  List parents with a pruned snapshot
     project-tree pruned <id>             Print the pruned snapshot under <id>
+    project-tree pruned suggest          Suggest hubs that look ripe for prune
     project-tree plans                   List plans with progress
     project-tree plan <name>             Print tree filtered by plan
     project-tree plan create "name"      Create a new plan
