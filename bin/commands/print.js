@@ -5,8 +5,7 @@ const DEFAULT_DEPTH = 3;
 
 function run(args, { getFlag, hasFlag }) {
   const dataDir = getFlag("--dir") || require("path").join(process.cwd(), ".project-tree");
-  const showIds = hasFlag("--ids");
-  const hideCompleted = hasFlag("--hide-completed");
+  const hideCompleted = !hasFlag("--show-completed");
   const depthFlag = getFlag("--depth");
   const maxDepth = depthFlag !== undefined ? parseInt(depthFlag, 10) : (hasFlag("--all") ? Infinity : DEFAULT_DEPTH);
 
@@ -38,7 +37,7 @@ function run(args, { getFlag, hasFlag }) {
 
   function renderTree(node, prefix, isLast, isRoot, depth) {
     const connector = isRoot ? "" : isLast ? "└── " : "├── ";
-    const idLabel = showIds && node.id >= 0 ? `#${node.id} ` : "";
+    const idLabel = node.id >= 0 ? `#${node.id} ` : "";
     const status = isRoot ? "" : `${statusIcon(node)} `;
 
     const allChildren = node.children || [];

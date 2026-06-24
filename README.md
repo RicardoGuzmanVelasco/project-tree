@@ -42,10 +42,10 @@ Keyboard shortcuts: **I** (show IDs), **D** (description), **G** (go to task), *
 Full-featured command line interface. Unix-friendly — all output goes to stdout, pipes and redirections work cleanly.
 
 ```
-project-tree print                    # print tree (depth 3)
+project-tree print                    # print tree (depth 3, hides completed)
 project-tree print --all              # full tree
-project-tree print 42 --ids           # subtree from task #42 with IDs
-project-tree print --hide-completed   # only pending tasks
+project-tree print 42                 # subtree from task #42
+project-tree print --show-completed   # include completed/abandoned tasks
 
 project-tree create 1 "New feature"   # create task under root
 project-tree complete 42              # toggle completion
@@ -127,4 +127,4 @@ The shared modules (`tree-ops.ts` + `io.ts`) are the foundation — both the Exp
 
 ## Dogfooding
 
-This tool manages its own development. Run `project-tree print --ids` in this repo to see the full task tree.
+This tool manages its own development. Run `project-tree print` in this repo to see the task tree.

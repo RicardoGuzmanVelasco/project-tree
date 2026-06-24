@@ -49,18 +49,17 @@ const HELP = `
     --port <n>         Use a different port (default: 3001)
     --no-open          Don't open the browser
     --dir <path>       Use a different data directory
-    --ids              Show task IDs (with print command)
     --depth <n>        Max depth to display (default: 3)
     --all              Show full tree without depth limit
     --force            Skip confirmation (delete, prune)
-    --hide-completed   Hide completed/abandoned tasks
+    --show-completed   Include completed/abandoned tasks (hidden by default)
     --recursive        Include descendants (plan add/remove)
 
   Examples:
     project-tree serve                    # open web viewer
-    project-tree print                    # print tree (depth 3)
+    project-tree print                    # print tree (depth 3, no completed)
     project-tree print --all              # print full tree
-    project-tree print 42 --ids           # subtree from task #42 with IDs
+    project-tree print 42 --show-completed # subtree from task #42 including done
     project-tree create 1 "New feature"   # create task under root
     project-tree complete 42              # toggle task #42 completion
     project-tree plans                    # list active plans
