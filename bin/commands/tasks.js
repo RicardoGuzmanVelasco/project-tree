@@ -1,6 +1,7 @@
 const path = require("path");
 const { readTree, writeTree } = require("../../backend/dist/io");
-const { findTask, findParent, maxId, countDescendants, isPrunable, formatPrunedTree, countNodes } = require("../../backend/dist/tree-ops");
+const { findTask, findParent, maxId, countDescendants, countNodes } = require("../../backend/dist/tree-ops");
+const { appendPrunedForest } = require("../../backend/dist/pruned");
 
 function create(args, { getFlag }) {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
@@ -231,37 +232,35 @@ function prune(args, { getFlag, hasFlag }) {
   const task = findTask(tree, taskId);
   if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
 
-  const prunableChildren = task.children.filter(isPrunable);
-  if (prunableChildren.length === 0) {
-    console.log(`No prunable children under task #${taskId}.`);
+  const children = task.children;
+  if (children.length === 0) {
+    console.log(`No children to prune under task #${taskId}.`);
     process.exit(0);
   }
 
-  const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
+  const prunedCount = children.reduce((sum, c) => sum + countNodes(c), 0);
 
   if (!force) {
     console.log(`Will prune ${prunedCount} task(s) under #${taskId} "${task.title}":\n`);
-    for (const child of prunableChildren) {
-      process.stdout.write(formatPrunedTree(child));
+    for (const child of children) {
+      previewSubtree(child, 0);
     }
     console.log("\nUse --force to confirm.");
     process.exit(1);
   }
 
-  let summary = "--- Pruned ---\n";
-  for (const child of prunableChildren) {
-    summary += formatPrunedTree(child);
-  }
-
-  const existing = task.description || "";
-  task.description = existing ? existing + "\n\n" + summary.trimEnd() : summary.trimEnd();
-
-  const prunableIds = new Set(prunableChildren.map(c => c.id));
-  task.children = task.children.filter(c => !prunableIds.has(c.id));
-
+  appendPrunedForest(dataDir, taskId, children);
+  task.children = [];
   writeTree(dataDir, tree);
-  console.log(`Pruned ${prunedCount} task(s) from #${taskId} "${task.title}"`);
+  console.log(`Pruned ${prunedCount} task(s) from #${taskId} "${task.title}" -> pruned/${taskId}.json`);
   process.exit(0);
+}
+
+function previewSubtree(node, indent) {
+  const prefix = "  ".repeat(indent) + "- ";
+  const status = node.abandoned ? " [~]" : node.completed ? " [x]" : "";
+  process.stdout.write(`${prefix}#${node.id} ${node.title}${status}\n`);
+  for (const child of node.children) previewSubtree(child, indent + 1);
 }
 
 module.exports = { create, complete, abandon, delete: del, rename, move, describe, prune };

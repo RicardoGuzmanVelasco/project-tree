@@ -72,23 +72,6 @@ export function collectDescendantIds(task: Task): number[] {
   return ids;
 }
 
-// --- Prune helpers ---
-
-export function isPrunable(task: Task): boolean {
-  if (!task.completed && !task.abandoned) return false;
-  return task.children.every(isPrunable);
-}
-
-export function formatPrunedTree(task: Task, indent: number = 0): string {
-  const prefix = "  ".repeat(indent) + "- ";
-  const status = task.abandoned ? " [abandoned]" : "";
-  let result = prefix + task.title + status + "\n";
-  for (const child of task.children) {
-    result += formatPrunedTree(child, indent + 1);
-  }
-  return result;
-}
-
 // --- Plan helpers ---
 
 export function nextPlanId(plans: Plan[]): number {

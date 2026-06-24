@@ -37,7 +37,7 @@ const HELP = `
     project-tree rename <id> "title"     Rename a task
     project-tree move <id> <parentId>    Move a task under a new parent
     project-tree describe <id> ["text"]  View or set task description
-    project-tree prune <id> [--force]    Prune completed/abandoned children
+    project-tree prune <id> [--force]    Snapshot all children of <id> aside (zoom-out)
     project-tree plans                   List plans with progress
     project-tree plan <name>             Print tree filtered by plan
     project-tree plan create "name"      Create a new plan

@@ -10,8 +10,6 @@ import {
   countCompletedDescendants,
   computeMaxDepth,
   collectDescendantIds,
-  isPrunable,
-  formatPrunedTree,
   nextPlanId,
 } from "./tree-ops";
 
@@ -194,58 +192,6 @@ describe("computeMaxDepth", () => {
       ],
     });
     expect(computeMaxDepth(tree)).toBe(3);
-  });
-});
-
-// --- isPrunable ---
-
-describe("isPrunable", () => {
-  it("returns false for a pending task", () => {
-    expect(isPrunable(task(1))).toBe(false);
-  });
-
-  it("returns true for a completed leaf", () => {
-    expect(isPrunable(task(1, { completed: true }))).toBe(true);
-  });
-
-  it("returns true for an abandoned leaf", () => {
-    expect(isPrunable(task(1, { abandoned: true }))).toBe(true);
-  });
-
-  it("returns true when all children are also prunable", () => {
-    const t = task(1, {
-      completed: true,
-      children: [task(2, { completed: true }), task(3, { abandoned: true })],
-    });
-    expect(isPrunable(t)).toBe(true);
-  });
-
-  it("returns false if any child is pending", () => {
-    const t = task(1, {
-      completed: true,
-      children: [task(2, { completed: true }), task(3)],
-    });
-    expect(isPrunable(t)).toBe(false);
-  });
-});
-
-// --- formatPrunedTree ---
-
-describe("formatPrunedTree", () => {
-  it("formats a single task", () => {
-    expect(formatPrunedTree(task(1, { title: "Done" }))).toBe("- Done\n");
-  });
-
-  it("marks abandoned tasks", () => {
-    expect(formatPrunedTree(task(1, { title: "Nope", abandoned: true }))).toBe("- Nope [abandoned]\n");
-  });
-
-  it("indents children", () => {
-    const t = task(1, {
-      title: "Parent",
-      children: [task(2, { title: "Child" })],
-    });
-    expect(formatPrunedTree(t)).toBe("- Parent\n  - Child\n");
   });
 });
 

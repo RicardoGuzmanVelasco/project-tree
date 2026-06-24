@@ -3,8 +3,9 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import { Task, Plan } from "./types";
-import { findTask, findParent, maxId, isPrunable, formatPrunedTree, countNodes, nextPlanId } from "./tree-ops";
+import { findTask, findParent, maxId, countNodes, nextPlanId } from "./tree-ops";
 import { readTree, writeTree, readPlans, writePlans } from "./io";
+import { appendPrunedForest } from "./pruned";
 
 export interface ServerOptions {
   dataDir: string;
@@ -162,24 +163,15 @@ app.post("/tasks/:id/prune", (req, res) => {
   const task = findTask(t, id);
   if (!task) { res.status(404).json({ error: "Task not found" }); return; }
 
-  const prunableChildren = task.children.filter(isPrunable);
-  if (prunableChildren.length === 0) {
-    res.status(400).json({ error: "No prunable children" }); return;
+  const children = task.children;
+  if (children.length === 0) {
+    res.status(400).json({ error: "No children to prune" }); return;
   }
 
-  let summary = "--- Pruned ---\n";
-  for (const child of prunableChildren) {
-    summary += formatPrunedTree(child);
-  }
+  const prunedCount = children.reduce((sum, c) => sum + countNodes(c), 0);
 
-  const existing = task.description || "";
-  task.description = existing ? existing + "\n\n" + summary.trimEnd() : summary.trimEnd();
-
-  const prunableIds = new Set(prunableChildren.map(c => c.id));
-  task.children = task.children.filter(c => !prunableIds.has(c.id));
-
-  const prunedCount = prunableChildren.reduce((sum, c) => sum + countNodes(c), 0);
-
+  appendPrunedForest(DATA_DIR, id, children);
+  task.children = [];
   writeTree(DATA_DIR, t);
   res.json({ task, prunedCount });
 });
