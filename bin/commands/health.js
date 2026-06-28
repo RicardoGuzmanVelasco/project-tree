@@ -12,8 +12,11 @@ function doctor(args, { getFlag }) {
   if (issues.length === 0) process.exit(0);
 
   for (const issue of issues) {
-    const locs = issue.occurrences.map(o => `"${o.title}" (${o.path})`).join(" and ");
-    console.log(`Duplicate ID #${issue.id}: ${locs}`);
+    console.log(`Duplicate ID #${issue.id}:`);
+    for (const o of issue.occurrences) {
+      console.log(`  "${o.title}"`);
+      console.log(`    ${o.path}`);
+    }
   }
 
   const noun = issues.length === 1 ? "issue" : "issues";
