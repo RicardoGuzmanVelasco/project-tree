@@ -21,32 +21,42 @@ function renderForest(roots, opts) {
   });
 }
 
-function renderNode(node, prefix, isLast, isRoot, depth, opts) {
+function hasIncompleteDescendants(node) {
+  return (node.children || []).some(c => !isDone(c) || hasIncompleteDescendants(c));
+}
+
+function renderNode(node, prefix, isLast, isRoot, depth, opts, ghostAncestor = false) {
   const connector = isRoot ? "" : isLast ? "└── " : "├── ";
   const idLabel = node.id >= 0 ? `#${node.id} ` : "";
   const showStatus = !isRoot || opts.showRootStatus;
   const status = showStatus ? `${statusIcon(node)} ` : "";
   const prunedMark = opts.prunedIds.has(node.id) ? PRUNED_MARK : "";
 
+  const isGhost = opts.hideCompleted && isDone(node) && hasIncompleteDescendants(node);
+  const dim = process.stdout.isTTY && (ghostAncestor || isGhost) ? "\x1b[2m" : "";
+  const reset = dim ? "\x1b[0m" : "";
+
   const allChildren = node.children || [];
 
   if (depth >= opts.maxDepth && allChildren.length > 0) {
     const dc = countDescendants(node);
     const cc = countCompletedDescendants(node);
-    console.log(`${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}  (+${dc} tareas, ${cc} completadas)`);
+    console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}  (+${dc} tareas, ${cc} completadas)${reset}`);
     return;
   }
 
-  const visibleChildren = opts.hideCompleted ? allChildren.filter(c => !isDone(c)) : allChildren;
+  const visibleChildren = opts.hideCompleted
+    ? allChildren.filter(c => !isDone(c) || hasIncompleteDescendants(c))
+    : allChildren;
   const hiddenCount = allChildren.length - visibleChildren.length;
 
-  console.log(`${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}`);
+  console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}${reset}`);
 
   const childPrefix = isRoot ? "" : prefix + (isLast ? "    " : "│   ");
 
   visibleChildren.forEach((child, i) => {
     const last = hiddenCount > 0 ? false : i === visibleChildren.length - 1;
-    renderNode(child, childPrefix, last, false, depth + 1, opts);
+    renderNode(child, childPrefix, last, false, depth + 1, opts, ghostAncestor || isGhost);
   });
 
   if (hiddenCount > 0) {
