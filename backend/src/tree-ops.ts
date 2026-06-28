@@ -116,3 +116,114 @@ export function suggestPrunes(root: Task, opts: SuggestOptions): PruneSuggestion
 export function nextPlanId(plans: Plan[]): number {
   return plans.length === 0 ? 1 : Math.max(...plans.map(p => p.id)) + 1;
 }
+
+// --- Health: diagnose & repair ---
+
+export interface DuplicateIdIssue {
+  type: "duplicate_id";
+  id: number;
+  occurrences: { title: string; path: string }[];
+}
+
+export interface BrokenPlanRefIssue {
+  type: "broken_plan_ref";
+  planName: string;
+  taskId: number;
+}
+
+export type HealthIssue = DuplicateIdIssue | BrokenPlanRefIssue;
+
+export interface DiagnoseResult {
+  issues: HealthIssue[];
+}
+
+export function diagnose(tree: Task, plans: Plan[]): DiagnoseResult {
+  const nodes: { id: number; title: string; path: string }[] = [];
+
+  function walk(node: Task, parentPath: string) {
+    const p = parentPath ? `${parentPath} > ${node.title}` : node.title;
+    nodes.push({ id: node.id, title: node.title, path: p });
+    node.children.forEach(c => walk(c, p));
+  }
+  walk(tree, "");
+
+  const byId = new Map<number, { title: string; path: string }[]>();
+  for (const { id, title, path } of nodes) {
+    if (!byId.has(id)) byId.set(id, []);
+    byId.get(id)!.push({ title, path });
+  }
+
+  const issues: HealthIssue[] = [];
+
+  for (const [id, occurrences] of byId.entries()) {
+    if (occurrences.length > 1) {
+      issues.push({ type: "duplicate_id", id, occurrences });
+    }
+  }
+
+  const allIds = new Set(nodes.map(n => n.id));
+  for (const plan of plans) {
+    for (const taskId of plan.taskIds) {
+      if (!allIds.has(taskId)) {
+        issues.push({ type: "broken_plan_ref", planName: plan.name, taskId });
+      }
+    }
+  }
+
+  return { issues };
+}
+
+export interface RepairRename {
+  from: number;
+  to: number;
+  title: string;
+}
+
+export interface RepairResult {
+  renames: RepairRename[];
+  removedPlanRefs: { planName: string; taskId: number }[];
+}
+
+export function repairTree(
+  tree: Task,
+  plans: Plan[]
+): { tree: Task; plans: Plan[]; result: RepairResult } {
+  const seen = new Set<number>();
+  const renames: RepairRename[] = [];
+  let nextNewId = maxId(tree) + 1;
+
+  function fixNode(node: Task): Task {
+    let id = node.id;
+    if (seen.has(id)) {
+      renames.push({ from: id, to: nextNewId, title: node.title });
+      id = nextNewId++;
+    } else {
+      seen.add(node.id);
+    }
+    return { ...node, id, children: node.children.map(fixNode) };
+  }
+
+  const newTree = fixNode(tree);
+
+  // Collect all IDs in the repaired tree (first occurrences kept original IDs)
+  const allIds = new Set<number>();
+  function collectIds(node: Task) {
+    allIds.add(node.id);
+    node.children.forEach(collectIds);
+  }
+  collectIds(newTree);
+
+  const removedPlanRefs: { planName: string; taskId: number }[] = [];
+  const newPlans = plans.map(plan => {
+    const newTaskIds = plan.taskIds.filter(id => {
+      if (!allIds.has(id)) {
+        removedPlanRefs.push({ planName: plan.name, taskId: id });
+        return false;
+      }
+      return true;
+    });
+    return { ...plan, taskIds: newTaskIds };
+  });
+
+  return { tree: newTree, plans: newPlans, result: { renames, removedPlanRefs } };
+}

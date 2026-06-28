@@ -47,6 +47,8 @@ const HELP = `
     project-tree plan add <name> <id>    Add task to plan [--recursive]
     project-tree plan remove <name> <id> Remove task from plan [--recursive]
     project-tree plan archive <name>     Archive a plan
+    project-tree doctor                  Check tree integrity (exit 1 if issues found)
+    project-tree repair                  Fix duplicate IDs and broken plan references
 
   Options:
     --port <n>         Use a different port (default: 3001)
@@ -101,6 +103,7 @@ const tasks = require("./commands/tasks");
 const plans = require("./commands/plans");
 const print = require("./commands/print");
 const pruned = require("./commands/pruned");
+const health = require("./commands/health");
 
 const taskCommands = {
   create: tasks.create,
@@ -123,6 +126,14 @@ if (command === "print") {
 
 if (command === "pruned") {
   pruned.run(args, flags);
+}
+
+if (command === "doctor") {
+  health.doctor(args, flags);
+}
+
+if (command === "repair") {
+  health.repair(args, flags);
 }
 
 if (command === "plans") {
