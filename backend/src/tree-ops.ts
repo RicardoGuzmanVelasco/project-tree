@@ -134,10 +134,10 @@ export interface BrokenPlanRefIssue {
 export type HealthIssue = DuplicateIdIssue | BrokenPlanRefIssue;
 
 export interface DiagnoseResult {
-  issues: HealthIssue[];
+  issues: DuplicateIdIssue[];
 }
 
-export function diagnose(tree: Task, plans: Plan[]): DiagnoseResult {
+export function diagnose(tree: Task): DiagnoseResult {
   const nodes: { id: number; title: string; path: string }[] = [];
 
   function walk(node: Task, parentPath: string) {
@@ -153,20 +153,10 @@ export function diagnose(tree: Task, plans: Plan[]): DiagnoseResult {
     byId.get(id)!.push({ title, path });
   }
 
-  const issues: HealthIssue[] = [];
-
+  const issues: DuplicateIdIssue[] = [];
   for (const [id, occurrences] of byId.entries()) {
     if (occurrences.length > 1) {
       issues.push({ type: "duplicate_id", id, occurrences });
-    }
-  }
-
-  const allIds = new Set(nodes.map(n => n.id));
-  for (const plan of plans) {
-    for (const taskId of plan.taskIds) {
-      if (!allIds.has(taskId)) {
-        issues.push({ type: "broken_plan_ref", planName: plan.name, taskId });
-      }
     }
   }
 
@@ -181,13 +171,9 @@ export interface RepairRename {
 
 export interface RepairResult {
   renames: RepairRename[];
-  removedPlanRefs: { planName: string; taskId: number }[];
 }
 
-export function repairTree(
-  tree: Task,
-  plans: Plan[]
-): { tree: Task; plans: Plan[]; result: RepairResult } {
+export function repairTree(tree: Task): { tree: Task; result: RepairResult } {
   const seen = new Set<number>();
   const renames: RepairRename[] = [];
   let nextNewId = maxId(tree) + 1;
@@ -203,27 +189,5 @@ export function repairTree(
     return { ...node, id, children: node.children.map(fixNode) };
   }
 
-  const newTree = fixNode(tree);
-
-  // Collect all IDs in the repaired tree (first occurrences kept original IDs)
-  const allIds = new Set<number>();
-  function collectIds(node: Task) {
-    allIds.add(node.id);
-    node.children.forEach(collectIds);
-  }
-  collectIds(newTree);
-
-  const removedPlanRefs: { planName: string; taskId: number }[] = [];
-  const newPlans = plans.map(plan => {
-    const newTaskIds = plan.taskIds.filter(id => {
-      if (!allIds.has(id)) {
-        removedPlanRefs.push({ planName: plan.name, taskId: id });
-        return false;
-      }
-      return true;
-    });
-    return { ...plan, taskIds: newTaskIds };
-  });
-
-  return { tree: newTree, plans: newPlans, result: { renames, removedPlanRefs } };
+  return { tree: fixNode(tree), result: { renames } };
 }
