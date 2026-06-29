@@ -60,12 +60,14 @@ const HELP = `
     --show-completed   Include completed/abandoned tasks (hidden by default)
     --show-pruned      Mark tasks with a pruned snapshot (✂)
     --recursive        Include descendants (plan add/remove)
+    --up               Show ancestor chain instead of subtree (print only)
 
   Examples:
     project-tree serve                    # open web viewer
     project-tree print                    # print tree (depth 3, no completed)
     project-tree print --all              # print full tree
     project-tree print 42 --show-completed # subtree from task #42 including done
+    project-tree print 42 --up            # ancestor chain up to root
     project-tree create 1 "New feature"   # create task under root
     project-tree complete 42              # toggle task #42 completion
     project-tree plans                    # list active plans
