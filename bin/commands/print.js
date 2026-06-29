@@ -1,5 +1,5 @@
 const { readTree, listDescriptionIds } = require("../../backend/dist/io");
-const { findTask, countDescendants, countCompletedDescendants } = require("../../backend/dist/tree-ops");
+const { findTask, findParent, countDescendants, countCompletedDescendants } = require("../../backend/dist/tree-ops");
 const { listPrunedIds } = require("../../backend/dist/pruned");
 
 const DEFAULT_DEPTH = 3;
@@ -79,6 +79,35 @@ function isDone(t) {
   return t.completed || t.abandoned;
 }
 
+function buildAncestorChain(tree, taskId) {
+  const chain = [];
+  let current = taskId;
+  while (true) {
+    const parent = findParent(tree, current);
+    if (!parent) break;
+    chain.unshift(parent);
+    current = parent.id;
+  }
+  return chain;
+}
+
+function renderAncestors(tree, task, opts) {
+  const ancestors = buildAncestorChain(tree, task.id);
+  const all = [...ancestors, task];
+  all.forEach((node, i) => {
+    const isLast = i === all.length - 1;
+    const prefix = "    ".repeat(i);
+    const connector = i === 0 ? "" : "└── ";
+    const idLabel = node.id >= 0 ? `#${node.id} ` : "";
+    const status = i > 0 || opts.showRootStatus ? `${statusIcon(node)} ` : "";
+    const descMark = opts.descriptionIds.has(node.id) ? DESCRIPTION_MARK : "";
+    const prunedMark = opts.prunedIds.has(node.id) ? PRUNED_MARK : "";
+    const dim = process.stdout.isTTY && !isLast ? "\x1b[2m" : "";
+    const reset = dim ? "\x1b[0m" : "";
+    console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}${descMark}${reset}`);
+  });
+}
+
 function run(args, flags) {
   const { getFlag } = flags;
   const dataDir = getFlag("--dir") || require("path").join(process.cwd(), ".project-tree");
@@ -98,7 +127,12 @@ function run(args, flags) {
     process.exit(1);
   }
 
-  renderForest([task], parseRenderOptions(flags, dataDir));
+  const opts = parseRenderOptions(flags, dataDir);
+  if (flags.hasFlag("--up")) {
+    renderAncestors(tree, task, opts);
+  } else {
+    renderForest([task], opts);
+  }
   process.exit(0);
 }
 
