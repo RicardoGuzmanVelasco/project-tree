@@ -1,9 +1,10 @@
-const { readTree } = require("../../backend/dist/io");
+const { readTree, listDescriptionIds } = require("../../backend/dist/io");
 const { findTask, countDescendants, countCompletedDescendants } = require("../../backend/dist/tree-ops");
 const { listPrunedIds } = require("../../backend/dist/pruned");
 
 const DEFAULT_DEPTH = 3;
 const PRUNED_MARK = " ✂";
+const DESCRIPTION_MARK = " ¶";
 
 function parseRenderOptions({ getFlag, hasFlag }, dataDir) {
   const depthFlag = getFlag("--depth");
@@ -11,6 +12,7 @@ function parseRenderOptions({ getFlag, hasFlag }, dataDir) {
     hideCompleted: !hasFlag("--show-completed"),
     maxDepth: depthFlag !== undefined ? parseInt(depthFlag, 10) : (hasFlag("--all") ? Infinity : DEFAULT_DEPTH),
     prunedIds: hasFlag("--show-pruned") ? listPrunedIds(dataDir) : new Set(),
+    descriptionIds: listDescriptionIds(dataDir),
     showRootStatus: false,
   };
 }
@@ -31,6 +33,7 @@ function renderNode(node, prefix, isLast, isRoot, depth, opts, ghostAncestor = f
   const showStatus = !isRoot || opts.showRootStatus;
   const status = showStatus ? `${statusIcon(node)} ` : "";
   const prunedMark = opts.prunedIds.has(node.id) ? PRUNED_MARK : "";
+  const descMark = opts.descriptionIds.has(node.id) ? DESCRIPTION_MARK : "";
 
   const isGhost = opts.hideCompleted && isDone(node) && hasIncompleteDescendants(node);
   const dim = process.stdout.isTTY && (ghostAncestor || isGhost) ? "\x1b[2m" : "";
@@ -41,7 +44,7 @@ function renderNode(node, prefix, isLast, isRoot, depth, opts, ghostAncestor = f
   if (depth >= opts.maxDepth && allChildren.length > 0) {
     const dc = countDescendants(node);
     const cc = countCompletedDescendants(node);
-    console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}  (+${dc} tareas, ${cc} completadas)${reset}`);
+    console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}${descMark}  (+${dc} tareas, ${cc} completadas)${reset}`);
     return;
   }
 
@@ -50,7 +53,7 @@ function renderNode(node, prefix, isLast, isRoot, depth, opts, ghostAncestor = f
     : allChildren;
   const hiddenCount = allChildren.length - visibleChildren.length;
 
-  console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}${reset}`);
+  console.log(`${dim}${prefix}${connector}${status}${idLabel}${node.title}${prunedMark}${descMark}${reset}`);
 
   const childPrefix = isRoot ? "" : prefix + (isLast ? "    " : "│   ");
 

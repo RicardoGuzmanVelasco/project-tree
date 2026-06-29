@@ -59,6 +59,12 @@ export async function deleteTask(id: number) {
   return response.json();
 }
 
+export async function fetchDescription(id: number): Promise<string> {
+  const response = await fetch(`${API_BASE}/tasks/${id}/description`);
+  const data = await response.json();
+  return data.description ?? "";
+}
+
 export async function updateDescription(id: number, description: string) {
   const response = await fetch(`${API_BASE}/tasks/${id}`, {
     method: "PATCH",

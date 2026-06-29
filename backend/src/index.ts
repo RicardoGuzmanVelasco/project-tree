@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import { Task, Plan } from "./types";
 import { findTask, findParent, maxId, countNodes, nextPlanId } from "./tree-ops";
-import { readTree, writeTree, readPlans, writePlans } from "./io";
+import { readTree, writeTree, readPlans, writePlans, readDescription, writeDescription, deleteDescription, listDescriptionIds } from "./io";
 import { appendPrunedForest } from "./pruned";
 
 export interface ServerOptions {
@@ -34,12 +34,26 @@ function requireTree(_req: express.Request, res: express.Response): Task | null 
   return t;
 }
 
+function annotateDescriptions(node: Task, ids: Set<number>): Task {
+  return {
+    ...node,
+    hasDescription: ids.has(node.id) || undefined,
+    children: node.children.map(c => annotateDescriptions(c, ids)),
+  };
+}
+
 // --- Task routes ---
 
 app.get("/tasks", (_req, res) => {
   const t = requireTree(_req, res);
   if (!t) return;
-  res.json(t);
+  res.json(annotateDescriptions(t, listDescriptionIds(DATA_DIR)));
+});
+
+app.get("/tasks/:id/description", (req, res) => {
+  const id = Number(req.params.id);
+  const text = readDescription(DATA_DIR, id);
+  res.json({ description: text ?? "" });
 });
 
 app.post("/tasks", (req, res) => {
@@ -104,9 +118,13 @@ app.patch("/tasks/:id", (req, res) => {
   }
 
   if (typeof description === "string") {
-    task.description = description || undefined;
-    writeTree(DATA_DIR, t);
-    res.json(task);
+    if (description) {
+      writeDescription(DATA_DIR, id, description);
+    } else {
+      deleteDescription(DATA_DIR, id);
+    }
+    broadcastChange();
+    res.json({ ...task, hasDescription: !!description || undefined });
     return;
   }
 
@@ -199,6 +217,7 @@ app.delete("/tasks/:id", (req, res) => {
   }
 
   writeTree(DATA_DIR, t);
+  deleteDescription(DATA_DIR, id);
   res.json({ deleted: id });
 });
 
@@ -288,15 +307,22 @@ function broadcastChange() {
 // Watch the real data directory for changes and notify SSE clients.
 // Resolves symlinks since fs.watch doesn't follow them on macOS.
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+function debouncedBroadcast() {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(broadcastChange, 100);
+}
+
 const realDataDir = fs.existsSync(TREE_FILE)
   ? path.dirname(fs.realpathSync(TREE_FILE))
   : fs.existsSync(DATA_DIR) ? DATA_DIR : null;
 if (realDataDir) {
   fs.watch(realDataDir, (_event, filename) => {
     if (filename !== "tree.json" && filename !== "plans.json") return;
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(broadcastChange, 100);
+    debouncedBroadcast();
   });
+  const descDir = path.join(realDataDir, "descriptions");
+  if (!fs.existsSync(descDir)) fs.mkdirSync(descDir, { recursive: true });
+  fs.watch(descDir, () => debouncedBroadcast());
 }
 
 // --- Static frontend ---

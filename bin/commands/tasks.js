@@ -1,5 +1,5 @@
 const path = require("path");
-const { readTree, writeTree } = require("../../backend/dist/io");
+const { readTree, writeTree, readDescription, writeDescription, deleteDescription } = require("../../backend/dist/io");
 const { findTask, findParent, maxId, countDescendants, countNodes, suggestPrunes } = require("../../backend/dist/tree-ops");
 const { appendPrunedForest } = require("../../backend/dist/pruned");
 
@@ -201,17 +201,21 @@ function describe(args, { getFlag }) {
   if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
 
   if (newDesc === null) {
-    if (task.description) {
+    const existing = readDescription(dataDir, taskId);
+    if (existing) {
       console.log(`#${taskId} ${task.title}\n`);
-      console.log(task.description);
+      console.log(existing);
     } else {
       console.log(`Task #${taskId} "${task.title}" has no description.`);
     }
     process.exit(0);
   }
 
-  task.description = newDesc || undefined;
-  writeTree(dataDir, tree);
+  if (newDesc) {
+    writeDescription(dataDir, taskId, newDesc);
+  } else {
+    deleteDescription(dataDir, taskId);
+  }
   console.log(newDesc ? `Description set for task #${taskId}` : `Description cleared for task #${taskId}`);
   process.exit(0);
 }

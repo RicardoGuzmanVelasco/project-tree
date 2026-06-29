@@ -277,6 +277,20 @@ function SvgNode({
           </text>
         );
       })()}
+      {/* Description indicator */}
+      {task.hasDescription && (
+        <text
+          x={width - (task.children.length > 0 ? 30 : 10)}
+          y={height / 2}
+          dominantBaseline="central"
+          textAnchor="middle"
+          fontSize={9}
+          fill="#94a3b8"
+          pointerEvents="none"
+        >
+          ¶
+        </text>
+      )}
       {/* Collapse: minus sign when expanded, +N badge when collapsed */}
       {task.children.length > 0 && !isCollapsed && (
         <g

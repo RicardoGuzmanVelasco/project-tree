@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription, pruneTask } from "./api";
+import { fetchTree, fetchPlans, createPlan, updatePlan, createTask, toggleTaskCompletion, toggleTaskAbandoned, relocateTask, deleteTask, renameTask, updateDescription, fetchDescription, pruneTask } from "./api";
 import { saveGlobal, loadGlobal } from "./viewStore";
 import { Task, Plan } from "./types";
 import { useNavigationState, computeMaxDepth } from "./useNavigationState";
@@ -17,6 +17,7 @@ export default function App() {
   const [deleteClicksRemaining, setDeleteClicksRemaining] = useState(0);
   const [showIds, setShowIds] = useState(() => loadGlobal("showIds", false));
   const [showDescription, setShowDescription] = useState(false);
+  const [descriptionText, setDescriptionText] = useState("");
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [commandInput, setCommandInput] = useState("");
   const [commandError, setCommandError] = useState(false);
@@ -35,6 +36,12 @@ export default function App() {
   useEffect(() => { saveGlobal("horizontal", horizontal); }, [horizontal]);
   useEffect(() => { saveGlobal("mindmap", mindmap); }, [mindmap]);
   useEffect(() => { saveGlobal("activePlanId", activePlanId); }, [activePlanId]);
+
+  useEffect(() => {
+    if (showDescription && selectedTaskId != null) {
+      fetchDescription(selectedTaskId).then(setDescriptionText);
+    }
+  }, [showDescription, selectedTaskId]);
 
   const loadTree = () => fetchTree().then(setTree).catch(() => setError("Could not load tree"));
 
@@ -517,8 +524,8 @@ export default function App() {
                   <button onClick={() => setShowDescription(false)} className="btn btn-icon btn-sm" style={{ flexShrink: 0 }}>&times;</button>
                 </div>
                 <textarea
-                  key={selectedTaskId}
-                  defaultValue={task.description || ""}
+                  key={`${selectedTaskId}-${descriptionText}`}
+                  defaultValue={descriptionText}
                   placeholder="Add a description..."
                   autoFocus
                   onKeyDown={(e) => {
@@ -530,8 +537,9 @@ export default function App() {
                   }}
                   onBlur={async (e) => {
                     const value = e.target.value;
-                    if (value !== (task.description || "")) {
+                    if (value !== descriptionText) {
                       await updateDescription(selectedTaskId, value);
+                      setDescriptionText(value);
                       const updated = await fetchTree();
                       setTree(updated);
                     }

@@ -1,7 +1,7 @@
 export interface Task {
   id: number;
   title: string;
-  description?: string;
+  hasDescription?: boolean;
   completed: boolean;
   abandoned?: boolean;
   children: Task[];
