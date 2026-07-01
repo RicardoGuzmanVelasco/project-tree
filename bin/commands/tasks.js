@@ -33,12 +33,13 @@ function create(args, { getFlag }) {
   process.exit(0);
 }
 
-function complete(args, { getFlag }) {
+function complete(args, { getFlag, hasFlag }) {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const taskId = parseInt(args[1], 10);
+  const undo = hasFlag("--undo");
 
   if (!taskId || isNaN(taskId)) {
-    console.error("Usage: project-tree complete <taskId>");
+    console.error("Usage: project-tree complete <taskId> [--undo]");
     process.exit(1);
   }
 
@@ -48,20 +49,25 @@ function complete(args, { getFlag }) {
   const task = findTask(tree, taskId);
   if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
 
-  task.completed = !task.completed;
-  if (task.completed) task.abandoned = undefined;
+  if (undo) {
+    task.completed = false;
+  } else {
+    task.completed = true;
+    task.abandoned = undefined;
+  }
   writeTree(dataDir, tree);
 
-  console.log(`Task #${taskId} "${task.title}" ${task.completed ? "completed" : "uncompleted"}`);
+  console.log(`Task #${taskId} "${task.title}" ${undo ? "uncompleted" : "completed"}`);
   process.exit(0);
 }
 
-function abandon(args, { getFlag }) {
+function abandon(args, { getFlag, hasFlag }) {
   const dataDir = getFlag("--dir") || path.join(process.cwd(), ".project-tree");
   const taskId = parseInt(args[1], 10);
+  const undo = hasFlag("--undo");
 
   if (!taskId || isNaN(taskId)) {
-    console.error("Usage: project-tree abandon <taskId>");
+    console.error("Usage: project-tree abandon <taskId> [--undo]");
     process.exit(1);
   }
 
@@ -71,12 +77,15 @@ function abandon(args, { getFlag }) {
   const task = findTask(tree, taskId);
   if (!task) { console.error(`Task #${taskId} not found.`); process.exit(1); }
 
-  const wasAbandoned = !!task.abandoned;
-  task.abandoned = wasAbandoned ? undefined : true;
-  if (!wasAbandoned) task.completed = false;
+  if (undo) {
+    task.abandoned = undefined;
+  } else {
+    task.abandoned = true;
+    task.completed = false;
+  }
   writeTree(dataDir, tree);
 
-  console.log(`Task #${taskId} "${task.title}" ${wasAbandoned ? "restored" : "abandoned"}`);
+  console.log(`Task #${taskId} "${task.title}" ${undo ? "restored" : "abandoned"}`);
   process.exit(0);
 }
 

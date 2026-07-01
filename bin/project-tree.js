@@ -31,8 +31,8 @@ const HELP = `
     project-tree init                    Create .project-tree/ in the current directory
     project-tree print [id]              Print a subtree to the terminal
     project-tree create <parentId> "t"   Create a task under a parent
-    project-tree complete <id>           Toggle task completion
-    project-tree abandon <id>            Toggle task abandonment
+    project-tree complete <id> [--undo]  Mark task as completed (--undo to revert)
+    project-tree abandon <id> [--undo]   Mark task as abandoned (--undo to restore)
     project-tree delete <id> [--force]   Delete a task (and subtree)
     project-tree rename <id> "title"     Rename a task
     project-tree move <id> <parentId>    Move a task under a new parent
@@ -69,7 +69,8 @@ const HELP = `
     project-tree print 42 --show-completed # subtree from task #42 including done
     project-tree print 42 --up            # ancestor chain up to root
     project-tree create 1 "New feature"   # create task under root
-    project-tree complete 42              # toggle task #42 completion
+    project-tree complete 42              # mark task #42 as completed
+    project-tree complete 42 --undo       # revert task #42 to pending
     project-tree plans                    # list active plans
 `.trimStart();
 
